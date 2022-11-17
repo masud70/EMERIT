@@ -15,7 +15,7 @@ function BottomTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
-        // headerShown: false,
+        headerShown: false,
         tabBarInactiveTintColor: COLORS.dark,
         tabBarActiveTintColor: COLORS.primary,
         headerTintColor: COLORS.primary,
