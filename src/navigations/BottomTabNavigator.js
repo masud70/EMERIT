@@ -34,7 +34,9 @@ function BottomTabNavigator() {
           }
           return <Icon name={iconName} size={22} color={color} />;
         },
-      })}>
+      })}
+      initialRouteName={ROUTES.CONTEST}
+      >
       <Tab.Screen name={ROUTES.HOME_TAB} component={Home} options={{title: 'Home'}}/>
       <Tab.Screen name={ROUTES.CONTEST} component={Contest}/>
       <Tab.Screen name={ROUTES.NOTIFICATIONS} component={Notifications}/>

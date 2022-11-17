@@ -1,6 +1,6 @@
 import {Image, ImageBackground, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import {COLORS} from '../../constants';
+import {COLORS, ROUTES} from '../../constants';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Category from '../../components/category/Category';
 import Divider from '../../components/utilities/Divider';
@@ -13,25 +13,29 @@ const Home = () => {
             name: 'Contest',
             head: 'Join in',
             icon: 'trophy-sharp',
-            questionCount: 120
+            questionCount: 120,
+            route: ROUTES.CONTEST
         },
         {
             name: 'Practice',
             head: 'Join in',
             icon: 'book-sharp',
-            questionCount: 200
+            questionCount: 200,
+            route: ROUTES.CONTEST
         },
         {
             name: 'Contest',
             head: 'Upcoming',
             icon: 'trophy-sharp',
-            questionCount: 100
+            questionCount: 100,
+            route: ROUTES.CONTEST
         },
         {
             name: 'Quiz',
             head: 'Join in',
             icon: 'pencil-sharp',
-            questionCount: 20
+            questionCount: 20,
+            route: ROUTES.CONTEST
         },
     ];
     const topSolver = [
