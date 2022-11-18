@@ -5,26 +5,39 @@ import {
   Image,
   View,
   Dimensions,
+  Text,
 } from 'react-native';
 import {
   DrawerContentScrollView,
   DrawerItemList,
 } from '@react-navigation/drawer';
 import {COLORS, IMGS} from '../constants';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const {width} = Dimensions.get('screen');
 
 const CustomDrawer = props => {
-  return (
-    <DrawerContentScrollView {...props}>
-      <ImageBackground source={IMGS.bgPattern} style={{height: 140}}>
-        <Image source={IMGS.user} style={styles.userImg} />
-      </ImageBackground>
-      <View style={styles.drawerListWrapper}>
-        <DrawerItemList {...props} />
-      </View>
-    </DrawerContentScrollView>
-  );
+    return (
+        <DrawerContentScrollView {...props}>
+            <ImageBackground source={IMGS.bgPattern} style={{height: 140}}>
+                <Image source={IMGS.user} style={styles.userImg} />
+            </ImageBackground>
+            <View className='pt-14'>
+                <View className='items-center'>
+                    <Text className='font-bold text-xl text-black'>Md. Masud Mazumder</Text>
+                    <Text className='font-bold'>@nishat</Text>
+                </View>
+            </View>
+            <View style={styles.drawerListWrapper}>
+                <DrawerItemList {...props} />
+            </View>
+            <View className='w-full items-center mt-44 mb-3'>
+                <TouchableOpacity className='p-2 bg-orange-700 w-40 rounded-3xl items-center'>
+                    <Text className='w-1/2 font-bold text-base text-white'>Log out</Text>
+                </TouchableOpacity>
+            </View>
+        </DrawerContentScrollView>
+    );
 };
 
 export default CustomDrawer;
@@ -41,6 +54,6 @@ const styles = StyleSheet.create({
     borderColor: COLORS.white,
   },
   drawerListWrapper: {
-    marginTop: 65,
+    marginTop: 25,
   },
 });

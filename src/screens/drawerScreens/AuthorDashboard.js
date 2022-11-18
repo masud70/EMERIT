@@ -1,7 +1,7 @@
 import React from 'react';
-import {StyleSheet, Text, SafeAreaView, View} from 'react-native';
+import {StyleSheet, Text, SafeAreaView, ScrollView, View} from 'react-native';
 
-const Profile = () => {
+const AuthorDashboard = () => {
     return (
         <SafeAreaView>
             <ScrollView>
@@ -13,7 +13,7 @@ const Profile = () => {
     );
 };
 
-export default Profile;
+export default AuthorDashboard;
 
 const styles = StyleSheet.create({
 });

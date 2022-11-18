@@ -6,7 +6,7 @@ import Live from '../../components/contest/Live';
 import Ended from '../../components/contest/Ended';
 import { COLORS } from '../../constants';
 const {width, height} = Dimensions.get('window');
-const x = 'w-1/3 bg-slate-500 h-full items-center justify-center rounded-full';
+
 const Contest = () => {
     const [type, setType] = useState(1);
     return (
