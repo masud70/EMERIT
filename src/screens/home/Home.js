@@ -1,13 +1,31 @@
-import {Image, ImageBackground, SafeAreaView, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import {Image, ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import React, { useEffect, useState } from 'react';
 import {COLORS, ROUTES} from '../../constants';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Category from '../../components/category/Category';
 import Divider from '../../components/utilities/Divider';
 import UserProfile from '../../components/utilities/UserProfile';
 import { ScrollView } from 'react-native-gesture-handler';
+import socketServcies from '../../components/utilities/socket/socketService';
 
 const Home = () => {
+    const [data, setData] = useState("Nishat");
+
+    useEffect(()=>{
+        socketServcies.initializeSocket();
+      },[])
+
+      useEffect(()=>{
+        socketServcies.on('received_message', dt => {
+            setData(dt)
+        })
+      },[])
+      
+      const handler = (data) => {
+        console.log("DS " + data);
+        socketServcies.emit('send_message', data)
+      }
+
     const category = [
         {
             name: 'Contest',
@@ -89,7 +107,7 @@ const Home = () => {
             </View>
             <ScrollView>
                 <View className='flex-2 flex-row justify-between bg-slate-100 rounded py-3 mb-2 divide-x-2 divide-slate-300'>
-                    <View className='w-1/2 flex flex-row items-center space-x-2 px-3'>
+                    <View className='w-1/2 flex flex-row items-center space-x-2 px-3 justify-center'>
                         <View>
                             <Icon name='trophy-sharp' size={35} color={'#F49D1A'}/>
                         </View>
@@ -98,7 +116,7 @@ const Home = () => {
                             <Text className='font-bold text-lg text-amber-500'>123</Text>
                         </View>
                     </View>
-                    <View className='w-1/2 flex flex-row items-center space-x-2 px-3'>
+                    <View className='w-1/2 flex flex-row items-center justify-center space-x-2 px-3'>
                         <View>
                         <Icon name='server-sharp' size={35} color={'#F49D1A'}/>
                         </View>
@@ -126,6 +144,15 @@ const Home = () => {
                         {topSolvers}
                     </View>
                 </ScrollView>
+                <View>
+                    <Text>{data}</Text>
+                    <View>
+                        <TextInput onChangeText={(e)=>setData(e)} className='bg-white w-full rounded text-center' placeholder='Input Text'/>
+                    </View>
+                    <TouchableOpacity onPress={()=>handler(data)} className='w-full p-3 items-center bg-green-600 my-2 rounded'>
+                        <Text className='font-bold text-lg text-white'>Send</Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
