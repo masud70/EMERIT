@@ -16,12 +16,12 @@ const registerValidator = [
             } catch (err) {
                 throw createHttpError(err.message);
             }
-        }),
-    check('password')
-        .isStrongPassword()
-        .withMessage(
-            'Password must be at least 8 characters long & should contain at least 1 lower case, uppercase, number and symbol.'
-        )
+        })
+    // check('password')
+    //     .isStrongPassword()
+    //     .withMessage(
+    //         'Password must be at least 8 characters long & should contain at least 1 lower case, uppercase, number and symbol.'
+    //     )
 ];
 
 const registerValidationHandler = (req, res, next) => {

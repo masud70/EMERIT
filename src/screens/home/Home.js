@@ -6,10 +6,12 @@ import Category from '../../components/category/Category';
 import Divider from '../../components/utilities/Divider';
 import UserProfile from '../../components/utilities/UserProfile';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useSelector } from 'react-redux';
 // import socketServcies from '../../components/utilities/socket/socketService';
 
 const Home = () => {
     const [data, setData] = useState("Nishat");
+    const isLoggedIn = useSelector(state=>state.login.isLoggedIn);
 
     const category = [
         {

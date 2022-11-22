@@ -18,6 +18,7 @@ const registerController = async (req, res, next) => {
 
     try {
         const result = await newUser.save();
+        console.log(result);
         res.json({
             status: true,
             message: 'User was added successfully!'

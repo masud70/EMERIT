@@ -13,6 +13,11 @@ import { COLORS, CONSTANT, ROUTES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 
+var req = axios.create({
+    baseURL: CONSTANT.BASE_URL,
+    timeout: 1000
+});
+
 const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -23,19 +28,16 @@ const Register = () => {
         if (password !== confirmPassword) {
             alert('Password and confirm password should be same.');
         } else {
-            let userData = {
-                email: email,
-                password: password
-            };
-
-            const url = CONSTANT.BASE_URL + '/register';
-            axios
-                .post(url, userData)
-                .then(r => {
-                    console.log(r.data);
+            console.log(email, password);
+            req.post('/register', {
+                email,
+                password
+            })
+                .then(res => {
+                    console.log(res.data);
                 })
-                .catch(e => {
-                    console.log(e);
+                .catch(err => {
+                    console.log(err);
                 });
         }
     };
