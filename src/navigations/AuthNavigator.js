@@ -4,10 +4,11 @@ import { Login, ForgotPassword, Register } from '../screens';
 import { CONSTANT, ROUTES } from '../constants';
 import DrawerNavigator from './DrawerNavigator';
 import OtpCode from '../screens/auth/OtpCode';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { FUNCTIONS } from '../helpers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { login } from '../redux/state/auth/loginSlice';
 
 var req = axios.create({
     baseURL: CONSTANT.BASE_URL,
@@ -17,11 +18,29 @@ const Stack = createStackNavigator();
 
 // Navigator, Screen, Group
 function AuthNavigator() {
-    const isLoggedIn = useSelector(state => state.login.isLoggedIn);
+    let isLoggedIn = useSelector(state => state.login.isLoggedIn);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        try {
+            getData()
+                .then(r => {
+                    if(r){
+                        isLoggedIn = true;
+                        dispatch(login(r));
+                    }
+                })
+                .catch(e => {
+                    console.log(e);
+                });
+        } catch (er) {
+            console.log(er);
+        }
+    }, []);
 
     const getData = async () => {
         try {
-            const value = await AsyncStorage.getItem('@USER_TOKEN');
+            const value = await AsyncStorage.getItem('@ACCESS_TOKEN');
             if (value !== null) {
                 return value;
             }
@@ -29,8 +48,6 @@ function AuthNavigator() {
             console.log(e);
         }
     };
-
-    
 
     return (
         <Stack.Navigator

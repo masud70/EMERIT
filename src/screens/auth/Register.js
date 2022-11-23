@@ -20,17 +20,19 @@ var req = axios.create({
 
 const Register = () => {
     const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const navigation = useNavigation();
 
     //register handler
     const registerHandler = async () => {
-        if (password !== confirmPassword) {
-            alert('Password and confirm password should be same.');
+        if (password !== confirmPassword || password.length === 0) {
+            alert('Password and confirm password should be same and min 5 char long.');
         } else {
-            console.log(email, password);
-            req.post('/register', {
+            req.post('/user/register', {
                 email,
+                name,
                 password
             })
                 .then(res => {
@@ -42,7 +44,6 @@ const Register = () => {
         }
     };
 
-    const navigation = useNavigation();
     return (
         <SafeAreaView style={styles.main}>
             <View style={styles.container}>
@@ -54,7 +55,9 @@ const Register = () => {
                             height={50}
                             style={styles.mr7}
                         />
-                        <Text style={styles.brandName}>EMERIT</Text>
+                        <Text style={styles.brandName}>
+                            {CONSTANT.APP_NAME}
+                        </Text>
                     </View>
 
                     <Text style={styles.loginContinueTxt}>
@@ -64,6 +67,11 @@ const Register = () => {
                         onChangeText={value => setEmail(value)}
                         style={styles.input}
                         placeholder="Email"
+                    />
+                    <TextInput
+                        onChangeText={value => setName(value)}
+                        style={styles.input}
+                        placeholder="Name"
                     />
                     <TextInput
                         onChangeText={value => setPassword(value)}

@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import {FUNCTIONS} from '../../../helpers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const loginSlice = createSlice({
@@ -9,11 +8,16 @@ export const loginSlice = createSlice({
         token: null
     },
     reducers: {
-        login: (state) => {
+        login: (state, action) => {
             state.isLoggedIn = true;
-            state.token = 'akqjehfuwehwue';
+            state.token = action.payload;
         },
         logout: state => {
+            AsyncStorage.removeItem('@ACCESS_TOKEN')
+                .then(r => console.log(r))
+                .catch(e => {
+                    console.log(e);
+                });
             state.isLoggedIn = false;
             state.token = null;
         }

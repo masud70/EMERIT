@@ -9,10 +9,17 @@ import {
     Image
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { COLORS, ROUTES } from '../../constants';
+import { COLORS, CONSTANT, ROUTES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { login } from '../../redux/state/auth/loginSlice';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+var req = axios.create({
+    baseURL: CONSTANT.BASE_URL,
+    timeout: 1000
+});
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -22,7 +29,29 @@ const Login = () => {
 
     //login handler
     const loginHandler = () => {
-        dispatch(login());
+        if (email && password) {
+            req.post('/user/login', {
+                email,
+                password
+            })
+                .then(res => {
+                    if (res.data.status) {
+                        storeData(res.data.token);
+                        dispatch(login(res.data.token));
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
+    };
+
+    const storeData = async value => {
+        try {
+            await AsyncStorage.setItem('@ACCESS_TOKEN', value);
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     return (
@@ -36,7 +65,7 @@ const Login = () => {
                             height={50}
                             style={styles.mr7}
                         />
-                        <Text style={styles.brandName}>EMERIT</Text>
+                        <Text style={styles.brandName}>EMeriT</Text>
                     </View>
 
                     <Text style={styles.loginContinueTxt}>

@@ -16,7 +16,11 @@ const registerValidator = [
             } catch (err) {
                 throw createHttpError(err.message);
             }
-        })
+        }),
+    check('name')
+        .isString()
+        .isLength({ min: 3 })
+        .withMessage('Name is required.')
     // check('password')
     //     .isStrongPassword()
     //     .withMessage(

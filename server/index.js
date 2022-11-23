@@ -12,8 +12,8 @@ const {
     notFoundHandler,
     errorHandler
 } = require('./middlewares/common/errorHandler');
-const registerRouter = require('./router/registerRouter');
-// const loginRouter = require('./router/loginRouter');
+const userRouter = require('./router/userRouter');
+const { checkLogin } = require('./middlewares/common/checkLogin');
 
 //database connection
 mongoose
@@ -40,9 +40,12 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 
 //routing setup
 //signup router
-app.use('/register', registerRouter);
-// app.use("/login", loginRouter);
+app.use('/user', userRouter);
 
+app.get('/', checkLogin, (req, res, next) => {
+    console.log(req.body);
+    res.json(req.body);
+});
 //404 not found
 app.use(notFoundHandler);
 
