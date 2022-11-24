@@ -6,7 +6,7 @@ export {default as Contest} from './home/Contest';
 export {default as ForgotPassword} from './auth/ForgotPassword';
 export {default as Archive} from './home/Archive';
 export {default as Notifications} from './home/Notifications';
-export {default as Profile} from './home/Profile';
+export {default as Profile} from './profile/Profile';
 
 // Auth Screens
 export {default as Login} from './auth/Login';

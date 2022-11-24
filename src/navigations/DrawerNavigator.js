@@ -7,7 +7,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import CustomDrawer from '../components/CustomDrawer';
 import AuthorDashboard from '../screens/drawerScreens/AuthorDashboard';
 import MyHistory from '../screens/drawerScreens/MyHistory';
-import MyProfile from '../screens/drawerScreens/MyProfile';
+import MyProfile from '../screens/profile/MyProfile';
+import ProfileNavigator from '../screens/profile';
 
 const Drawer = createDrawerNavigator();
 
@@ -15,7 +16,7 @@ function DrawerNavigator() {
     return (
         <Drawer.Navigator
             drawerContent={props => <CustomDrawer {...props} />}
-            initialRouteName={ROUTES.PROFILE}
+            initialRouteName={ROUTES.MY_PROFILE_TAB}
             swipeEnabled={true}
             swipeEdgeWidth={700}
             gestureEnabled={true}
@@ -39,8 +40,8 @@ function DrawerNavigator() {
             />
 
             <Drawer.Screen
-                name={ROUTES.PROFILE}
-                component={MyProfile}
+                name={ROUTES.MY_PROFILE_TAB}
+                component={ProfileNavigator}
                 options={{
                     title: 'My Profile',
                     drawerIcon: ({ focused, color, size }) => (

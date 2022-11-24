@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import {
     StyleSheet,
@@ -11,8 +12,11 @@ import {
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import TextCard from '../../components/profile/TextCard';
+import { ROUTES } from '../../constants';
 
 const MyProfile = () => {
+    const navigation = useNavigation();
+
     const data = [
         {
             field: 'Email',
@@ -42,9 +46,16 @@ const MyProfile = () => {
                                 My Profile
                             </Text>
                         </View>
-                        <View className='justify-center absolute right-6 top-4'>
-                            <TouchableOpacity>
-                                <Icon name="ellipsis-horizontal-outline" size={20} color='white'/>
+                        <View className="justify-center absolute right-6 top-4">
+                            <TouchableOpacity
+                                onPress={() =>
+                                    navigation.navigate(ROUTES.EDIT_PROFILE)
+                                }>
+                                <Icon
+                                    name="ellipsis-horizontal-outline"
+                                    size={20}
+                                    color="white"
+                                />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -104,7 +115,7 @@ const MyProfile = () => {
                 </ImageBackground>
                 <View className="w-full justify-center items-center px-2 mt-2">
                     {data.map((item, key) => {
-                        return <TextCard data={item} />;
+                        return <TextCard data={item} key={key} />;
                     })}
                 </View>
             </ScrollView>

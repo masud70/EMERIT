@@ -10,7 +10,7 @@ export default {
 
     WALLET: 'Wallet',
     WALLET_DRAWER: 'Wallet Drawer',
-    
+
     CONTEST: 'Contest',
     CONTEST_TAB: 'Contest Tab',
     CONTEST_DRAWER: 'Contest Drawer',
@@ -27,8 +27,12 @@ export default {
     SETTINGS_NAVIGATOR: 'Settings Navigator',
 
     SETTINGS_DETAIL: 'Settings Detail',
-    PROFILE: 'My Profile',
+    MY_PROFILE: 'My Profile',
+    MY_PROFILE_TAB: 'My Profile Tab',
+
+    EDIT_PROFILE: 'Edit Profile',
+    USER_PROFILE: 'User Profile',
 
     AUTHOR: 'Author Dashboard',
-    HISTORY: 'My History',
+    HISTORY: 'My History'
 };
