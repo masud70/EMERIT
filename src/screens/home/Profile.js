@@ -5,8 +5,11 @@ const Profile = () => {
     return (
         <SafeAreaView>
             <ScrollView>
+                <View className='w-full bg-slate-400'>
+                    <Text>OK</Text>
+                </View>
                 <View className='flex h-screen justify-center items-center'>
-                    <Text className="font-bold text-3xl">Coming Soon!</Text>
+                    {/* <Text className="font-bold text-3xl">Coming Soon!</Text> */}
                 </View>
             </ScrollView>
         </SafeAreaView>

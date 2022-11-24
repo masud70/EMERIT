@@ -90,7 +90,7 @@ const Home = () => {
                     'px-3 py-1 bg-emerald-100 flex flex-row rounded bg-opacity-10 justify-center'
                 }>
                 <View style={styles.textSection}>
-                    <Text className="font-bold text-xl">Hi, Masud Mazumder</Text>
+                    <Text className="font-bold text-xl">Hi, Masud</Text>
                     <Text className={' font-bold text-slate-400'}>
                         Let's make this day productive
                     </Text>
