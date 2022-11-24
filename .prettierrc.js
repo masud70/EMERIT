@@ -1,10 +1,9 @@
 module.exports = {
     arrowParens: 'avoid',
     bracketSameLine: true,
-    bracketSpacing: false,
+    bracketSpacing: true,
     singleQuote: true,
     trailingComma: 'all',
-    singleQuote: true,
     printWidth: 80,
     'editor.formatOnSave': true,
     proseWrap: 'always',
@@ -12,7 +11,6 @@ module.exports = {
     requireConfig: false,
     useTabs: false,
     trailingComma: 'none',
-    bracketSpacing: true,
     jsxBracketSameLine: false,
-    semi: true,
+    semi: true
 };

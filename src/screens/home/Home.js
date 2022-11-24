@@ -1,30 +1,27 @@
-import {Image, ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {
+    Image,
+    ImageBackground,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
 import React, { useEffect, useState } from 'react';
-import {COLORS, ROUTES} from '../../constants';
+import { COLORS, ROUTES } from '../../constants';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Category from '../../components/category/Category';
 import Divider from '../../components/utilities/Divider';
 import UserProfile from '../../components/utilities/UserProfile';
 import { ScrollView } from 'react-native-gesture-handler';
-import socketServcies from '../../components/utilities/socket/socketService';
+import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 const Home = () => {
-    const [data, setData] = useState("Nishat");
-
-    useEffect(()=>{
-        socketServcies.initializeSocket();
-      },[])
-
-      useEffect(()=>{
-        socketServcies.on('received_message', dt => {
-            setData(dt)
-        })
-      },[])
-      
-      const handler = (data) => {
-        console.log("DS " + data);
-        socketServcies.emit('send_message', data)
-      }
+    const [data, setData] = useState('Nishat');
+    const isLoggedIn = useSelector(state => state.login.isLoggedIn);
+    const navigation = useNavigation();
 
     const category = [
         {
@@ -54,7 +51,7 @@ const Home = () => {
             icon: 'pencil-sharp',
             questionCount: 20,
             route: ROUTES.CONTEST
-        },
+        }
     ];
     const topSolver = [
         {
@@ -80,77 +77,98 @@ const Home = () => {
             rank: 4,
             solved: 70,
             point: 680
-        },
+        }
     ];
-    const topSolvers = topSolver.map((user, idx)=>{
-        return <UserProfile user={user} key={idx}/>
-    })
+    const topSolvers = topSolver.map((user, idx) => {
+        return <UserProfile user={user} key={idx} />;
+    });
 
     return (
-        <SafeAreaView style={styles.mainContainer} className='space-y-3'>
-            <View className={'px-3 py-1 bg-emerald-100 flex flex-row rounded bg-opacity-10 justify-center'}>
+        <SafeAreaView style={styles.mainContainer} className="space-y-3">
+            <View
+                className={
+                    'px-3 py-1 bg-emerald-100 flex flex-row rounded bg-opacity-10 justify-center'
+                }>
                 <View style={styles.textSection}>
-                    <Text className='font-bold text-xl'>
-                        Hi, Masud
-                    </Text>
-                    <Text className = {' font-bold text-slate-400'}>
+                    <Text className="font-bold text-xl">Hi, Masud</Text>
+                    <Text className={' font-bold text-slate-400'}>
                         Let's make this day productive
                     </Text>
                 </View>
-                <View>
+                <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
                     <Image
                         source={require('../../assets/user.jpg')}
                         style={styles.profileLogo}
-                        className='rounded-full'
+                        className="rounded-full"
                     />
-                </View>
+                </TouchableOpacity>
             </View>
             <ScrollView>
-                <View className='flex-2 flex-row justify-between bg-slate-100 rounded py-3 mb-2 divide-x-2 divide-slate-300'>
-                    <View className='w-1/2 flex flex-row items-center space-x-2 px-3 justify-center'>
+                <View className="flex-2 flex-row justify-between bg-slate-100 rounded py-3 mb-2 divide-x-2 divide-slate-300">
+                    <View className="w-1/2 flex flex-row items-center space-x-2 px-3 justify-center">
                         <View>
-                            <Icon name='trophy-sharp' size={35} color={'#F49D1A'}/>
+                            <Icon
+                                name="trophy-sharp"
+                                size={35}
+                                color={'#F49D1A'}
+                            />
                         </View>
                         <View>
-                            <Text className='font-bold text-md'>Ranking</Text>
-                            <Text className='font-bold text-lg text-amber-500'>123</Text>
+                            <Text className="font-bold text-md">Ranking</Text>
+                            <Text className="font-bold text-lg text-amber-500">
+                                123
+                            </Text>
                         </View>
                     </View>
-                    <View className='w-1/2 flex flex-row items-center justify-center space-x-2 px-3'>
+                    <View className="w-1/2 flex flex-row items-center justify-center space-x-2 px-3">
                         <View>
-                        <Icon name='server-sharp' size={35} color={'#F49D1A'}/>
+                            <Icon
+                                name="server-sharp"
+                                size={35}
+                                color={'#F49D1A'}
+                            />
                         </View>
                         <View>
-                            <Text className='font-bold text-md'>Points</Text>
-                            <Text className='font-bold text-lg text-amber-500'>1256</Text>
+                            <Text className="font-bold text-md">Points</Text>
+                            <Text className="font-bold text-lg text-amber-500">
+                                1256
+                            </Text>
                         </View>
                     </View>
                 </View>
-                <ImageBackground source={require('../../assets/bg/1.png')} className='w-full rounded overflow-hidden'>
-                    <View className='flex bg-slate-5002 space-y-1 py-2 rounded'>
-                        <View className='flex flex-row space-x-2 p-2 justify-around'>
-                            <Category item={category[0]}/>
-                            <Category item={category[1]}/>
+                <ImageBackground
+                    source={require('../../assets/bg/1.png')}
+                    className="w-full rounded overflow-hidden">
+                    <View className="flex bg-slate-5002 space-y-1 py-2 rounded">
+                        <View className="flex flex-row space-x-2 p-2 justify-around">
+                            <Category item={category[0]} />
+                            <Category item={category[1]} />
                         </View>
-                        <View className='flex flex-row space-x-2 p-2 justify-around'>
-                            <Category item={category[2]}/>
-                            <Category item={category[3]}/>
+                        <View className="flex flex-row space-x-2 p-2 justify-around">
+                            <Category item={category[2]} />
+                            <Category item={category[3]} />
                         </View>
                     </View>
                 </ImageBackground>
-                <Divider text={"Top Solvers"} css='text-lg font-bold'/>
+                <Divider text={'Top Solvers'} css="text-lg font-bold" />
                 <ScrollView horizontal={true}>
-                    <View className='flex flex-row py-2'>
-                        {topSolvers}
-                    </View>
+                    <View className="flex flex-row py-2">{topSolvers}</View>
                 </ScrollView>
                 <View>
                     <Text>{data}</Text>
                     <View>
-                        <TextInput onChangeText={(e)=>setData(e)} className='bg-white w-full rounded text-center' placeholder='Input Text'/>
+                        <TextInput
+                            onChangeText={e => setData(e)}
+                            className="bg-white w-full rounded text-center"
+                            placeholder="Input Text"
+                        />
                     </View>
-                    <TouchableOpacity onPress={()=>handler(data)} className='w-full p-3 items-center bg-green-600 my-2 rounded'>
-                        <Text className='font-bold text-lg text-white'>Send</Text>
+                    <TouchableOpacity
+                        onPress={() => handler(data)}
+                        className="w-full p-3 items-center bg-green-600 my-2 rounded">
+                        <Text className="font-bold text-lg text-white">
+                            Send
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
@@ -165,7 +183,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.bgColor,
         padding: 10,
-        paddingBottom: 0,
+        paddingBottom: 0
     },
     container1: {
         backgroundColor: COLORS.gray,
@@ -177,7 +195,7 @@ const styles = StyleSheet.create({
     textSection: {
         flex: 1
     },
-    profileLogo:{
+    profileLogo: {
         height: 50,
         width: 50,
         borderWidth: 3,
@@ -185,7 +203,7 @@ const styles = StyleSheet.create({
     },
     grid: {
         flex: 2,
-        flexDirection: 'row',
+        flexDirection: 'row'
         // width: 400,
     }
 });

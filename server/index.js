@@ -1,48 +1,57 @@
 const express = require('express');
-var bodyParser = require('body-parser');
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+
 const app = express();
-const http = require('http');
-const server = http.createServer(app);
-const io = require('socket.io')(server);
-app.use(bodyParser.urlencoded({ extended: true }));
+dotenv.config();
+
+//Imports
+const {
+    notFoundHandler,
+    errorHandler
+} = require('./middlewares/common/errorHandler');
+const userRouter = require('./router/userRouter');
+const { checkLogin } = require('./middlewares/common/checkLogin');
+
+//database connection
+mongoose
+    .connect(process.env.MONGO_CONNECTION_STRING, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    })
+    .then(() => {
+        console.log('Database connection successful!');
+    })
+    .catch(err => {
+        console.log(err);
+    });
+
+//request parsers
 app.use(express.json());
-const port = 5000;
+app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-    res.send('Hello!!');
+//set static folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+//parse cookies
+app.use(cookieParser(process.env.COOKIE_SECRET));
+
+//routing setup
+//signup router
+app.use('/user', userRouter);
+
+app.get('/', checkLogin, (req, res, next) => {
+    console.log(req.body);
+    res.json(req.body);
 });
+//404 not found
+app.use(notFoundHandler);
 
-io.on('connection', socket => {
-    console.log('A user connected');
+//error handler
+app.use(errorHandler);
 
-    socket.on('send_message', data => {
-        console.log('received message in server side', data);
-        io.emit('received_message', 'Data from server.');
-    });
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
-});
-
-// Invalid route handler
-app.use((req, res, next) => {
-    next('Invalid route.');
-});
-
-// Error handler
-app.use((err, req, res, next) => {
-    if (res.headerSent) {
-        next('There was a problem!');
-    } else {
-        if (err.message) {
-            res.send(err.message);
-        } else {
-            res.send('There was an error!');
-        }
-    }
-});
-
-server.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
+app.listen(process.env.PORT, () => {
+    console.log(`App listening to port ${process.env.PORT}`);
 });
