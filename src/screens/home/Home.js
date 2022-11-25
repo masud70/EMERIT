@@ -9,18 +9,27 @@ import {
     View
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { COLORS, ROUTES } from '../../constants';
+import { COLORS, CONSTANT, ROUTES } from '../../constants';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Category from '../../components/category/Category';
 import Divider from '../../components/utilities/Divider';
 import UserProfile from '../../components/utilities/UserProfile';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setUserData } from '../../redux/state/auth/loginSlice';
+import axios from 'axios';
+
+var req = axios.create({
+    baseURL: CONSTANT.BASE_URL,
+    timeout: 2000
+});
 
 const Home = () => {
     const [data, setData] = useState('Nishat');
     const isLoggedIn = useSelector(state => state.login.isLoggedIn);
+    const dispatch = useDispatch();
     const navigation = useNavigation();
 
     const category = [
@@ -82,6 +91,36 @@ const Home = () => {
     const topSolvers = topSolver.map((user, idx) => {
         return <UserProfile user={user} key={idx} />;
     });
+
+    useEffect(() => {
+        try {
+            AsyncStorage.getItem('@ACCESS_TOKEN')
+                .then(res => {
+                    req.get('/user/getData', {
+                        headers: {
+                            authorization: res
+                        }
+                    })
+                        .then(res => {
+                            if (res.status) {
+                                dispatch(
+                                    setUserData({ userData: res.data.userData })
+                                );
+                            } else {
+                                dispatch(logout());
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                })
+                .catch(e => {
+                    console.log(e);
+                });
+        } catch (err) {
+            console.log(err);
+        }
+    }, []);
 
     return (
         <SafeAreaView style={styles.mainContainer} className="space-y-3">

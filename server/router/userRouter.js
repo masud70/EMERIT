@@ -4,7 +4,12 @@ const {
     registerValidator,
     registerValidationHandler
 } = require('../middlewares/users/registerValidator');
-const { registerController, loginController } = require('../controllers/userController');
+const {
+    registerController,
+    loginController,
+    getDataController
+} = require('../controllers/userController');
+const { checkLogin } = require('../middlewares/common/checkLogin');
 
 const router = express.Router();
 
@@ -17,5 +22,8 @@ router.post(
 );
 
 router.post('/login', loginController);
+
+//Get user data
+router.get('/getData', checkLogin, getDataController);
 
 module.exports = router;

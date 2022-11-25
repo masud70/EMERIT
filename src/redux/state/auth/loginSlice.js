@@ -5,12 +5,13 @@ export const loginSlice = createSlice({
     name: 'login',
     initialState: {
         isLoggedIn: false,
-        token: null
+        token: null,
+        userData: null
     },
     reducers: {
         login: (state, action) => {
             state.isLoggedIn = true;
-            state.token = action.payload;
+            state.token = action.payload.token;
         },
         logout: state => {
             AsyncStorage.removeItem('@ACCESS_TOKEN')
@@ -20,9 +21,12 @@ export const loginSlice = createSlice({
                 });
             state.isLoggedIn = false;
             state.token = null;
+        },
+        setUserData: (state, action)=>{
+            state.userData = action.payload.userData;
         }
     }
 });
 
-export const { login, logout } = loginSlice.actions;
+export const { login, logout, setUserData } = loginSlice.actions;
 export default loginSlice.reducer;

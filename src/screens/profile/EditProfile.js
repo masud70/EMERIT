@@ -10,8 +10,12 @@ import {
 import React, { useState } from 'react';
 import { Button, IconButton, MD3Colors, TextInput } from 'react-native-paper';
 import DocumentPicker from 'react-native-document-picker';
+import Toast from 'react-native-toast-message';
+import { useSelector } from 'react-redux';
+import { CONSTANT } from '../../constants';
 
 const EditProfile = () => {
+    const user = useSelector(st => st.login.userData);
     const [image, setImage] = useState(null);
 
     const onDocumentPress = async () => {
@@ -37,6 +41,7 @@ const EditProfile = () => {
                     if (responseOfFileUpload.status == 200) {
                         let responseInJs = await responseOfFileUpload.json();
                         console.log('Upload Successful!');
+                        setImage(null);
                     } else {
                         console.log('Upload Failed');
                     }
@@ -56,6 +61,14 @@ const EditProfile = () => {
         }
     };
 
+    const showToast = (type, t1, t2) => {
+        Toast.show({
+            type: type,
+            text1: t1,
+            text2: t2
+        });
+    };
+
     return (
         <SafeAreaView>
             <ScrollView>
@@ -69,7 +82,13 @@ const EditProfile = () => {
                     </View>
                     <View>
                         <ImageBackground
-                            source={{ uri: image ? image : ' ' }}
+                            source={{
+                                uri: user
+                                    ? CONSTANT.IMG_BASE_URL + user.avatar
+                                    : image
+                                    ? image
+                                    : CONSTANT.IMG_BASE_URL + 'user.jpg'
+                            }}
                             className="w-32 h-32 rounded-full overflow-hidden items-center justify-center bg-slate-300"
                             style={styles.border}>
                             <IconButton
@@ -91,7 +110,15 @@ const EditProfile = () => {
                         <TextInput
                             mode="outlined"
                             right={<TextInput.Icon icon="pencil" />}
-                            value="Md. Masud Mazumder"
+                            value={user ? user.name : ''}
+                        />
+                    </View>
+                    <View>
+                        <Text className="font-bold">Username</Text>
+                        <TextInput
+                            mode="outlined"
+                            right={<TextInput.Icon icon="pencil" />}
+                            value={user ? user.username : ''}
                         />
                     </View>
                     <View>
@@ -99,7 +126,7 @@ const EditProfile = () => {
                         <TextInput
                             mode="outlined"
                             right={<TextInput.Icon icon="pencil" />}
-                            value="mdmasud.csecu@gmail.com"
+                            value={user ? user.email : ''}
                         />
                     </View>
                     <View>
@@ -107,12 +134,33 @@ const EditProfile = () => {
                         <TextInput
                             mode="outlined"
                             right={<TextInput.Icon icon="pencil" />}
-                            value="01710089091"
+                            value={user ? user.mobile : ''}
+                        />
+                    </View>
+                    <View>
+                        <Text className="font-bold">Password</Text>
+                        <TextInput
+                            mode="outlined"
+                            right={<TextInput.Icon icon="pencil" />}
+                            value={''}
+                        />
+                    </View>
+                    <View>
+                        <Text className="font-bold">Confirm Password</Text>
+                        <TextInput
+                            mode="outlined"
+                            right={<TextInput.Icon icon="pencil" />}
+                            value={''}
                         />
                     </View>
                 </View>
-                <View className="w-full px-4 mt-10">
-                    <Button loading uppercase mode="contained">
+                <View className="w-full px-4 mt-10 mb-6">
+                    <Button
+                        onPress={() =>
+                            showToast('success', 'Head', 'Body here!!!')
+                        }
+                        uppercase
+                        mode="contained">
                         SAVE
                     </Button>
                 </View>

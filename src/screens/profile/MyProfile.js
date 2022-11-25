@@ -1,5 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -10,22 +12,62 @@ import {
     ImageBackground
 } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Avatar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch, useSelector } from 'react-redux';
 import TextCard from '../../components/profile/TextCard';
-import { ROUTES } from '../../constants';
+import { CONSTANT, ROUTES } from '../../constants';
+import { logout, setUserData } from '../../redux/state/auth/loginSlice';
+
+var req = axios.create({
+    baseURL: CONSTANT.BASE_URL,
+    timeout: 2000
+});
 
 const MyProfile = () => {
     const navigation = useNavigation();
+    const dispatch = useDispatch();
+    const user = useSelector(st => st.login.userData);
+
+    useEffect(() => {
+        try {
+            AsyncStorage.getItem('@ACCESS_TOKEN')
+                .then(res => {
+                    req.get('/user/getData', {
+                        headers: {
+                            authorization: res
+                        }
+                    })
+                        .then(res => {
+                            if (res.status) {
+                                dispatch(
+                                    setUserData({ userData: res.data.userData })
+                                );
+                            } else {
+                                dispatch(logout());
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                })
+                .catch(e => {
+                    console.log(e);
+                });
+        } catch (err) {
+            console.log(err);
+        }
+    }, []);
 
     const data = [
         {
             field: 'Email',
-            value: 'mdmasud.csecu@gmail.com',
+            value: user ? user.email : '',
             icon: 'home'
         },
         {
             field: 'Contact',
-            value: '01710089091',
+            value: user ? user.phone : '',
             icon: 'home'
         },
         {
@@ -34,6 +76,7 @@ const MyProfile = () => {
             icon: 'home'
         }
     ];
+
     return (
         <SafeAreaView className="items-center justify-center h-screen">
             <ScrollView>
@@ -60,18 +103,23 @@ const MyProfile = () => {
                         </View>
                     </View>
                     <View>
-                        <Image
-                            source={require('../../assets/user.jpg')}
-                            className="w-32 h-32 rounded-full"
+                        <Avatar.Image
+                            className="overflow-hidden p-0 m-0 items-center justify-center"
+                            source={{
+                                uri: user
+                                    ? CONSTANT.IMG_BASE_URL + user.avatar
+                                    : CONSTANT.IMG_BASE_URL + 'user.jpg'
+                            }}
+                            size={130}
                             style={styles.border}
                         />
                     </View>
                     <View className="w-full justify-center items-center min-h-[70px]">
                         <Text className="font-bold text-white text-xl">
-                            Md. Masud Mazumder
+                            {user ? user.name : ''}
                         </Text>
                         <Text className="font-bold text-base text-slate-700">
-                            @nishat
+                            {user ? user.username : ''}
                         </Text>
                     </View>
                     <View className="px-4">

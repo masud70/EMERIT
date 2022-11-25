@@ -16,7 +16,7 @@ function DrawerNavigator() {
     return (
         <Drawer.Navigator
             drawerContent={props => <CustomDrawer {...props} />}
-            initialRouteName={ROUTES.MY_PROFILE_TAB}
+            initialRouteName={ROUTES.HOME}
             swipeEnabled={true}
             swipeEdgeWidth={700}
             gestureEnabled={true}

@@ -15,21 +15,24 @@ import { useDispatch } from 'react-redux';
 import { login } from '../../redux/state/auth/loginSlice';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator } from 'react-native-paper';
 
 var req = axios.create({
     baseURL: CONSTANT.BASE_URL,
-    timeout: 1000
+    timeout: 2000
 });
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loader, setLoader] = useState(false);
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
     //login handler
     const loginHandler = () => {
         if (email && password) {
+            setLoader(true);
             req.post('/user/login', {
                 email,
                 password
@@ -37,12 +40,13 @@ const Login = () => {
                 .then(res => {
                     if (res.data.status) {
                         storeData(res.data.token);
-                        dispatch(login(res.data.token));
+                        dispatch(login({token: res.data.token}));
                     }
                 })
                 .catch(err => {
                     console.log(err);
-                });
+                })
+                .finally(() => setLoader(false));
         }
     };
 
@@ -125,6 +129,12 @@ const Login = () => {
                     </TouchableOpacity>
                 </View>
             </View>
+            <ActivityIndicator
+                className={`absolute bg-slate-300 w-screen h-screen ${
+                    !loader && 'hidden'
+                }`}
+                size={60}
+            />
         </SafeAreaView>
     );
 };
