@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
 const app = express();
 dotenv.config();
@@ -14,6 +15,7 @@ const {
 } = require('./middlewares/common/errorHandler');
 const userRouter = require('./router/userRouter');
 const { checkLogin } = require('./middlewares/common/checkLogin');
+const { upload } = require('./middlewares/common/imageUpload');
 
 //database connection
 mongoose
@@ -31,6 +33,8 @@ mongoose
 //request parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 //set static folder
 app.use(express.static(path.join(__dirname, 'public')));
@@ -46,6 +50,16 @@ app.get('/', checkLogin, (req, res, next) => {
     console.log(req.body);
     res.json(req.body);
 });
+
+//avatar upload
+app.post('/uploadAvatar', upload.single('avatar'), (req, res, next) => {
+    console.log(req.file);
+    res.json({
+        status: true,
+        message: 'Upload successful!'
+    });
+});
+
 //404 not found
 app.use(notFoundHandler);
 

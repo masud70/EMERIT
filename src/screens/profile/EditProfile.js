@@ -9,39 +9,53 @@ import {
 } from 'react-native';
 import React, { useState } from 'react';
 import { Button, IconButton, MD3Colors, TextInput } from 'react-native-paper';
-import * as ImagePicker from 'react-native-image-picker';
+import DocumentPicker from 'react-native-document-picker';
 
 const EditProfile = () => {
     const [image, setImage] = useState(null);
 
-    const imageOptions = {
-        mediaType: 'photo',
-        includeBase64: false,
-        maxHeight: 400,
-        maxWidth: 400
-    };
-    let uri = '../../assets/user.jpg';
-
-    const imageUploader = () => {
+    const onDocumentPress = async () => {
         try {
-            ImagePicker.launchImageLibrary(imageOptions, response => {
-                if (response.didCancel) {
-                    console.log('User cancelled image picker');
-                } else if (response.error) {
-                    console.log('ImagePicker Error: ', response.error);
-                } else if (response.customButton) {
-                    console.log(
-                        'User tapped custom button: ',
-                        response.customButton
-                    );
-                } else {
-                    setImage(response);
-                }
+            const res = await DocumentPicker.pickSingle({
+                type: [DocumentPicker.types.images]
             });
-        } catch (error) {
-            console.log(error);
+            if (res.size < 2000000) {
+                let data = new FormData();
+                data.append('avatar', res);
+                setImage(res.uri);
+                try {
+                    const responseOfFileUpload = await fetch(
+                        'http://192.168.0.107:5000/uploadAvatar',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            },
+                            body: data
+                        }
+                    );
+                    if (responseOfFileUpload.status == 200) {
+                        let responseInJs = await responseOfFileUpload.json();
+                        console.log('Upload Successful!');
+                    } else {
+                        console.log('Upload Failed');
+                    }
+                } catch (err) {
+                    console.log('Upload Failed');
+                    console.log(err, 'error in upload');
+                }
+            } else {
+                console.log('File size should not exceed 2MB');
+            }
+        } catch (err) {
+            if (DocumentPicker.isCancel(err)) {
+                console.log('User cancelled');
+            } else {
+                console.log(err);
+            }
         }
     };
+
     return (
         <SafeAreaView>
             <ScrollView>
@@ -55,7 +69,7 @@ const EditProfile = () => {
                     </View>
                     <View>
                         <ImageBackground
-                            source={{ uri: image ? image.assets[0].uri : ' ' }}
+                            source={{ uri: image ? image : ' ' }}
                             className="w-32 h-32 rounded-full overflow-hidden items-center justify-center bg-slate-300"
                             style={styles.border}>
                             <IconButton
@@ -65,7 +79,7 @@ const EditProfile = () => {
                                 iconColor={MD3Colors.error20}
                                 containerColor="rgba(149, 165, 166, 0.5)"
                                 onPress={() => {
-                                    imageUploader();
+                                    onDocumentPress();
                                 }}
                             />
                         </ImageBackground>
@@ -99,7 +113,7 @@ const EditProfile = () => {
                 </View>
                 <View className="w-full px-4 mt-10">
                     <Button loading uppercase mode="contained">
-                        Save
+                        SAVE
                     </Button>
                 </View>
             </ScrollView>
