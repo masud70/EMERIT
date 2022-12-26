@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const mysql = require('mysql');
 
 const app = express();
 dotenv.config();
@@ -29,6 +30,17 @@ mongoose
     .catch(err => {
         console.log(err);
     });
+// MySQL connection
+var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'emerit'
+});
+app.use((req, res, next) => {
+    req.mysql = connection;
+    return next();
+});
 
 //request parsers
 app.use(express.json());

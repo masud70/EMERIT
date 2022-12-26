@@ -1,57 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Login, ForgotPassword, Register } from '../screens';
-import { CONSTANT, ROUTES } from '../constants';
+import { ROUTES } from '../constants';
 import DrawerNavigator from './DrawerNavigator';
 import OtpCode from '../screens/auth/OtpCode';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import { login } from '../redux/state/auth/loginSlice';
+import { login } from '../redux/state/auth/authSlice';
 
-var req = axios.create({
-    baseURL: CONSTANT.BASE_URL,
-    timeout: 1000
-});
 const Stack = createStackNavigator();
 
 // Navigator, Screen, Group
 function AuthNavigator() {
-    let isLoggedIn = useSelector(state => state.login.isLoggedIn);
+    const loginStatus = useSelector(state => state.auth.loginStatus);
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        try {
-            getData()
-                .then(r => {
-                    if(r){
-                        isLoggedIn = true;
-                        dispatch(login(r));
-                    }
-                })
-                .catch(e => {
-                    console.log(e);
-                });
-        } catch (er) {
-            console.log(er);
-        }
+    useLayoutEffect(() => {
+        AsyncStorage.getItem('@ACCESS_TOKEN')
+            .then(res => {
+                if (res !== null) {
+                    dispatch(login({ token: res }));
+                }
+            })
+            .catch(e => console.log(e));
     }, []);
-
-    const getData = async () => {
-        try {
-            const value = await AsyncStorage.getItem('@ACCESS_TOKEN');
-            if (value !== null) {
-                return value;
-            }
-        } catch (e) {
-            console.log(e);
-        }
-    };
 
     return (
         <Stack.Navigator
-            initialRouteName={isLoggedIn ? ROUTES.LOGIN : ROUTES.HOME}>
-            {!isLoggedIn ? (
+            initialRouteName={!loginStatus ? ROUTES.LOGIN : ROUTES.HOME}>
+            {!loginStatus ? (
                 <Stack.Group>
                     <Stack.Screen
                         name={ROUTES.LOGIN}

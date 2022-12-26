@@ -14,7 +14,7 @@ import {
 import { COLORS, IMGS } from '../constants';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
-import { logout } from '../redux/state/auth/loginSlice';
+import { logout } from '../redux/state/auth/authSlice';
 
 const { width } = Dimensions.get('screen');
 
@@ -38,7 +38,9 @@ const CustomDrawer = props => {
                 <DrawerItemList {...props} />
             </View>
             <View className="w-full items-center mt-44 mb-3">
-                <TouchableOpacity onPress={()=>dispatch(logout())} className="p-2 bg-orange-700 w-40 rounded-3xl items-center">
+                <TouchableOpacity
+                    onPress={() => dispatch(logout())}
+                    className="p-2 bg-orange-700 w-40 rounded-3xl items-center">
                     <Text className="w-1/2 font-bold text-base text-white">
                         Log out
                     </Text>

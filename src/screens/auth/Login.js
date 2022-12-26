@@ -1,4 +1,12 @@
 import React, { useState } from 'react';
+import LinearGradient from 'react-native-linear-gradient';
+import { COLORS, ROUTES } from '../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { ActivityIndicator } from 'react-native-paper';
+import { useContext } from 'react';
+import { AuthContext } from '../../contexts/authContext';
+import { FUNCTIONS } from '../../helpers';
 import {
     StyleSheet,
     Text,
@@ -8,19 +16,7 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import { COLORS, CONSTANT, ROUTES } from '../../constants';
-import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
-import { login } from '../../redux/state/auth/loginSlice';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ActivityIndicator } from 'react-native-paper';
-
-var req = axios.create({
-    baseURL: CONSTANT.BASE_URL,
-    timeout: 2000
-});
+import { login } from '../../redux/state/auth/authSlice';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -28,33 +24,27 @@ const Login = () => {
     const [loader, setLoader] = useState(false);
     const navigation = useNavigation();
     const dispatch = useDispatch();
+    const auth = useContext(AuthContext);
 
     //login handler
     const loginHandler = () => {
         if (email && password) {
             setLoader(true);
-            req.post('/user/login', {
-                email,
-                password
-            })
-                .then(res => {
-                    if (res.data.status) {
-                        storeData(res.data.token);
-                        dispatch(login({token: res.data.token}));
+            FUNCTIONS.login(auth, { email, password })
+                .then(data => {
+                    setLoader(false);
+                    if (data.status) {
+                        dispatch(
+                            login({
+                                token: data.user.token,
+                                userData: data.user
+                            })
+                        );
                     }
                 })
                 .catch(err => {
-                    console.log(err);
-                })
-                .finally(() => setLoader(false));
-        }
-    };
-
-    const storeData = async value => {
-        try {
-            await AsyncStorage.setItem('@ACCESS_TOKEN', value);
-        } catch (e) {
-            console.log(e);
+                    setLoader(false);
+                });
         }
     };
 

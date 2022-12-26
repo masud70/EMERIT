@@ -17,7 +17,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import TextCard from '../../components/profile/TextCard';
 import { CONSTANT, ROUTES } from '../../constants';
-import { logout, setUserData } from '../../redux/state/auth/loginSlice';
+import { logout, setUserData } from '../../redux/state/auth/authSlice';
 
 var req = axios.create({
     baseURL: CONSTANT.BASE_URL,

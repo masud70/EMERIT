@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import LinearGradient from 'react-native-linear-gradient';
+import { COLORS, CONSTANT, ROUTES } from '../../constants';
+import { useNavigation } from '@react-navigation/native';
 import {
     StyleSheet,
     Text,
@@ -8,39 +11,32 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import { COLORS, CONSTANT, ROUTES } from '../../constants';
-import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
-
-var req = axios.create({
-    baseURL: CONSTANT.BASE_URL,
-    timeout: 1000
-});
+import { FUNCTIONS } from '../../helpers';
 
 const Register = () => {
     const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const navigation = useNavigation();
 
     //register handler
-    const registerHandler = async () => {
-        if (password !== confirmPassword || password.length === 0) {
-            alert('Password and confirm password should be same and min 5 char long.');
+    const registerHandler = () => {
+        if (
+            password !== confirmPassword ||
+            password.length === 0 ||
+            name.length === 0
+        ) {
+            alert('Check all the fields.');
         } else {
-            req.post('/user/register', {
-                email,
-                name,
-                password
-            })
+            FUNCTIONS.register({ email, password, name })
                 .then(res => {
-                    console.log(res.data);
+                    alert(res.message);
+                    if (res.status) {
+                        navigation.navigate(ROUTES.LOGIN);
+                    }
                 })
-                .catch(err => {
-                    console.log(err);
-                });
+                .catch(err => alert(err.message));
         }
     };
 
@@ -101,11 +97,6 @@ const Register = () => {
                     </View>
                     <Text style={styles.orTxt}>OR</Text>
                     <View style={styles.googleLoginBtnWrapper}>
-                        {/* <LinearGradient
-                    colors={[COLORS.gradientForm, COLORS.bgColor]}
-                    style={styles.linearGradient}
-                    start={{y: 0.0, x: 0.0}}
-                    end={{y: 1.0, x: 0.0}}> */}
                         {/******************** GOOGLE REGISTER BUTTON *********************/}
                         <TouchableOpacity
                             onPress={() =>
@@ -117,7 +108,6 @@ const Register = () => {
                                 Register with google
                             </Text>
                         </TouchableOpacity>
-                        {/* </LinearGradient> */}
                     </View>
                 </View>
 

@@ -18,17 +18,11 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setUserData } from '../../redux/state/auth/loginSlice';
-import axios from 'axios';
-
-var req = axios.create({
-    baseURL: CONSTANT.BASE_URL,
-    timeout: 2000
-});
+import { setUserData } from '../../redux/state/auth/authSlice';
 
 const Home = () => {
     const [data, setData] = useState('Nishat');
-    const isLoggedIn = useSelector(state => state.login.isLoggedIn);
+    const isLoggedIn = useSelector(state => state.auth.loginStatus);
     const dispatch = useDispatch();
     const navigation = useNavigation();
 
@@ -92,35 +86,7 @@ const Home = () => {
         return <UserProfile user={user} key={idx} />;
     });
 
-    useEffect(() => {
-        try {
-            AsyncStorage.getItem('@ACCESS_TOKEN')
-                .then(res => {
-                    req.get('/user/getData', {
-                        headers: {
-                            authorization: res
-                        }
-                    })
-                        .then(res => {
-                            if (res.status) {
-                                dispatch(
-                                    setUserData({ userData: res.data.userData })
-                                );
-                            } else {
-                                dispatch(logout());
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err);
-                        });
-                })
-                .catch(e => {
-                    console.log(e);
-                });
-        } catch (err) {
-            console.log(err);
-        }
-    }, []);
+    useEffect(() => {}, []);
 
     return (
         <SafeAreaView style={styles.mainContainer} className="space-y-3">

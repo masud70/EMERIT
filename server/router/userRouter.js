@@ -5,9 +5,9 @@ const {
     registerValidationHandler
 } = require('../middlewares/users/registerValidator');
 const {
-    registerController,
-    loginController,
-    getDataController
+    getDataController,
+    registerUserController,
+    loginUserController
 } = require('../controllers/userController');
 const { checkLogin } = require('../middlewares/common/checkLogin');
 
@@ -18,10 +18,10 @@ router.post(
     '/register',
     registerValidator,
     registerValidationHandler,
-    registerController
+    registerUserController
 );
 
-router.post('/login', loginController);
+router.post('/login', loginUserController);
 
 //Get user data
 router.get('/getData', checkLogin, getDataController);
