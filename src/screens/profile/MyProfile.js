@@ -1,74 +1,34 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Avatar } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useSelector } from 'react-redux';
+import TextCard from '../../components/profile/TextCard';
+import { CONSTANT, ROUTES } from '../../constants';
 import {
     StyleSheet,
     Text,
     SafeAreaView,
     ScrollView,
     View,
-    Image,
     ImageBackground
 } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Avatar } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { useDispatch, useSelector } from 'react-redux';
-import TextCard from '../../components/profile/TextCard';
-import { CONSTANT, ROUTES } from '../../constants';
-import { logout, setUserData } from '../../redux/state/auth/authSlice';
-
-var req = axios.create({
-    baseURL: CONSTANT.BASE_URL,
-    timeout: 2000
-});
 
 const MyProfile = () => {
     const navigation = useNavigation();
-    const dispatch = useDispatch();
-    const user = useSelector(st => st.login.userData);
-
-    useEffect(() => {
-        try {
-            AsyncStorage.getItem('@ACCESS_TOKEN')
-                .then(res => {
-                    req.get('/user/getData', {
-                        headers: {
-                            authorization: res
-                        }
-                    })
-                        .then(res => {
-                            if (res.status) {
-                                dispatch(
-                                    setUserData({ userData: res.data.userData })
-                                );
-                            } else {
-                                dispatch(logout());
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err);
-                        });
-                })
-                .catch(e => {
-                    console.log(e);
-                });
-        } catch (err) {
-            console.log(err);
-        }
-    }, []);
+    const user = useSelector(st => st.auth.userData);
 
     const data = [
         {
             field: 'Email',
             value: user ? user.email : '',
-            icon: 'home'
+            icon: 'mail'
         },
         {
             field: 'Contact',
-            value: user ? user.phone : '',
-            icon: 'home'
+            value: user ? user.phone : 'No Phone Number Set',
+            icon: 'call'
         },
         {
             field: 'Country',
@@ -107,7 +67,7 @@ const MyProfile = () => {
                             className="overflow-hidden p-0 m-0 items-center justify-center"
                             source={{
                                 uri: user
-                                    ? CONSTANT.IMG_BASE_URL + user.avatar
+                                    ? CONSTANT.SERVER_URL + user.avatar
                                     : CONSTANT.IMG_BASE_URL + 'user.jpg'
                             }}
                             size={130}

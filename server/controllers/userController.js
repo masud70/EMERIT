@@ -80,7 +80,7 @@ module.exports = {
                                 } else {
                                     const token = jwt.sign(
                                         {
-                                            username: rows[0].email,
+                                            email: rows[0].email,
                                             userId: rows[0].id
                                         },
                                         process.env.JWT_SECRET,
@@ -108,80 +108,51 @@ module.exports = {
             }
         );
     },
-    loginController: async (req, res, next) => {
-        try {
-            const user = await User.find({ email: req.body.email });
-            if (user && user.length > 0) {
-                const isValidPassword = await bcrypt.compare(
-                    req.body.password,
-                    user[0].password
-                );
-
-                if (isValidPassword) {
-                    const token = jwt.sign(
-                        {
-                            username: user[0].username,
-                            userId: user[0]._id
-                        },
-                        process.env.JWT_SECRET,
-                        {
-                            expiresIn: '7d'
-                        }
-                    );
-                    user[0].password = null;
-                    if (user[0].status === 'active') {
+    getUserDataController: async (req, res, next) => {
+        const user = req.body;
+        req.mysql.query(
+            'SELECT * FROM people WHERE id = ?',
+            [user.userId],
+            (err, rows) => {
+                if (err) {
+                    res.json({ status: false, message: err.message });
+                } else {
+                    if (rows.length > 0) {
+                        rows[0].password = undefined;
                         res.json({
                             status: true,
-                            token: token,
-                            userData: user[0],
-                            message: 'Login successful.'
+                            message: 'User data found.',
+                            user: rows[0]
                         });
                     } else {
                         res.json({
                             status: false,
-                            message: 'Login failed.'
+                            message: 'User data not found. Please login again.'
                         });
                     }
+                }
+            }
+        );
+    },
+    updateUser: (req, res) => {
+        const user = req.body;
+        delete user.userId;
+        req.mysql.query(
+            'UPDATE people SET ? WHERE id = ?',
+            [user, user.id],
+            (err, results, rows) => {
+                if (err) {
+                    // req.mysql.destroy();
+                    res.json({ status: false, message: 'Failed.' });
                 } else {
+                    // req.mysql.destroy();
+                    console.log(results);
                     res.json({
-                        status: false,
-                        message: 'Authentication failed!'
+                        status: true,
+                        message: 'User updated successfully!'
                     });
                 }
-            } else {
-                res.json({
-                    status: false,
-                    message: 'Email is not registered.'
-                });
             }
-        } catch {
-            res.json({
-                status: false,
-                message: 'Authentication failed!'
-            });
-        }
-    },
-    getDataController: async (req, res, next) => {
-        console.log(req.body);
-        try {
-            const user = await User.find({ _id: req.body.userId });
-            if (user && user.length > 0) {
-                user[0].password = null;
-                res.json({
-                    status: true,
-                    userData: user[0]
-                });
-            } else {
-                res.json({
-                    status: false,
-                    message: 'User data not found'
-                });
-            }
-        } catch (error) {
-            res.json({
-                status: false,
-                message: 'User data not found'
-            });
-        }
+        );
     }
 };

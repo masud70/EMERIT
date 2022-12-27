@@ -6,7 +6,9 @@ import DrawerNavigator from './DrawerNavigator';
 import OtpCode from '../screens/auth/OtpCode';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { login } from '../redux/state/auth/authSlice';
+import { login, logout } from '../redux/state/auth/authSlice';
+import { FUNCTIONS } from '../helpers';
+import { useEffect } from 'react';
 
 const Stack = createStackNavigator();
 
@@ -15,11 +17,21 @@ function AuthNavigator() {
     const loginStatus = useSelector(state => state.auth.loginStatus);
     const dispatch = useDispatch();
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         AsyncStorage.getItem('@ACCESS_TOKEN')
-            .then(res => {
-                if (res !== null) {
-                    dispatch(login({ token: res }));
+            .then(token => {
+                if (token !== null) {
+                    FUNCTIONS.getUserData(token)
+                        .then(res => {
+                            if (res.status) {
+                                dispatch(
+                                    login({ token: token, userData: res.user })
+                                );
+                            } else {
+                                dispatch(logout());
+                            }
+                        })
+                        .catch(e => console.log(e));
                 }
             })
             .catch(e => console.log(e));

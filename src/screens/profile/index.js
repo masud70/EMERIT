@@ -11,7 +11,7 @@ function ProfileNavigator() {
     return (
         <Stack.Navigator
             screenOptions={{ headerShown: false }}
-            initialRouteName={ROUTES.EDIT_PROFILE}>
+            initialRouteName={ROUTES.MY_PROFILE}>
             <Stack.Screen name={ROUTES.MY_PROFILE} component={MyProfile} />
             <Stack.Screen name={ROUTES.EDIT_PROFILE} component={EditProfile} />
             <Stack.Screen name={ROUTES.USER_PROFILE} component={Profile} />

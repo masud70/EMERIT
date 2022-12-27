@@ -29,11 +29,11 @@ export const authSlice = createSlice({
             state.loginStatus = false;
         },
 
-        setUserData: (state, action) => {
+        setAuthUserData: (state, action) => {
             state.userData = action.payload.userData;
         }
     }
 });
 
-export const { login, logout, setUserData } = authSlice.actions;
+export const { login, logout, setAuthUserData } = authSlice.actions;
 export default authSlice.reducer;

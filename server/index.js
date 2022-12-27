@@ -58,17 +58,16 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 //signup router
 app.use('/user', userRouter);
 
-app.get('/', checkLogin, (req, res, next) => {
-    console.log(req.body);
-    res.json(req.body);
+app.get('/', (req, res, next) => {
+    res.json({ ok: 'Okay' });
 });
 
 //avatar upload
-app.post('/uploadAvatar', upload.single('avatar'), (req, res, next) => {
-    console.log(req.file);
+app.post('/uploadImage', upload.single('avatar'), (req, res, next) => {
     res.json({
         status: true,
-        message: 'Upload successful!'
+        message: 'Upload successful!',
+        path: 'images/' + req.file.filename
     });
 });
 

@@ -1,29 +1,27 @@
 //imports
 const express = require('express');
+const router = express.Router();
 const {
     registerValidator,
     registerValidationHandler
 } = require('../middlewares/users/registerValidator');
 const {
-    getDataController,
+    getUserDataController,
     registerUserController,
-    loginUserController
+    loginUserController,
+    updateUser
 } = require('../controllers/userController');
 const { checkLogin } = require('../middlewares/common/checkLogin');
 
-const router = express.Router();
-
-//login api
+//API endpoint
 router.post(
     '/register',
     registerValidator,
     registerValidationHandler,
     registerUserController
 );
-
 router.post('/login', loginUserController);
-
-//Get user data
-router.get('/getData', checkLogin, getDataController);
+router.get('/getUserData', checkLogin, getUserDataController);
+router.post('/update', checkLogin, updateUser);
 
 module.exports = router;
