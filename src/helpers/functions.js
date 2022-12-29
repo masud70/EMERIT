@@ -1,9 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment';
 import Toast from 'react-native-toast-message';
 import { CONSTANT } from '../constants';
 
 export default {
-    login: async (auth, data) => {
+    login: async data => {
         const url = CONSTANT.SERVER_URL + 'user/login';
         try {
             const response = await fetch(url, {
@@ -11,11 +11,10 @@ export default {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-
             const content = await response.json();
             return content;
         } catch (error) {
-            return { status: false, message: 'Login failed!' };
+            return { status: false, message: error.message };
         }
     },
 
@@ -90,7 +89,7 @@ export default {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'authorization': 'Bearer ' + token
+                    authorization: 'Bearer ' + token
                 },
                 body: JSON.stringify(data)
             });
@@ -101,20 +100,72 @@ export default {
         }
     },
 
-    isLoggedIn: async token => {
+    createContest: async (data, token) => {
+        const url = CONSTANT.SERVER_URL + 'contest/create';
         try {
-            await AsyncStorage.getItem(token).then(e => {
-                return e;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    authorization: 'Bearer ' + token
+                },
+                body: JSON.stringify(data)
             });
-        } catch (e) {
-            return false;
+            const content = await response.json();
+            return content;
+        } catch (error) {
+            return { status: false, message: error.message };
         }
     },
-    storeData: async (token, value) => {
+
+    findContest: async (data, token) => {
+        const url = CONSTANT.SERVER_URL + 'contest/find';
         try {
-            await AsyncStorage.setItem(token, value);
-        } catch (e) {
-            console.log(e);
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    authorization: 'Bearer ' + token
+                },
+                body: JSON.stringify(data)
+            });
+            const content = await response.json();
+            return content;
+        } catch (error) {
+            return { status: false, message: error.message };
+        }
+    },
+
+    getAllContest: async id => {
+        const url = CONSTANT.SERVER_URL + 'contest/getAll/' + id;
+        try {
+            const response = await fetch(url);
+            const content = await response.json();
+            return content;
+        } catch (error) {
+            return { status: false, message: error.message };
+        }
+    },
+
+    filterContest: (data, type) => {
+        switch (type) {
+            case 'upcoming': {
+                return data.filter(
+                    item => moment(item.start).diff(moment(), 'seconds') > 0
+                );
+            }
+            case 'live': {
+                return data.filter(
+                    item =>
+                        moment(item.end).diff(moment(), 'seconds') > 0 &&
+                        moment(item.start).diff(moment(), 'seconds') <= 0
+                );
+            }
+            case 'ended': {
+                return data.filter(
+                    item => moment(item.end).diff(moment(), 'seconds') <= 0
+                );
+            }
         }
     }
 };

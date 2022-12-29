@@ -1,19 +1,34 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { COLORS, ROUTES } from '../constants';
-import { Notifications, Contest } from '../screens';
+import { Notifications } from '../screens';
 import BottomTabNavigator from './BottomTabNavigator';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomDrawer from '../components/CustomDrawer';
-import AuthorDashboard from '../screens/drawerScreens/AuthorDashboard';
 import MyHistory from '../screens/drawerScreens/MyHistory';
-import MyProfile from '../screens/profile/MyProfile';
 import ProfileNavigator from '../screens/profile';
 import AuthorNavigator from './AuthorNavigator';
+import { useEffect } from 'react';
+import { FUNCTIONS } from '../helpers';
+import { useDispatch } from 'react-redux';
+import { setContestData } from '../redux/state/contestSlice';
 
 const Drawer = createDrawerNavigator();
 
 function DrawerNavigator() {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        FUNCTIONS.getAllContest(5)
+            .then(res => {
+                if (res.status) {
+                    dispatch(setContestData({ data: res.data }));
+                }
+            })
+            .catch(err => {
+                console.log(err.message);
+            });
+    });
     return (
         <Drawer.Navigator
             drawerContent={props => <CustomDrawer {...props} />}

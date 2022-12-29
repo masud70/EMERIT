@@ -1,18 +1,58 @@
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import { Avatar, TextInput } from 'react-native-paper';
+import { TextInput } from 'react-native-paper';
+import { ActivityIndicator } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { useState } from 'react';
 import moment from 'moment/moment';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { FUNCTIONS } from '../../../helpers';
+import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from '../../../constants';
 
 const CreateContest = () => {
     const [data, setData] = useState({});
     const [openDate, setOpenDate] = useState(false);
     const [openTime, setOpenTime] = useState(false);
+    const [animator, setAnimator] = useState(false);
+    const user = useSelector(st => st.auth);
+    const navigation = useNavigation();
 
     const handleCreate = () => {
-        console.log(data);
+        let dataToSend = {};
+        const { start, end, title, description } = data;
+        if (start && end && title) {
+            setAnimator(true);
+            dataToSend.description = description;
+            dataToSend.start = moment(start).toString();
+            dataToSend.end = moment(end).toString();
+            dataToSend.title = title;
+            FUNCTIONS.createContest(dataToSend, user.token)
+                .then(res => {
+                    FUNCTIONS.showToast(
+                        res.status ? 'success' : 'error',
+                        res.status ? 'Success' : 'Error',
+                        res.message
+                    );
+                    if (res.status) {
+                        setData({});
+                        navigation.navigate(ROUTES.AUTHOR_CONTEST);
+                    }
+                })
+                .catch(err => {
+                    FUNCTIONS.showToast('error', 'Error', err.message);
+                })
+                .finally(() => {
+                    setAnimator(false);
+                });
+        } else {
+            FUNCTIONS.showToast(
+                'info',
+                'Warning',
+                'Title, start and end time are required.'
+            );
+        }
     };
 
     return (
@@ -121,7 +161,9 @@ const CreateContest = () => {
                         <TextInput
                             label={'Duration (minutes)'}
                             className="bg-gray-100"
-                            value={moment(data.end).diff(moment(data.start), 'minutes').toString()}
+                            value={moment(data.end)
+                                .diff(moment(data.start), 'minutes')
+                                .toString()}
                             activeUnderlineColor="rgb(34,197,94)"
                             editable={false}
                         />
@@ -136,6 +178,12 @@ const CreateContest = () => {
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
+            </View>
+            <View
+                className={`absolute bg-gray-100 h-screen w-screen items-center ${
+                    !animator ? 'hidden' : ''
+                } justify-center`}>
+                <ActivityIndicator color="red" animating={animator} size={60} />
             </View>
         </SafeAreaView>
     );

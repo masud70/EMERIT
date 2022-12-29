@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/People');
 
 //Register user controller
 module.exports = {
@@ -139,6 +138,7 @@ module.exports = {
         delete user.userId;
         delete user.password;
         delete user.confirmPassword;
+        delete user.token;
         req.mysql.query(
             'UPDATE people SET ? WHERE id = ?',
             [user, user.id],

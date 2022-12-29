@@ -11,7 +11,7 @@ function AuthorNavigator() {
     return (
         <Stack.Navigator
             screenOptions={{ headerShown: false }}
-            initialRouteName={ROUTES.AUTHOR_CONTEST_CREATE}>
+            initialRouteName={ROUTES.AUTHOR_HOME}>
             <Stack.Screen
                 name={ROUTES.AUTHOR_HOME}
                 component={AuthorDashboard}

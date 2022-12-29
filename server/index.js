@@ -10,13 +10,10 @@ const app = express();
 dotenv.config();
 
 //Imports
-const {
-    notFoundHandler,
-    errorHandler
-} = require('./middlewares/common/errorHandler');
 const userRouter = require('./router/userRouter');
-const { checkLogin } = require('./middlewares/common/checkLogin');
+const contestRouter = require('./router/contestRouter');
 const { upload } = require('./middlewares/common/imageUpload');
+const { errorHandler, notFoundHandler } = require('./middlewares/common');
 
 //database connection
 mongoose
@@ -55,12 +52,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 //routing setup
-//signup router
 app.use('/user', userRouter);
-
-app.get('/', (req, res, next) => {
-    res.json({ ok: 'Okay' });
-});
+app.use('/contest', contestRouter);
 
 //avatar upload
 app.post('/uploadImage', upload.single('avatar'), (req, res, next) => {
@@ -73,7 +66,6 @@ app.post('/uploadImage', upload.single('avatar'), (req, res, next) => {
 
 //404 not found
 app.use(notFoundHandler);
-
 //error handler
 app.use(errorHandler);
 

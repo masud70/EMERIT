@@ -11,7 +11,7 @@ const {
     loginUserController,
     updateUser
 } = require('../controllers/userController');
-const { checkLogin } = require('../middlewares/common/checkLogin');
+const { checkLogin } = require('../middlewares/common');
 
 //API endpoint
 router.post(

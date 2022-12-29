@@ -136,6 +136,7 @@ const EditProfile = () => {
                         <Text className="font-bold">Email</Text>
                         <TextInput
                             mode="outlined"
+                            disabled
                             right={<TextInput.Icon icon="pencil" />}
                             value={userData.email}
                             onChangeText={val => {

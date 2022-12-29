@@ -13,8 +13,6 @@ import { COLORS, ROUTES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { ActivityIndicator } from 'react-native-paper';
-import { useContext } from 'react';
-import { AuthContext } from '../../contexts/authContext';
 import { FUNCTIONS } from '../../helpers';
 import { login } from '../../redux/state/auth/authSlice';
 
@@ -24,13 +22,12 @@ const Login = () => {
     const [loader, setLoader] = useState(false);
     const navigation = useNavigation();
     const dispatch = useDispatch();
-    const auth = useContext(AuthContext);
 
     //login handler
     const loginHandler = () => {
         if (email && password) {
             setLoader(true);
-            FUNCTIONS.login(auth, { email, password })
+            FUNCTIONS.login({ email, password })
                 .then(data => {
                     FUNCTIONS.showToast(
                         data.status ? 'success' : 'error',
@@ -47,6 +44,7 @@ const Login = () => {
                     }
                 })
                 .catch(err => {
+                    console.log(err);
                     FUNCTIONS.showToast('error', 'Error', err.message);
                 }).finally(()=>{
                     setLoader(false);
