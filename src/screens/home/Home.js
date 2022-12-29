@@ -1,29 +1,26 @@
 import {
-    Image,
     ImageBackground,
     SafeAreaView,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { COLORS, CONSTANT, ROUTES } from '../../constants';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Category from '../../components/category/Category';
 import Divider from '../../components/utilities/Divider';
 import UserProfile from '../../components/utilities/UserProfile';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setUserData } from '../../redux/state/auth/authSlice';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { Avatar } from 'react-native-paper';
 
 const Home = () => {
-    const [data, setData] = useState('Nishat');
-    const isLoggedIn = useSelector(state => state.auth.loginStatus);
-    const dispatch = useDispatch();
+    const [userData, setUserData] = useState({});
+    const user = useSelector(st => st.auth);
     const navigation = useNavigation();
 
     const category = [
@@ -86,25 +83,29 @@ const Home = () => {
         return <UserProfile user={user} key={idx} />;
     });
 
-    useEffect(() => {}, []);
+    useEffect(() => {
+        setUserData(user.userData);
+    }, []);
 
     return (
         <SafeAreaView style={styles.mainContainer} className="space-y-3">
             <View
                 className={
-                    'px-3 py-1 bg-emerald-100 flex flex-row rounded bg-opacity-10 justify-center'
+                    'px-3 py-1 bg-emerald-100 flex flex-row rounded bg-opacity-10 justify-center items-center'
                 }>
                 <View style={styles.textSection}>
-                    <Text className="font-bold text-xl">Hi, Masud</Text>
+                    <Text className="font-bold text-xl text-gray-600">
+                        Hi, {userData.name}
+                    </Text>
                     <Text className={' font-bold text-slate-400'}>
                         Let's make this day productive
                     </Text>
                 </View>
                 <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-                    <Image
-                        source={require('../../assets/user.jpg')}
-                        style={styles.profileLogo}
-                        className="rounded-full"
+                    <Avatar.Image
+                        className="overflow-hidden p-0 m-0 items-center justify-center border-green-500 border-4"
+                        source={{ uri: CONSTANT.SERVER_URL + userData.avatar }}
+                        size={60}
                     />
                 </TouchableOpacity>
             </View>
@@ -159,23 +160,6 @@ const Home = () => {
                 <ScrollView horizontal={true}>
                     <View className="flex flex-row py-2">{topSolvers}</View>
                 </ScrollView>
-                <View>
-                    <Text>{data}</Text>
-                    <View>
-                        <TextInput
-                            onChangeText={e => setData(e)}
-                            className="bg-white w-full rounded text-center"
-                            placeholder="Input Text"
-                        />
-                    </View>
-                    <TouchableOpacity
-                        onPress={() => handler(data)}
-                        className="w-full p-3 items-center bg-green-600 my-2 rounded">
-                        <Text className="font-bold text-lg text-white">
-                            Send
-                        </Text>
-                    </TouchableOpacity>
-                </View>
             </ScrollView>
         </SafeAreaView>
     );
@@ -199,12 +183,6 @@ const styles = StyleSheet.create({
     },
     textSection: {
         flex: 1
-    },
-    profileLogo: {
-        height: 50,
-        width: 50,
-        borderWidth: 3,
-        borderColor: 'gray'
     },
     grid: {
         flex: 2,

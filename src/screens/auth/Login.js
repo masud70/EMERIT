@@ -1,12 +1,3 @@
-import React, { useState } from 'react';
-import LinearGradient from 'react-native-linear-gradient';
-import { COLORS, ROUTES } from '../../constants';
-import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
-import { ActivityIndicator } from 'react-native-paper';
-import { useContext } from 'react';
-import { AuthContext } from '../../contexts/authContext';
-import { FUNCTIONS } from '../../helpers';
 import {
     StyleSheet,
     Text,
@@ -16,6 +7,15 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
+import React, { useState } from 'react';
+import LinearGradient from 'react-native-linear-gradient';
+import { COLORS, ROUTES } from '../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { ActivityIndicator } from 'react-native-paper';
+import { useContext } from 'react';
+import { AuthContext } from '../../contexts/authContext';
+import { FUNCTIONS } from '../../helpers';
 import { login } from '../../redux/state/auth/authSlice';
 
 const Login = () => {
@@ -32,7 +32,11 @@ const Login = () => {
             setLoader(true);
             FUNCTIONS.login(auth, { email, password })
                 .then(data => {
-                    setLoader(false);
+                    FUNCTIONS.showToast(
+                        data.status ? 'success' : 'error',
+                        data.status ? 'Success' : 'Error',
+                        data.message
+                    );
                     if (data.status) {
                         dispatch(
                             login({
@@ -43,8 +47,10 @@ const Login = () => {
                     }
                 })
                 .catch(err => {
+                    FUNCTIONS.showToast('error', 'Error', err.message);
+                }).finally(()=>{
                     setLoader(false);
-                });
+                })
         }
     };
 

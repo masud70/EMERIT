@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     ImageBackground,
     StyleSheet,
@@ -11,27 +10,45 @@ import {
     DrawerContentScrollView,
     DrawerItemList
 } from '@react-navigation/drawer';
-import { COLORS, IMGS } from '../constants';
+import React from 'react';
+import { COLORS, CONSTANT, IMGS } from '../constants';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/state/auth/authSlice';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import { Avatar } from 'react-native-paper';
 
 const { width } = Dimensions.get('screen');
 
 const CustomDrawer = props => {
+    const [userData, setUserData] = useState({});
     const dispatch = useDispatch();
+    const user = useSelector(st => st.auth);
+
+    useEffect(() => {
+        setUserData(user.userData);
+    }, []);
 
     return (
         <DrawerContentScrollView {...props}>
-            <ImageBackground source={IMGS.bgPattern} style={{ height: 140 }}>
-                <Image source={IMGS.user} style={styles.userImg} />
+            <ImageBackground
+                source={IMGS.bgPattern}
+                style={{ height: 140 }}
+                className="w-full">
+                <Avatar.Image
+                    className="border-4 items-center justify-center border-white overflow-hidden"
+                    source={{ uri: CONSTANT.SERVER_URL + userData.avatar }}
+                    size={110}
+                    style={styles.userImg}
+                />
             </ImageBackground>
             <View className="pt-14">
                 <View className="items-center">
-                    <Text className="font-bold text-xl text-black">
-                        Md. Masud Mazumder
+                    <Text className="font-bold text-xl text-gray-600">
+                        {userData.name}
                     </Text>
-                    <Text className="font-bold">@nishat</Text>
+                    <Text className="font-bold">@{userData.username}</Text>
                 </View>
             </View>
             <View style={styles.drawerListWrapper}>
@@ -54,14 +71,9 @@ export default CustomDrawer;
 
 const styles = StyleSheet.create({
     userImg: {
-        width: 110,
-        height: 110,
-        borderRadius: 110 / 2,
         position: 'absolute',
         left: width / 2 - 110,
-        bottom: -110 / 2,
-        borderWidth: 4,
-        borderColor: COLORS.white
+        bottom: -110 / 2
     },
     drawerListWrapper: {
         marginTop: 25

@@ -9,6 +9,7 @@ import AuthorDashboard from '../screens/drawerScreens/AuthorDashboard';
 import MyHistory from '../screens/drawerScreens/MyHistory';
 import MyProfile from '../screens/profile/MyProfile';
 import ProfileNavigator from '../screens/profile';
+import AuthorNavigator from './AuthorNavigator';
 
 const Drawer = createDrawerNavigator();
 
@@ -74,7 +75,7 @@ function DrawerNavigator() {
 
             <Drawer.Screen
                 name={ROUTES.AUTHOR}
-                component={AuthorDashboard}
+                component={AuthorNavigator}
                 options={{
                     title: 'Author Dashboard',
                     drawerIcon: ({ focused, color, size }) => (

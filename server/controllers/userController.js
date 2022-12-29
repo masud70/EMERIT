@@ -137,13 +137,15 @@ module.exports = {
     updateUser: (req, res) => {
         const user = req.body;
         delete user.userId;
+        delete user.password;
+        delete user.confirmPassword;
         req.mysql.query(
             'UPDATE people SET ? WHERE id = ?',
             [user, user.id],
             (err, results, rows) => {
                 if (err) {
                     // req.mysql.destroy();
-                    res.json({ status: false, message: 'Failed.' });
+                    res.json({ status: false, message: err.message });
                 } else {
                     // req.mysql.destroy();
                     console.log(results);

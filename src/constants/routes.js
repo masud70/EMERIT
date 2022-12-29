@@ -34,5 +34,9 @@ export default {
     USER_PROFILE: 'User Profile',
 
     AUTHOR: 'Author Dashboard',
-    HISTORY: 'My History'
+    HISTORY: 'My History',
+
+    AUTHOR_HOME: 'Author Home',
+    AUTHOR_CONTEST: 'Contest Dashboard',
+    AUTHOR_CONTEST_CREATE: 'Contest Create Dashboard'
 };

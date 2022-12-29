@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FUNCTIONS } from '../../../helpers';
 
 export const authSlice = createSlice({
     name: 'auth',
@@ -27,6 +28,7 @@ export const authSlice = createSlice({
                 .then(r => {})
                 .catch(e => {});
             state.loginStatus = false;
+            FUNCTIONS.showToast('success', 'Success!', 'Logout success');
         },
 
         setAuthUserData: (state, action) => {
