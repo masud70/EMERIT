@@ -4,6 +4,7 @@ import { ROUTES } from '../constants';
 import AuthorDashboard from '../screens/drawerScreens/AuthorDashboard';
 import ContestSectionHome from '../screens/authorScreens/contestSection/ContestSectionHome';
 import CreateContest from '../screens/authorScreens/contestSection/CreateContest';
+import EditContest from '../screens/authorScreens/contestSection/EditContest';
 
 const Stack = createStackNavigator();
 
@@ -23,6 +24,10 @@ function AuthorNavigator() {
             <Stack.Screen
                 name={ROUTES.AUTHOR_CONTEST_CREATE}
                 component={CreateContest}
+            />
+            <Stack.Screen
+                name={ROUTES.AUTHOR_CONTEST_EDIT}
+                component={EditContest}
             />
         </Stack.Navigator>
     );

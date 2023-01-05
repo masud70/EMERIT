@@ -49,7 +49,7 @@ const ContestSectionHome = () => {
                         </TouchableOpacity>
                         <View className="">
                             {contestData.map((item, idx) => (
-                                <ContestItem data={item} key={idx} />
+                                <ContestItem data={item} key={idx} mode='admin'/>
                             ))}
                         </View>
                     </View>

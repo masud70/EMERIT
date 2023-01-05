@@ -18,11 +18,8 @@ const Upcoming = () => {
     return (
         <View className="space-y-4 flex">
             {data.map((item, idx) => (
-                <ContestItem data={item} key={idx} />
+                <ContestItem state="upcoming" data={item} key={idx} />
             ))}
-            <UpcomingContestCard />
-            <UpcomingContestCard />
-            <UpcomingContestCard />
             <UpcomingContestCard />
         </View>
     );

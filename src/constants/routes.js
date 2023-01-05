@@ -38,5 +38,6 @@ export default {
 
     AUTHOR_HOME: 'Author Home',
     AUTHOR_CONTEST: 'Contest Dashboard',
-    AUTHOR_CONTEST_CREATE: 'Contest Create Dashboard'
+    AUTHOR_CONTEST_CREATE: 'Contest Create Dashboard',
+    AUTHOR_CONTEST_EDIT: 'Contest Edit Dashboard'
 };

@@ -3,6 +3,7 @@ import {
     SafeAreaView,
     StyleSheet,
     Text,
+    TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
@@ -17,11 +18,24 @@ import { useNavigation } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Avatar } from 'react-native-paper';
+import { io } from 'socket.io-client';
+const socket = io('http://192.168.0.200:5000', { transports: ['websocket'] });
 
 const Home = () => {
+    const [data, setData] = useState('Empty');
     const [userData, setUserData] = useState({});
     const user = useSelector(st => st.auth);
     const navigation = useNavigation();
+
+    const handler = data => {
+        console.log('DS ' + data);
+        socket.emit('toBack', data);
+    };
+
+    socket.on('connect', () => {
+        console.log('oK');
+    });
+    socket.on('toFront', d => setData(d));
 
     const category = [
         {
@@ -160,6 +174,23 @@ const Home = () => {
                 <ScrollView horizontal={true}>
                     <View className="flex flex-row py-2">{topSolvers}</View>
                 </ScrollView>
+                <View>
+                    <Text>{data}</Text>
+                    <View>
+                        <TextInput
+                            onChangeText={e => setData(e)}
+                            className="bg-white w-full rounded text-center"
+                            placeholder="Input Text"
+                        />
+                    </View>
+                    <TouchableOpacity
+                        onPress={() => handler(data)}
+                        className="w-full p-3 items-center bg-green-600 my-2 rounded">
+                        <Text className="font-bold text-lg text-white">
+                            Send
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
@@ -187,6 +218,5 @@ const styles = StyleSheet.create({
     grid: {
         flex: 2,
         flexDirection: 'row'
-        // width: 400,
     }
 });

@@ -11,32 +11,37 @@ import moment from 'moment/moment';
 import prettyMilliseconds from 'pretty-ms';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import * as Progress from 'react-native-progress';
+import { COLORS, ROUTES } from '../../constants';
+import { useNavigation } from '@react-navigation/native';
 
-const ContestItem = ({ data }) => {
+const ContestItem = ({ data, state, mode }) => {
     const [item, setItem] = useState({});
+    const [dr, setDr] = useState({ d: 1, r: 0 });
+    const navigation = useNavigation();
 
     useEffect(() => {
-        const dur = prettyMilliseconds(
-            moment(data.end).diff(moment(data.start), 'miliseconds')
-        );
-        data.duration = dur.toString();
-        setItem({...data, duration: dur});
-        
+        const dur = moment(data.end).diff(moment(data.start), 'miliseconds');
+        setItem({ ...data, duration: prettyMilliseconds(dur) });
+        setDr(pre => ({ ...pre, d: dur }));
 
         let interval;
-        let r = moment(data.start).diff(moment(), 'miliseconds');
+        const startTime = state === 'live' ? data.end : data.start;
+        let r = moment(startTime).diff(moment(), 'miliseconds');
         if (r > 0) {
             interval = setInterval(() => {
-                r = moment(data.start).diff(moment(), 'miliseconds');
+                r = moment(startTime).diff(moment(), 'miliseconds');
                 setItem(pre => ({
                     ...pre,
                     remaining: prettyMilliseconds(r, {
                         secondsDecimalDigits: 0
                     })
                 }));
+                setDr(pre => ({ ...pre, r: r }));
                 if (r <= 0) {
                     clearInterval(interval);
                     setItem(pre => ({ ...pre, remaining: 'Ended' }));
+                    state = state === 'upcoming' ? 'live' : 'ended';
                 }
             }, 1000);
         } else {
@@ -93,18 +98,51 @@ const ContestItem = ({ data }) => {
                         </Text>
                     </View>
                 </View>
+                {state === 'live' && (
+                    <View className="w-full py-2">
+                        <Progress.Bar
+                            progress={dr.r / dr.d}
+                            className="w-full"
+                            width={360}
+                            color={COLORS.primary}
+                        />
+                    </View>
+                )}
                 <View className="w-full flex flex-row justify-around">
-                    <TouchableOpacity className="bg-green-500 px-4 rounded min-w-[140px] items-center">
+                    <TouchableOpacity className="bg-green-500 px-4 rounded min-w-[145px] items-center">
                         <Text className="font-bold text-lg text-white">
                             View Details
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity className="bg-green-500 px-4 rounded min-w-[140px] items-center">
+                    <TouchableOpacity
+                        onPress={() =>
+                            navigation.navigate(ROUTES.AUTHOR_CONTEST_EDIT, {
+                                data
+                            })
+                        }
+                        className={`${
+                            state === 'live' ? 'bg-red-500' : 'bg-green-500'
+                        } px-4 rounded min-w-[145px] items-center`}>
                         <Text className="font-bold text-lg text-white">
-                            Register
+                            {mode === 'admin'
+                                ? 'Edit'
+                                : state == 'ended'
+                                ? 'Practice'
+                                : state === 'live'
+                                ? 'Enter'
+                                : 'Register'}
                         </Text>
                     </TouchableOpacity>
                 </View>
+                {state === 'ended' && (
+                    <View className="w-full items-center my-1">
+                        <TouchableOpacity className="bg-green-500 px-4 rounded min-w-[140px] items-center w-11/12">
+                            <Text className="font-bold text-lg text-white">
+                                View Leaderboard
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
             </View>
             <View className="bg-gray-200 py-1 px-2 flex flex-row items-center justify-between divide-x-2 divide-gray-400">
                 <View className="w-1/2 flex flex-row justify-center items-center">

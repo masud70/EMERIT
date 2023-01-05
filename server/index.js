@@ -1,15 +1,19 @@
 const express = require('express');
+const app = express();
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const mysql = require('mysql');
-
-const app = express();
+const mysql = require('mysql2');
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server);
 dotenv.config();
 
 //Imports
+const db = require('./models');
 const userRouter = require('./router/userRouter');
 const contestRouter = require('./router/contestRouter');
 const { upload } = require('./middlewares/common/imageUpload');
@@ -36,6 +40,7 @@ var connection = mysql.createConnection({
 });
 app.use((req, res, next) => {
     req.mysql = connection;
+    req.io = io;
     return next();
 });
 
@@ -54,6 +59,9 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 //routing setup
 app.use('/user', userRouter);
 app.use('/contest', contestRouter);
+app.get('/', (req, res) => {
+    res.json({ status: true, message: 'Welcome' });
+});
 
 //avatar upload
 app.post('/uploadImage', upload.single('avatar'), (req, res, next) => {
@@ -64,11 +72,40 @@ app.post('/uploadImage', upload.single('avatar'), (req, res, next) => {
     });
 });
 
+// let x = 0;
+// setInterval(() => {
+//     x++;
+//     if (x % 10 === 0) {
+//         io.emit('toFront', 'From Backend -> ' + x);
+//     }
+//     console.log(x);
+// }, 1000);
+
+io.on('connection', socket => {
+    console.log('User connected');
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+        socket.disconnect();
+    });
+    socket.on('toBack', data => {
+        console.log(data);
+    });
+});
+
 //404 not found
 app.use(notFoundHandler);
 //error handler
 app.use(errorHandler);
 
-app.listen(process.env.PORT, () => {
-    console.log(`App listening to port ${process.env.PORT}`);
+server.listen(process.env.PORT, () => {
+    db.sequelize
+        .sync()
+        .then(() => {
+            console.log(
+                `================================\nApp listening to port ${process.env.PORT} \nDatabase connection successfully\n================================`
+            );
+        })
+        .catch(err => {
+            console.log(err.message);
+        });
 });

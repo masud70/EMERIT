@@ -9,7 +9,7 @@ import { AuthContext } from './src/contexts/authContext';
 
 export default function App() {
     var initialValue = {
-        loginStatus: "false1",
+        loginStatus: 'false1'
     };
     return (
         <NavigationContainer>

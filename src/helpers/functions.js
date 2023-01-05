@@ -5,6 +5,7 @@ import { CONSTANT } from '../constants';
 export default {
     login: async data => {
         const url = CONSTANT.SERVER_URL + 'user/login';
+        console.log(url);
         try {
             const response = await fetch(url, {
                 method: 'POST',
