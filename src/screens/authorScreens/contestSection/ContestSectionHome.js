@@ -12,13 +12,13 @@ import { useState } from 'react';
 const ContestSectionHome = () => {
     const [contestData, setContestData] = useState([]);
     const navigation = useNavigation();
-    const user = useSelector(st => st.auth);
-
+    let user = useSelector(st => st.auth);
+    console.log(user);
     useEffect(() => {
-        FUNCTIONS.findContest({ createdBy: 5 }, user.token)
+        FUNCTIONS.findContest(user.token)
             .then(res => {
                 if (res.status) {
-                    setContestData(res.data);
+                    setContestData(res.data.Contests);
                 }
             })
             .catch(err => {
@@ -49,7 +49,14 @@ const ContestSectionHome = () => {
                         </TouchableOpacity>
                         <View className="">
                             {contestData.map((item, idx) => (
-                                <ContestItem data={item} key={idx} mode='admin'/>
+                                <ContestItem
+                                    data={{
+                                        ...item,
+                                        username: user.userData.username
+                                    }}
+                                    key={idx}
+                                    mode="admin"
+                                />
                             ))}
                         </View>
                     </View>

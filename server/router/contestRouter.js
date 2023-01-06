@@ -1,12 +1,14 @@
 //imports
 const express = require('express');
 const router = express.Router();
-const { checkLogin } = require('../middlewares/common/checkLogin');
+const { checkLogin } = require('../middlewares/common');
 const {
     createNewContest,
-    findContest,
     getAllContest,
-    addQuestionController
+    addQuestionController,
+    getQuestionByContestId,
+    findContestByUserId,
+    registerContest
 } = require('../controllers/contestController');
 const {
     createContestDataSelector,
@@ -21,8 +23,10 @@ router.post(
     createContestDataSelector,
     createNewContest
 );
-router.post('/find', checkLogin, findContest);
+router.post('/find', checkLogin, findContestByUserId);
 router.get('/getAll/:id', getAllContest);
-router.post('/question/add', addQuestionController)
+router.post('/question/add', addQuestionController);
+router.get('/question/:id', getQuestionByContestId);
+router.post('/register', checkLogin, registerContest);
 
 module.exports = router;

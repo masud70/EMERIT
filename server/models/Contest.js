@@ -12,8 +12,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         description: {
-            type: DataTypes.TEXT,
-            allowNull: false
+            type: DataTypes.TEXT
         },
         start: {
             type: DataTypes.TEXT,
@@ -27,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     Contest.associate = () => {
         Contest.belongsTo(sequelize.models.User);
         Contest.hasMany(sequelize.models.Question);
+        Contest.hasMany(sequelize.models.Registration);
     };
     return Contest;
 };

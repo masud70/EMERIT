@@ -118,7 +118,7 @@ export default {
         }
     },
 
-    findContest: async (data, token) => {
+    findContest: async token => {
         const url = CONSTANT.SERVER_URL + 'contest/find';
         try {
             const response = await fetch(url, {
@@ -126,10 +126,10 @@ export default {
                 headers: {
                     'Content-Type': 'application/json',
                     authorization: 'Bearer ' + token
-                },
-                body: JSON.stringify(data)
+                }
             });
             const content = await response.json();
+            console.log(content);
             return content;
         } catch (error) {
             return { status: false, message: error.message };
@@ -176,6 +176,25 @@ export default {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            const content = await response.json();
+            return content;
+        } catch (error) {
+            return { status: false, message: error.message };
+        }
+    },
+
+    registerContest: async (data, token) => {
+        const url = CONSTANT.SERVER_URL + 'contest/register';
+        console.log(data);
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    authorization: 'Bearer' + token
                 },
                 body: JSON.stringify(data)
             });

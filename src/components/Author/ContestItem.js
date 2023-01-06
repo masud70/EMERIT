@@ -14,11 +14,29 @@ import { useState } from 'react';
 import * as Progress from 'react-native-progress';
 import { COLORS, ROUTES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
+import { FUNCTIONS } from '../../helpers';
+import { useSelector } from 'react-redux';
 
 const ContestItem = ({ data, state, mode }) => {
     const [item, setItem] = useState({});
     const [dr, setDr] = useState({ d: 1, r: 0 });
+    const user = useSelector(st => st.auth);
     const navigation = useNavigation();
+
+    const register = () => {
+        FUNCTIONS.registerContest(item, user.token)
+            .then(res => {
+                console.log(res);
+                FUNCTIONS.showToast(
+                    res.status ? 'success' : 'error',
+                    res.status ? 'Success' : 'Error',
+                    res.message
+                );
+            })
+            .catch(err => {
+                FUNCTIONS.showToast('error', 'Error', err.message);
+            });
+    };
 
     useEffect(() => {
         const dur = moment(data.end).diff(moment(data.start), 'miliseconds');
@@ -115,11 +133,16 @@ const ContestItem = ({ data, state, mode }) => {
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        onPress={() =>
-                            navigation.navigate(ROUTES.AUTHOR_CONTEST_EDIT, {
-                                data
-                            })
-                        }
+                        onPress={() => {
+                            mode === 'admin'
+                                ? navigation.navigate(
+                                      ROUTES.AUTHOR_CONTEST_EDIT,
+                                      {
+                                          data
+                                      }
+                                  )
+                                : register();
+                        }}
                         className={`${
                             state === 'live' ? 'bg-red-500' : 'bg-green-500'
                         } px-4 rounded min-w-[145px] items-center`}>

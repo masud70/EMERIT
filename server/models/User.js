@@ -40,6 +40,7 @@ module.exports = (sequelize, DataTypes) => {
     User.associate = () => {
         User.hasMany(sequelize.models.Contest);
         User.hasMany(sequelize.models.Question);
+        User.hasMany(sequelize.models.Registration);
     };
     return User;
 };
