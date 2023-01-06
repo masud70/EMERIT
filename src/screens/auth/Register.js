@@ -31,12 +31,18 @@ const Register = () => {
         } else {
             FUNCTIONS.register({ email, password, name })
                 .then(res => {
-                    alert(res.message);
+                    FUNCTIONS.showToast(
+                        res.status ? 'success' : 'error',
+                        res.status ? 'Success' : 'Error',
+                        res.message
+                    );
                     if (res.status) {
                         navigation.navigate(ROUTES.LOGIN);
                     }
                 })
-                .catch(err => alert(err.message));
+                .catch(err =>
+                    FUNCTIONS.showToast('error', 'Error', err.message)
+                );
         }
     };
 

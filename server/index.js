@@ -18,6 +18,8 @@ const userRouter = require('./router/userRouter');
 const contestRouter = require('./router/contestRouter');
 const { upload } = require('./middlewares/common/imageUpload');
 const { errorHandler, notFoundHandler } = require('./middlewares/common');
+const User = require('./models/User');
+const Exam = require('./models/Contest');
 
 //database connection
 mongoose
@@ -99,7 +101,7 @@ app.use(errorHandler);
 
 server.listen(process.env.PORT, () => {
     db.sequelize
-        .sync()
+        .sync({ alter: true })
         .then(() => {
             console.log(
                 `================================\nApp listening to port ${process.env.PORT} \nDatabase connection successfully\n================================`

@@ -1,3 +1,5 @@
+const db = require('./../models');
+
 //Register user controller
 module.exports = {
     createNewContest: (req, res, next) => {
@@ -47,5 +49,34 @@ module.exports = {
                 });
             }
         });
+    },
+    addQuestionController: async (req, res, next) => {
+        const data = req.body;
+        db.Question.create({
+            title: data.title,
+            description: data.description,
+            optionA: data.optA,
+            optionB: data.optB,
+            optionC: data.optC,
+            optionD: data.optD,
+            answer: data.ans,
+            marks: data.marks,
+            order: data.order,
+            ContestId: data.contestId,
+            UserId: data.createdBy
+        })
+            .then(resp => {
+                if (resp) {
+                    res.json({
+                        status: true,
+                        message: 'Question added successfully!'
+                    });
+                } else {
+                    next('There was an error.');
+                }
+            })
+            .catch(error => {
+                next(error.message);
+            });
     }
 };

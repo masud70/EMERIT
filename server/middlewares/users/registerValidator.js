@@ -20,8 +20,8 @@ const registerValidator = [
     check('name')
         .isString()
         .isLength({ min: 3 })
-        .withMessage('Name is required.')
-    // check('password')
+        .withMessage('Name is required.'),
+    check('password').isLength({ min: 2 }).withMessage('Password is required.')
     //     .isStrongPassword()
     //     .withMessage(
     //         'Password must be at least 8 characters long & should contain at least 1 lower case, uppercase, number and symbol.'

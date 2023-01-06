@@ -44,7 +44,6 @@ const Login = () => {
                     }
                 })
                 .catch(err => {
-                    console.log(err);
                     FUNCTIONS.showToast('error', 'Error', err.message);
                 }).finally(()=>{
                     setLoader(false);

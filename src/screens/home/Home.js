@@ -31,10 +31,6 @@ const Home = () => {
         console.log('DS ' + data);
         socket.emit('toBack', data);
     };
-
-    socket.on('connect', () => {
-        console.log('oK');
-    });
     socket.on('toFront', d => setData(d));
 
     const category = [

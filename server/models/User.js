@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         avatar: {
             type: DataTypes.TEXT,
-            defaultValue: 'user.jpg'
+            defaultValue: 'images/user.jpg'
         },
         role: {
             type: DataTypes.TEXT,
@@ -34,9 +34,12 @@ module.exports = (sequelize, DataTypes) => {
         },
         status: {
             type: DataTypes.BOOLEAN,
-            defaultValue: false
+            defaultValue: true
         }
     });
-
+    User.associate = () => {
+        User.hasMany(sequelize.models.Contest);
+        User.hasMany(sequelize.models.Question);
+    };
     return User;
 };

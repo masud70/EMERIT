@@ -5,7 +5,8 @@ const { checkLogin } = require('../middlewares/common/checkLogin');
 const {
     createNewContest,
     findContest,
-    getAllContest
+    getAllContest,
+    addQuestionController
 } = require('../controllers/contestController');
 const {
     createContestDataSelector,
@@ -22,5 +23,6 @@ router.post(
 );
 router.post('/find', checkLogin, findContest);
 router.get('/getAll/:id', getAllContest);
+router.post('/question/add', addQuestionController)
 
 module.exports = router;

@@ -5,7 +5,6 @@ import { CONSTANT } from '../constants';
 export default {
     login: async data => {
         const url = CONSTANT.SERVER_URL + 'user/login';
-        console.log(url);
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -32,7 +31,7 @@ export default {
             const content = await response.json();
             return content;
         } catch (error) {
-            return { status: false, message: 'Registration failed!' };
+            return { status: false, message: error.message };
         }
     },
 
@@ -167,6 +166,23 @@ export default {
                     item => moment(item.end).diff(moment(), 'seconds') <= 0
                 );
             }
+        }
+    },
+
+    addNewQuestion: async data => {
+        const url = CONSTANT.SERVER_URL + 'contest/question/add';
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            const content = await response.json();
+            return content;
+        } catch (error) {
+            return { status: false, message: error.message };
         }
     }
 };

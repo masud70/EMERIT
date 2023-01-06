@@ -15,13 +15,18 @@ module.exports = {
             next('Authentication failed!');
         }
     },
+
     errorValidationHander: (req, res, next) => {
         const errors = validationResult(req);
         const mappedErrors = errors.mapped();
         if (Object.keys(mappedErrors).length === 0) {
             next();
         } else {
-            res.json({ status: false, errors: mappedErrors });
+            res.json({
+                status: false,
+                errors: mappedErrors,
+                message: 'There is some errors with your data.'
+            });
         }
     },
     //404 handler
