@@ -2,81 +2,43 @@ const db = require('./../models');
 
 //Register user controller
 module.exports = {
-    createNewContest: (req, res, next) => {
+    createNewContestController: (req, res, next) => {
         let data = req.body;
+        console.log(data);
 
-        db.Contest.create({
-            title: data.title,
-            description: data.description,
-            start: data.start,
-            end: data.end,
-            UserId: data.createdBy
-        })
+        req.db.Contest.create(data)
             .then(resp => {
                 if (resp) {
                     res.json({
                         status: true,
                         message: 'Contest created successfully!'
                     });
-                } else {
-                    res.json({
-                        status: false,
-                        message: 'Attempt failed. Please try again.'
-                    });
-                }
+                } else next('Attempt failed. Please try again.');
             })
             .catch(error => next(error.message));
-
-        // req.mysql.query(
-        //     'INSERT INTO contest SET ?',
-        //     data,
-        //     (err, results, fields) => {
-        //         if (err) {
-        //             next(err.message);
-        //         } else {
-        //             res.json({
-        //                 status: true,
-        //                 message: 'Contest created successfully!'
-        //             });
-        //         }
-        //     }
-        // );
     },
 
     findContestByUserId: (req, res, next) => {
-        console.log(req.body);
-        db.User.findByPk(req.body.userId, {
-            attributes: ['id', 'name', 'username'],
+        req.db.User.findByPk(req.body.auth.userId, {
+            attributes: ['id', 'name', 'username', 'avatar'],
             include: [
                 {
-                    model: db.Contest
+                    association: 'Contests',
+                    order: [['start', 'DESC']]
                 }
             ]
         })
-            .then(user => {
-                console.log(user);
-                if (user) {
+            .then(data => {
+                console.log(data);
+                if (data) {
                     res.json({
                         status: true,
-                        message: 'Contest found!',
-                        data: user
+                        data: data,
+                        message: 'Contest found!'
                     });
-                }
+                } else next('There was an error. Please try again.');
             })
             .catch(error => next(error.message));
-        // let query =
-        //     'SELECT c.*, r.userId, r.time, p.username, (SELECT COUNT(*) FROM registration WHERE contestId=c.id) AS regCount FROM contests c LEFT JOIN( SELECT * FROM registration WHERE userId = ? ) r ON r.contestId = c.id LEFT JOIN people p ON c.createdBy = p.id WHERE c.createdBy = ? ORDER BY c.id DESC';
-        // req.mysql.query(query, [req.body.userId], (err, results, fields) => {
-        //     if (err) {
-        //         next(err.message);
-        //     } else {
-        //         res.json({
-        //             status: true,
-        //             message: results.length + ' data found!',
-        //             data: results
-        //         });
-        //     }
-        // });
     },
 
     getAllContest: (req, res, next) => {

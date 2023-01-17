@@ -15,11 +15,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT
         },
         start: {
-            type: DataTypes.TEXT,
+            type: DataTypes.STRING,
             allowNull: false
         },
-        end: {
-            type: DataTypes.TEXT,
+        duration: {
+            type: DataTypes.STRING,
             allowNull: false
         }
     });

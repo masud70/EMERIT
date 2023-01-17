@@ -1,9 +1,8 @@
 //imports
 const express = require('express');
 const router = express.Router();
-const { checkLogin } = require('../middlewares/common');
 const {
-    createNewContest,
+    createNewContestController,
     getAllContest,
     addQuestionController,
     getQuestionByContestId,
@@ -18,15 +17,14 @@ const {
 //API endpoints
 router.post(
     '/create',
-    checkLogin,
     createContestDataValidator,
     createContestDataSelector,
-    createNewContest
+    createNewContestController
 );
-router.post('/find', checkLogin, findContestByUserId);
+router.get('/getUserContest', findContestByUserId)
 router.get('/getAll/:id', getAllContest);
 router.post('/question/add', addQuestionController);
 router.get('/question/:id', getQuestionByContestId);
-router.post('/register', checkLogin, registerContest);
+router.post('/register', registerContest);
 
 module.exports = router;

@@ -9,50 +9,37 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { FUNCTIONS } from '../../../helpers';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { ROUTES } from '../../../constants';
+import { CONSTANT, ROUTES } from '../../../constants';
 
 const CreateContest = () => {
     const [data, setData] = useState({});
     const [openDate, setOpenDate] = useState(false);
-    const [openTime, setOpenTime] = useState(false);
     const [animator, setAnimator] = useState(false);
-    const user = useSelector(st => st.auth);
+    const auth = useSelector(st => st.auth);
     const navigation = useNavigation();
 
     const handleCreate = () => {
-        let dataToSend = {};
-        const { start, end, title, description } = data;
-        if (start && end && title) {
-            setAnimator(true);
-            dataToSend.description = description;
-            dataToSend.start = moment(start).toString();
-            dataToSend.end = moment(end).toString();
-            dataToSend.title = title;
-            FUNCTIONS.createContest(dataToSend, user.token)
-                .then(res => {
-                    FUNCTIONS.showToast(
-                        res.status ? 'success' : 'error',
-                        res.status ? 'Success' : 'Error',
-                        res.message
-                    );
-                    if (res.status) {
-                        setData({});
-                        navigation.navigate(ROUTES.AUTHOR_CONTEST);
-                    }
-                })
-                .catch(err => {
-                    FUNCTIONS.showToast('error', 'Error', err.message);
-                })
-                .finally(() => {
-                    setAnimator(false);
-                });
-        } else {
-            FUNCTIONS.showToast(
-                'info',
-                'Warning',
-                'Title, start and end time are required.'
-            );
-        }
+        setAnimator(true);
+        const url = CONSTANT.SERVER_URL + 'contest/create';
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                authorization: 'Bearer ' + auth.token
+            },
+            body: JSON.stringify(data)
+        })
+            .then(r => r.json())
+            .then(res => {
+                FUNCTIONS.showToast2(res.status, res.message);
+                if (res.status) {
+                    setData({});
+                    navigation.navigate(ROUTES.AUTHOR_CONTEST);
+                }
+            })
+            .catch(err => FUNCTIONS.showToast2(false, err.message))
+            .finally(() => setAnimator(false));
     };
 
     return (
@@ -90,23 +77,28 @@ const CreateContest = () => {
                             className="bg-gray-100"
                             onTouchEnd={() => setOpenDate(true)}
                             activeUnderlineColor="rgb(34,197,94)"
-                            value={
-                                data.start
-                                    ? moment(data.start).format(
-                                          'DD/MM/YYYY h:mm A'
-                                      )
-                                    : ''
-                            }
+                            value={moment
+                                .unix(
+                                    data.start
+                                        ? data.start
+                                        : new Date().getTime() / 1000
+                                )
+                                .format('DD/MM/YYYY h:mm A')}
                             right={
                                 <TextInput.Icon
-                                    name="calendar"
-                                    color="#000"
+                                    icon="calendar"
                                     onPress={() => setOpenDate(true)}
                                 />
                             }
                         />
                         <DatePicker
-                            date={data.start ? data.start : new Date()}
+                            date={
+                                new Date(
+                                    data.start
+                                        ? data.start * 1000
+                                        : new Date().getTime()
+                                )
+                            }
                             modal
                             open={openDate}
                             mode="datetime"
@@ -115,7 +107,7 @@ const CreateContest = () => {
                                 setOpenDate(false);
                                 setData(pre => ({
                                     ...pre,
-                                    start: date
+                                    start: date.getTime() / 1000
                                 }));
                             }}
                             onCancel={() => {
@@ -123,49 +115,13 @@ const CreateContest = () => {
                             }}
                         />
                         <TextInput
-                            label={'End'}
-                            className="bg-gray-100"
-                            onTouchEnd={() => setOpenTime(true)}
-                            activeUnderlineColor="rgb(34,197,94)"
-                            value={
-                                data.end
-                                    ? moment(data.end).format(
-                                          'DD/MM/YYYY h:mm A'
-                                      )
-                                    : ''
-                            }
-                            right={
-                                <TextInput.Icon
-                                    name="calendar"
-                                    color="#000"
-                                    onPress={() => setOpenTime(true)}
-                                />
-                            }
-                        />
-                        <DatePicker
-                            date={data.end ? data.end : new Date()}
-                            modal
-                            open={openTime}
-                            mode="datetime"
-                            onConfirm={time => {
-                                setOpenTime(false);
-                                setData(pre => ({
-                                    ...pre,
-                                    end: time
-                                }));
-                            }}
-                            onCancel={() => {
-                                setOpenTime(false);
-                            }}
-                        />
-                        <TextInput
                             label={'Duration (minutes)'}
                             className="bg-gray-100"
-                            value={moment(data.end)
-                                .diff(moment(data.start), 'minutes')
-                                .toString()}
+                            value={data.duration}
                             activeUnderlineColor="rgb(34,197,94)"
-                            editable={false}
+                            onChangeText={d =>
+                                setData(pre => ({ ...pre, duration: d }))
+                            }
                         />
                     </View>
                     <View className="w-full my-4">

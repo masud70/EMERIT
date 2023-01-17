@@ -13,39 +13,41 @@ import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { FUNCTIONS } from '../../../helpers';
+import { Pressable } from 'react-native';
 
 const EditContest = ({ route }) => {
     const [item, setItem] = useState({});
     const [newData, setNewData] = useState({});
+    const [question, setQuestion] = useState({});
     const [openDate, setOpenDate] = useState(false);
-    const [openTime, setOpenTime] = useState(false);
     const [open, setOpen] = useState(false);
     const { data } = route.params;
 
     const addNewQuestion = () => {
-        FUNCTIONS.addNewQuestion(newData)
-            .then(res => {
-                FUNCTIONS.showToast(
-                    res.status ? 'success' : 'error',
-                    res.status ? 'Success' : 'Error',
-                    res.message
-                );
-                if (res.status) {
-                    setOpen(false);
-                }
-            })
-            .catch(err => FUNCTIONS.showToast('error', 'Error', err.message));
+        console.log(newData);
+        // FUNCTIONS.addNewQuestion(newData)
+        //     .then(res => {
+        //         FUNCTIONS.showToast(
+        //             res.status ? 'success' : 'error',
+        //             res.status ? 'Success' : 'Error',
+        //             res.message
+        //         );
+        //         if (res.status) {
+        //             setOpen(false);
+        //         }
+        //     })
+        //     .catch(err => FUNCTIONS.showToast('error', 'Error', err.message));
+    };
+
+    const submitUpdate = () => {
+        console.log(newData);
     };
 
     useEffect(() => {
         if (data) {
             setItem(data);
-            setNewData(pre => ({
-                ...pre,
-                createdBy: data.createdBy,
-                contestId: data.id
-            }));
         }
+        console.log(data);
     }, []);
 
     return (
@@ -62,111 +64,90 @@ const EditContest = ({ route }) => {
                         />
                         <View className="w-full bg-gray-600 p-1">
                             <Text className="font-bold text-xl text-gray-50">
-                                {item.title}
+                                {newData.title ? newData.title : item.title}
                             </Text>
                         </View>
                         <View>
                             <TextInput
                                 label="Contest Title"
                                 className="bg-gray-100 rounded"
-                                value={item.title}
+                                value={
+                                    newData.title ? newData.title : item.title
+                                }
                                 onChangeText={text => {
-                                    setItem(pre => ({ ...pre, title: text }));
+                                    setNewData(pre => ({
+                                        ...pre,
+                                        title: text
+                                    }));
                                 }}
-                                right={<TextInput.Icon icon="pencil" />}
                             />
                             <TextInput
                                 label="Description"
                                 className="bg-gray-100 rounded"
-                                value={data.description}
+                                value={
+                                    newData.description
+                                        ? newData.description
+                                        : item.description
+                                }
                                 multiline
                                 numberOfLines={4}
                                 activeUnderlineColor="rgb(34,197,94)"
                                 onChangeText={text =>
-                                    setItem(pre => ({
+                                    setNewData(pre => ({
                                         ...pre,
                                         description: text
                                     }))
                                 }
-                                right={<TextInput.Icon icon="pencil" />}
                             />
                             <TextInput
                                 label="Start"
                                 className="bg-gray-100"
                                 onTouchEnd={() => setOpenDate(true)}
                                 activeUnderlineColor="rgb(34,197,94)"
-                                value={
-                                    data.start
-                                        ? moment(data.start).format(
-                                              'DD/MM/YYYY h:mm A'
-                                          )
-                                        : ''
-                                }
+                                value={moment
+                                    .unix(
+                                        newData.start
+                                            ? newData.start
+                                            : item.start
+                                    )
+                                    .format('DD/MM/YYYY h:mm A')}
                                 right={
                                     <TextInput.Icon
-                                        name="calendar"
-                                        color="#000"
+                                        icon="calendar"
                                         onPress={() => setOpenDate(true)}
                                     />
                                 }
                             />
-                            {/* <DatePicker
-                            date={item.start ? item.start : new Date()}
-                            modal
-                            open={openDate}
-                            mode="datetime"
-                            activeUnderlineColor="rgb(34,197,94)"
-                            onConfirm={date => {
-                                setOpenDate(false);
-                                setData(pre => ({
-                                    ...pre,
-                                    start: date
-                                }));
-                            }}
-                            onCancel={() => {
-                                setOpenDate(false);
-                            }}
-                        /> */}
-                            <TextInput
-                                label={'End'}
-                                className="bg-gray-100"
-                                onTouchEnd={() => setOpenTime(true)}
+                            <DatePicker
+                                date={
+                                    new Date(
+                                        newData.start
+                                            ? parseInt(newData.start) * 1000
+                                            : new Date()
+                                    )
+                                }
+                                modal
+                                open={openDate}
+                                mode="datetime"
                                 activeUnderlineColor="rgb(34,197,94)"
-                                value={
-                                    item.end
-                                        ? moment(item.end).format(
-                                              'DD/MM/YYYY h:mm A'
-                                          )
-                                        : ''
-                                }
-                                right={
-                                    <TextInput.Icon
-                                        name="calendar"
-                                        color="#000"
-                                        onPress={() => setOpenTime(true)}
-                                    />
-                                }
+                                onConfirm={date => {
+                                    setOpenDate(false);
+                                    setNewData(pre => ({
+                                        ...pre,
+                                        start: date.getTime() / 1000
+                                    }));
+                                }}
+                                onCancel={() => {
+                                    setOpenDate(false);
+                                }}
                             />
-                            {/* <DatePicker
-                            date={item.end ? item.end : new Date()}
-                            modal
-                            open={openTime}
-                            mode="datetime"
-                            onConfirm={time => {
-                                setOpenTime(false);
-                                setData(pre => ({
-                                    ...pre,
-                                    end: time
-                                }));
-                            }}
-                            onCancel={() => {
-                                setOpenTime(false);
-                            }}
-                        /> */}
                             <TextInput
-                                value="60"
+                                value={item.duration}
                                 label="Duration"
                                 className="bg-gray-100 rounded"
+                                onChangeText={d =>
+                                    setNewData(pre => ({ ...pre, duration: d }))
+                                }
                             />
                         </View>
                         <View className="w-full my-2">
@@ -221,6 +202,13 @@ const EditContest = ({ route }) => {
                                         </Text>
                                     </View>
                                 </TouchableOpacity>
+                                <Pressable
+                                    className="w-full bg-gray-700 p-2 rounded items-center mt-2"
+                                    onPress={submitUpdate}>
+                                    <Text className="font-bold text-white text-lg">
+                                        Save Now
+                                    </Text>
+                                </Pressable>
                             </View>
                         </View>
                     </View>
@@ -238,12 +226,12 @@ const EditContest = ({ route }) => {
                         <TextInput
                             label="Title"
                             className="bg-gray-50 rounded"
-                            value={newData.title}
+                            value={question.title}
                             multiline
                             numberOfLines={3}
                             activeUnderlineColor="rgb(34,197,94)"
                             onChangeText={text =>
-                                setNewData(pre => ({
+                                setQuestion(pre => ({
                                     ...pre,
                                     title: text
                                 }))
@@ -252,12 +240,12 @@ const EditContest = ({ route }) => {
                         <TextInput
                             label="Description"
                             className="bg-gray-50 rounded"
-                            value={newData.description}
+                            value={question.description}
                             multiline
                             numberOfLines={10}
                             activeUnderlineColor="rgb(34,197,94)"
                             onChangeText={text =>
-                                setNewData(pre => ({
+                                setQuestion(pre => ({
                                     ...pre,
                                     description: text
                                 }))
@@ -266,10 +254,10 @@ const EditContest = ({ route }) => {
                         <TextInput
                             label="Marks"
                             className="bg-gray-50 rounded"
-                            value={newData.marks}
+                            value={question.marks}
                             activeUnderlineColor="rgb(34,197,94)"
                             onChangeText={text =>
-                                setNewData(pre => ({
+                                setQuestion(pre => ({
                                     ...pre,
                                     marks: text
                                 }))
@@ -278,10 +266,10 @@ const EditContest = ({ route }) => {
                         <TextInput
                             label="Option A"
                             className="bg-gray-50 rounded"
-                            value={newData.optA}
+                            value={question.optA}
                             activeUnderlineColor="rgb(34,197,94)"
                             onChangeText={text =>
-                                setNewData(pre => ({
+                                setQuestion(pre => ({
                                     ...pre,
                                     optA: text
                                 }))
@@ -290,10 +278,10 @@ const EditContest = ({ route }) => {
                         <TextInput
                             label="Option B"
                             className="bg-gray-50 rounded"
-                            value={newData.optB}
+                            value={question.optB}
                             activeUnderlineColor="rgb(34,197,94)"
                             onChangeText={text =>
-                                setNewData(pre => ({
+                                setQuestion(pre => ({
                                     ...pre,
                                     optB: text
                                 }))
@@ -302,10 +290,10 @@ const EditContest = ({ route }) => {
                         <TextInput
                             label="Option C"
                             className="bg-gray-50 rounded"
-                            value={newData.optC}
+                            value={question.optC}
                             activeUnderlineColor="rgb(34,197,94)"
                             onChangeText={text =>
-                                setNewData(pre => ({
+                                setQuestion(pre => ({
                                     ...pre,
                                     optC: text
                                 }))
@@ -314,10 +302,10 @@ const EditContest = ({ route }) => {
                         <TextInput
                             label="Option D"
                             className="bg-gray-50 rounded"
-                            value={newData.optD}
+                            value={question.optD}
                             activeUnderlineColor="rgb(34,197,94)"
                             onChangeText={text =>
-                                setNewData(pre => ({
+                                setQuestion(pre => ({
                                     ...pre,
                                     optD: text
                                 }))
@@ -326,10 +314,10 @@ const EditContest = ({ route }) => {
                         <TextInput
                             label="Correct Answer"
                             className="bg-gray-50 rounded"
-                            value={newData.optansA}
+                            value={question.optansA}
                             activeUnderlineColor="rgb(34,197,94)"
                             onChangeText={text =>
-                                setNewData(pre => ({
+                                setQuestion(pre => ({
                                     ...pre,
                                     ans: text
                                 }))
@@ -338,10 +326,10 @@ const EditContest = ({ route }) => {
                         <TextInput
                             label="Order"
                             className="bg-gray-50 rounded"
-                            value={newData.order}
+                            value={question.order}
                             activeUnderlineColor="rgb(34,197,94)"
                             onChangeText={text =>
-                                setNewData(pre => ({
+                                setQuestion(pre => ({
                                     ...pre,
                                     order: text
                                 }))

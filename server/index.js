@@ -64,7 +64,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 
 //routing setup
 app.use('/user', userRouter);
-app.use('/contest', contestRouter);
+app.use('/contest', checkLogin, contestRouter);
 app.use('/post', checkLogin, postRouter);
 app.get('/', (req, res) => {
     res.json({ status: true, message: 'Welcome' });
@@ -114,7 +114,7 @@ server.listen(process.env.PORT, () => {
         .sync({ alter: true })
         .then(() => {
             console.log(
-                `================================
+                `\n================================
 App listening to port ${process.env.PORT}
 Database connection successfully
 ================================`

@@ -2,28 +2,48 @@ import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-import { ROUTES } from '../../../constants';
+import { CONSTANT, ROUTES } from '../../../constants';
 import ContestItem from '../../../components/Author/ContestItem';
 import { useEffect } from 'react';
-import { FUNCTIONS } from '../../../helpers';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useState } from 'react';
+import { setUserContestData } from '../../../redux/state/contestSlice';
+import { ActivityIndicator } from 'react-native';
 
 const ContestSectionHome = () => {
     const [contestData, setContestData] = useState([]);
+    const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
-    let user = useSelector(st => st.auth);
-    console.log(user);
-    useEffect(() => {
-        FUNCTIONS.findContest(user.token)
+    const dispatch = useDispatch();
+    let auth = useSelector(st => st.auth);
+
+    const loadContest = () => {
+        const url = CONSTANT.SERVER_URL + 'contest/getUserContest';
+        setLoading(true);
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                authorization: 'Bearer ' + auth.token
+            }
+        })
+            .then(r => r.json())
             .then(res => {
+                console.log(res);
                 if (res.status) {
-                    setContestData(res.data.Contests);
+                    dispatch(setUserContestData({ data: res.data }));
+                    setContestData(res.data);
                 }
             })
             .catch(err => {
-                console.log(err);
-            });
+                console.log(err.message);
+            })
+            .finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        loadContest();
     }, []);
 
     return (
@@ -48,16 +68,26 @@ const ContestSectionHome = () => {
                             </Text>
                         </TouchableOpacity>
                         <View className="">
-                            {contestData.map((item, idx) => (
-                                <ContestItem
-                                    data={{
-                                        ...item,
-                                        username: user.userData.username
-                                    }}
-                                    key={idx}
-                                    mode="admin"
+                            {!loading && contestData.Contests ? (
+                                contestData.Contests.map((item, idx) => (
+                                    <ContestItem
+                                        data={{
+                                            ...item,
+                                            username: contestData.username,
+                                            name: contestData.name,
+                                            userId: contestData.id
+                                        }}
+                                        key={idx}
+                                        mode="admin"
+                                    />
+                                ))
+                            ) : (
+                                <ActivityIndicator
+                                    className="mt-10"
+                                    size={40}
+                                    color="gray"
                                 />
-                            ))}
+                            )}
                         </View>
                     </View>
                 </ScrollView>
