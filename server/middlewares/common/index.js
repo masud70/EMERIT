@@ -8,8 +8,7 @@ module.exports = {
             const token = authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const { email, userId } = decoded;
-            req.body.email = email;
-            req.body.userId = userId;
+            req.body.auth = { email, userId };
             next();
         } catch {
             next('Authentication failed!');
@@ -29,10 +28,12 @@ module.exports = {
             });
         }
     },
+
     //404 handler
     notFoundHandler: (req, res, next) => {
         next(createError(404, 'Your requested content was not found.'));
     },
+    
     //default errorHandler
     errorHandler: (err, req, res, next) => {
         res.json({

@@ -63,6 +63,14 @@ export default {
         });
     },
 
+    showToast2: (status, message) => {
+        Toast.show({
+            type: status ? 'success' : 'error',
+            text1: status ? 'Success' : 'Error',
+            text2: message
+        });
+    },
+
     uploadImage: async data => {
         let fd = new FormData();
         fd.append('avatar', data);
@@ -188,13 +196,12 @@ export default {
 
     registerContest: async (data, token) => {
         const url = CONSTANT.SERVER_URL + 'contest/register';
-        console.log(data);
         try {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    authorization: 'Bearer' + token
+                    authorization: 'Bearer ' + token
                 },
                 body: JSON.stringify(data)
             });

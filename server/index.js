@@ -16,23 +16,26 @@ dotenv.config();
 const db = require('./models');
 const userRouter = require('./router/userRouter');
 const contestRouter = require('./router/contestRouter');
+const postRouter = require('./router/postRouter');
 const { upload } = require('./middlewares/common/imageUpload');
-const { errorHandler, notFoundHandler } = require('./middlewares/common');
-const User = require('./models/User');
-const Exam = require('./models/Contest');
+const {
+    errorHandler,
+    notFoundHandler,
+    checkLogin
+} = require('./middlewares/common');
 
 //database connection
-mongoose
-    .connect(process.env.MONGO_CONNECTION_STRING, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    })
-    .then(() => {
-        console.log('Database connection successful!');
-    })
-    .catch(err => {
-        console.log(err);
-    });
+// mongoose
+//     .connect(process.env.MONGO_CONNECTION_STRING, {
+//         useNewUrlParser: true,
+//         useUnifiedTopology: true
+//     })
+//     .then(() => {
+//         console.log('Database connection successful!');
+//     })
+//     .catch(err => {
+//         console.log(err);
+//     });
 // MySQL connection
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -43,6 +46,7 @@ var connection = mysql.createConnection({
 app.use((req, res, next) => {
     req.mysql = connection;
     req.io = io;
+    req.db = db;
     return next();
 });
 
@@ -61,6 +65,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 //routing setup
 app.use('/user', userRouter);
 app.use('/contest', contestRouter);
+app.use('/post', checkLogin, postRouter);
 app.get('/', (req, res) => {
     res.json({ status: true, message: 'Welcome' });
 });
@@ -89,9 +94,14 @@ io.on('connection', socket => {
         console.log('User disconnected');
         socket.disconnect();
     });
-    socket.on('toBack', data => {
-        console.log(data);
-    });
+    // socket.on('toBack', data => {
+    //     console.log(data);
+    // });
+    // let d = 0;
+    // setInterval(() => {
+    //     socket.emit('test', d);
+    //     d++;
+    // }, 1000);
 });
 
 //404 not found
@@ -104,7 +114,10 @@ server.listen(process.env.PORT, () => {
         .sync({ alter: true })
         .then(() => {
             console.log(
-                `================================\nApp listening to port ${process.env.PORT} \nDatabase connection successfully\n================================`
+                `================================
+App listening to port ${process.env.PORT}
+Database connection successfully
+================================`
             );
         })
         .catch(err => {

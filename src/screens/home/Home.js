@@ -3,7 +3,6 @@ import {
     SafeAreaView,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
@@ -16,22 +15,19 @@ import UserProfile from '../../components/utilities/UserProfile';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Avatar } from 'react-native-paper';
 import { io } from 'socket.io-client';
-const socket = io('http://192.168.0.200:5000', { transports: ['websocket'] });
+import Updates from './homeComponents/Updates';
+import { setPostData } from '../../redux/state/postSlice';
+const socket = io(CONSTANT.SERVER_URL, { transports: ['websocket'] });
 
 const Home = () => {
     const [data, setData] = useState('Empty');
     const [userData, setUserData] = useState({});
-    const user = useSelector(st => st.auth);
+    const auth = useSelector(state => state.auth);
     const navigation = useNavigation();
-
-    const handler = data => {
-        console.log('DS ' + data);
-        socket.emit('toBack', data);
-    };
-    socket.on('toFront', d => setData(d));
+    const dispatch = useDispatch();
 
     const category = [
         {
@@ -92,9 +88,31 @@ const Home = () => {
     const topSolvers = topSolver.map((user, idx) => {
         return <UserProfile user={user} key={idx} />;
     });
+    const loadPost = () => {
+        const url = CONSTANT.SERVER_URL + 'post/getAll';
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: 'Bearer ' + auth.token
+            }
+        })
+            .then(r => r.json())
+            .then(res => {
+                if (res.status) {
+                    dispatch(setPostData({ data: res.data }));
+                }
+            })
+            .catch(err => console.log(err));
+    };
 
     useEffect(() => {
-        setUserData(user.userData);
+        setUserData(auth.userData);
+        loadPost();
+        socket.off('loadPost').on('loadPost', data => {
+            console.log(data);
+            loadPost();
+        });
     }, []);
 
     return (
@@ -105,7 +123,7 @@ const Home = () => {
                 }>
                 <View style={styles.textSection}>
                     <Text className="font-bold text-xl text-gray-600">
-                        Hi, {userData.name}
+                        Hi, {userData.name + ' ' + data}
                     </Text>
                     <Text className={' font-bold text-slate-400'}>
                         Let's make this day productive
@@ -119,7 +137,7 @@ const Home = () => {
                     />
                 </TouchableOpacity>
             </View>
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
                 <View className="flex-2 flex-row justify-between bg-slate-100 rounded py-3 mb-2 divide-x-2 divide-slate-300">
                     <View className="w-1/2 flex flex-row items-center space-x-2 px-3 justify-center">
                         <View>
@@ -171,21 +189,7 @@ const Home = () => {
                     <View className="flex flex-row py-2">{topSolvers}</View>
                 </ScrollView>
                 <View>
-                    <Text>{data}</Text>
-                    <View>
-                        <TextInput
-                            onChangeText={e => setData(e)}
-                            className="bg-white w-full rounded text-center"
-                            placeholder="Input Text"
-                        />
-                    </View>
-                    <TouchableOpacity
-                        onPress={() => handler(data)}
-                        className="w-full p-3 items-center bg-green-600 my-2 rounded">
-                        <Text className="font-bold text-lg text-white">
-                            Send
-                        </Text>
-                    </TouchableOpacity>
+                    <Updates />
                 </View>
             </ScrollView>
         </SafeAreaView>

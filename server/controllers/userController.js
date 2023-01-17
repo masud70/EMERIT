@@ -161,7 +161,7 @@ module.exports = {
     getUserDataController: async (req, res, next) => {
         const user = req.body;
 
-        db.User.findByPk(user.userId)
+        db.User.findByPk(user.auth.userId)
             .then(user => {
                 if (user) {
                     delete user.password;
@@ -201,7 +201,7 @@ module.exports = {
 
     updateUser: (req, res) => {
         const user = req.body;
-        delete user.userId;
+        delete user.auth.userId;
         delete user.password;
         delete user.confirmPassword;
         delete user.token;
