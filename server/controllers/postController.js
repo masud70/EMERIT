@@ -107,12 +107,13 @@ module.exports = {
         })
             .then(resp => {
                 if (resp && resp.type !== data.type) {
+                    console.log(resp);
                     req.db.Reaction.update(
                         { type: data.type },
                         {
                             where: {
-                                UserId: resp.userId,
-                                PostId: resp.postId,
+                                UserId: resp.UserId,
+                                PostId: resp.PostId,
                                 id: resp.id
                             }
                         }

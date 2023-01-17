@@ -10,10 +10,6 @@ module.exports = (sequelize, DataTypes) => {
         type: {
             type: DataTypes.TEXT,
             allowNull: false
-        },
-        time: {
-            type: DataTypes.STRING,
-            allowNull: false
         }
     });
     Reaction.associate = () => {

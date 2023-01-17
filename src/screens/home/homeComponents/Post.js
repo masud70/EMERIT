@@ -6,10 +6,33 @@ import React from 'react';
 import { useState } from 'react';
 import PostComment from './PostComment';
 import moment from 'moment';
+import { CONSTANT } from '../../../constants';
+import { useSelector } from 'react-redux';
 
 const Post = ({ data }) => {
     const [showComment, setShowComment] = useState(false);
+    const auth = useSelector(state => state.auth);
     const { width } = useWindowDimensions();
+
+    const reactionHander = reactionType => {
+        const url = CONSTANT.SERVER_URL + 'post/reaction';
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                authorization: 'Bearer ' + auth.token
+            },
+            body: JSON.stringify({ type: reactionType, postId: data.id })
+        })
+            .then(r => r.json())
+            .then(res => {
+                console.log(res);
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    };
 
     return (
         <View className="w-full bg-gray-50 bg-opacity-60 rounded overflow-hidden mb-1">
@@ -25,25 +48,26 @@ const Post = ({ data }) => {
                 </View>
             </View>
             <View className="px-2 py-1">
-                <RenderHtml
-                    contentWidth={width}
-                    source={{ html: data.body }}
-                />
+                <RenderHtml contentWidth={width} source={{ html: data.body }} />
             </View>
             <View className="w-full bg-gray-200 p-1 divide-x divide-gray-400 border-gray-400 border-t flex flex-row justify-around">
                 <View className="w-2/6 items-center">
-                    <Text className="p-1">
+                    <Text
+                        onPress={() => reactionHander('like')}
+                        className="p-1">
                         Like (
                         {
                             data.reactions.filter(
-                                reaction => reaction.type === 'dislike'
+                                reaction => reaction.type === 'like'
                             ).length
                         }
                         )
                     </Text>
                 </View>
                 <View className="w-2/6 items-center">
-                    <Text onPress={() => alert('OK')} className="p-1">
+                    <Text
+                        onPress={() => reactionHander('dislike')}
+                        className="p-1">
                         Dislike (
                         {
                             data.reactions.filter(
