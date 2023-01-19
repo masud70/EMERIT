@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { FUNCTIONS } from '../../helpers';
 import { useSelector } from 'react-redux';
 
-const ContestItem = ({ data, mode }) => {
+const LiveContestItem = ({ data, mode }) => {
     const [item, setItem] = useState({});
     const auth = useSelector(st => st.auth);
     const navigation = useNavigation();
@@ -150,14 +150,18 @@ const ContestItem = ({ data, mode }) => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
-                            mode === 'admin'
-                                ? navigation.navigate(ROUTES.AUTHOR_CONTEST_EDIT, {
+                            state === 'Live'
+                                ? navigation.navigate(ROUTES.CONTEST_SCREEN, {
                                       data
                                   })
                                 : register();
                         }}
                         className={`${
-                            state === 'Live' && data.isRegistered ? 'bg-red-500' : data.isRegistered? 'bg-purple-500' : 'bg-green-500'
+                            state === 'Live' && data.isRegistered
+                                ? 'bg-red-500'
+                                : data.isRegistered
+                                ? 'bg-purple-500'
+                                : 'bg-green-500'
                         } px-4 rounded min-w-[145px] items-center`}>
                         <Text className="font-bold text-lg text-white">
                             {mode === 'admin'
@@ -193,6 +197,6 @@ const ContestItem = ({ data, mode }) => {
     );
 };
 
-export default ContestItem;
+export default LiveContestItem;
 
 const styles = StyleSheet.create({});

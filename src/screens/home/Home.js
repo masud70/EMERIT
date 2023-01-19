@@ -35,7 +35,7 @@ const Home = () => {
             head: 'Join in',
             icon: 'trophy-sharp',
             questionCount: 120,
-            route: ROUTES.CONTEST
+            route: ROUTES.CONTEST_NAVIGATOR
         },
         {
             name: 'Practice',

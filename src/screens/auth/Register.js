@@ -31,6 +31,7 @@ const Register = () => {
         } else {
             FUNCTIONS.register({ email, password, name })
                 .then(res => {
+                    console.log(res);
                     FUNCTIONS.showToast(
                         res.status ? 'success' : 'error',
                         res.status ? 'Success' : 'Error',

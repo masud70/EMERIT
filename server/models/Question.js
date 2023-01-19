@@ -15,40 +15,18 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: false
         },
-        optionA: {
-            type: DataTypes.TEXT,
-            allowNull: false
-        },
-        optionB: {
-            type: DataTypes.TEXT,
-            allowNull: false
-        },
-        optionC: {
-            type: DataTypes.TEXT,
-            allowNull: false
-        },
-        optionD: {
-            type: DataTypes.TEXT,
-            allowNull: false
-        },
         answer: {
             type: DataTypes.TEXT,
             allowNull: false
         },
         marks: {
             type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
-        order: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            defaultValue: 'A'
+            defaultValue: 1
         }
     });
     Question.associate = () => {
-        Question.belongsTo(sequelize.models.Contest);
         Question.belongsTo(sequelize.models.User);
+        Question.hasMany(sequelize.models.Option);
     };
 
     return Question;

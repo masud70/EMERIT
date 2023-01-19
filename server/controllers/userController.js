@@ -8,7 +8,7 @@ module.exports = {
         const user = req.body;
         const hashedPassword = await bcrypt.hash(user.password, 10);
 
-        db.User.findAll({ where: { email: user.email } })
+        req.db.User.findAll({ where: { email: user.email } })
             .then(users => {
                 if (users.length > 0) next('Email already registered.');
                 else {
@@ -220,5 +220,23 @@ module.exports = {
                 }
             }
         );
+    },
+
+    getQuestion: async (req, res, next) => {
+        const questions = await req.db.Question.findAll({ where: { UserId: req.body.auth.userId } });
+        let retData = questions;
+
+        if (questions.length > 0) {
+            for (let i = 0; i < questions.length; i++) {
+                const options = await req.db.Option.findAll({ where: { QuestionId: questions[i].id } });
+                retData[i].dataValues.options = options;
+            }
+            console.log(retData);
+            res.json({
+                status: true,
+                data: retData,
+                message: retData.length + ' questions found.'
+            });
+        } else next('No Question found!');
     }
 };

@@ -11,9 +11,11 @@ export default {
     WALLET: 'Wallet',
     WALLET_DRAWER: 'Wallet Drawer',
 
+    CONTEST_NAVIGATOR: 'Contest Navigator',
     CONTEST: 'Contest',
     CONTEST_TAB: 'Contest Tab',
     CONTEST_DRAWER: 'Contest Drawer',
+    CONTEST_SCREEN: 'Contest Screen',
 
     ARCHIVE: 'Archive',
     ARCHIVE_TAB: 'Archive Tab',
@@ -39,5 +41,8 @@ export default {
     AUTHOR_HOME: 'Author Home',
     AUTHOR_CONTEST: 'Contest Dashboard',
     AUTHOR_CONTEST_CREATE: 'Contest Create Dashboard',
-    AUTHOR_CONTEST_EDIT: 'Contest Edit Dashboard'
+    AUTHOR_QUESTION_CREATE: 'Create Question',
+    AUTHOR_QUESTION_EDIT: 'Edit Question',
+    AUTHOR_CONTEST_EDIT: 'Contest Edit Dashboard',
+    AUTHOR_QUESTION: 'Question Dashboard'
 };

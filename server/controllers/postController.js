@@ -50,8 +50,6 @@ module.exports = {
                     order: [['createdAt', 'DESC']]
                 });
 
-                console.log(comments);
-
                 const { rows } = await req.db.Reaction.findAndCountAll({
                     where: { PostId: posts[i].id },
                     group: ['type']

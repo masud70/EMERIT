@@ -12,7 +12,6 @@ import { Button, Dialog, TextInput } from 'react-native-paper';
 import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { FUNCTIONS } from '../../../helpers';
 import { Pressable } from 'react-native';
 
 const EditContest = ({ route }) => {
@@ -25,18 +24,6 @@ const EditContest = ({ route }) => {
 
     const addNewQuestion = () => {
         console.log(newData);
-        // FUNCTIONS.addNewQuestion(newData)
-        //     .then(res => {
-        //         FUNCTIONS.showToast(
-        //             res.status ? 'success' : 'error',
-        //             res.status ? 'Success' : 'Error',
-        //             res.message
-        //         );
-        //         if (res.status) {
-        //             setOpen(false);
-        //         }
-        //     })
-        //     .catch(err => FUNCTIONS.showToast('error', 'Error', err.message));
     };
 
     const submitUpdate = () => {

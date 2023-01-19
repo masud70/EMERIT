@@ -6,26 +6,12 @@ const registerValidator = [
     check('email')
         .isEmail()
         .withMessage('Invalid email address')
-        .trim()
-        .custom(async value => {
-            try {
-                const user = await User.findOne({ email: value });
-                if (user) {
-                    throw createHttpError('Email already in use!');
-                }
-            } catch (err) {
-                throw createHttpError(err.message);
-            }
-        }),
+        .trim(),
     check('name')
         .isString()
         .isLength({ min: 3 })
         .withMessage('Name is required.'),
     check('password').isLength({ min: 2 }).withMessage('Password is required.')
-    //     .isStrongPassword()
-    //     .withMessage(
-    //         'Password must be at least 8 characters long & should contain at least 1 lower case, uppercase, number and symbol.'
-    //     )
 ];
 
 const registerValidationHandler = (req, res, next) => {

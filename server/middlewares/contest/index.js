@@ -29,5 +29,23 @@ module.exports = {
             req.body = data;
             next();
         }
-    }
+    },
+
+    questionDataChecker: [
+        check('title')
+            .isString()
+            .isLength({ min: 3 })
+            .withMessage('Title is required with minimum 3 characters long.'),
+        check('description')
+            .isString()
+            .isLength({ min: 10 })
+            .withMessage('Description is required with minimum 10 characters long.'),
+        check('answer')
+            .isString()
+            .isLength({ min: 1 })
+            .withMessage('Answer is required with minimum 1 characters long.'),
+        check('options')
+            .isArray({ min: 2, max: 5 })
+            .withMessage('Options are required with minimum 2 values and maximum 5 values.')
+    ]
 };

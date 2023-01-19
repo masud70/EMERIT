@@ -9,18 +9,19 @@ import ContestItem from '../Author/ContestItem';
 
 const Ended = () => {
     const [data, setData] = useState([]);
-    const contestData = useSelector(st => st.contest.data);
+    const contestData = useSelector(st => st.contest.contestData);
 
     useEffect(() => {
-        const ended = FUNCTIONS.filterContest(contestData, 'ended');
-        setData(ended);
+        const filtered = FUNCTIONS.filterContest(contestData, 'ended');
+        setData(filtered);
     }, []);
+
     return (
         <View className="space-y-4 flex">
             {data.map((item, idx) => (
-                <ContestItem state={'ended'} data={item} key={idx} />
+                <ContestItem data={item} key={idx} />
             ))}
-            <EndedContestCard />
+            {/* <EndedContestCard /> */}
         </View>
     );
 };

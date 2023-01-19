@@ -1,30 +1,32 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import LiveContestCard from './LiveContestCard'
+import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import LiveContestCard from './LiveContestCard';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { FUNCTIONS } from '../../helpers';
-import ContestItem from '../Author/ContestItem';
+import LiveContestItem from './LiveContestItem';
 
 const Live = () => {
     const [data, setData] = useState([]);
-    const contestData = useSelector(st => st.contest.data);
+    const contestData = useSelector(st => st.contest.contestData);
 
     useEffect(() => {
-        const upcoming = FUNCTIONS.filterContest(contestData, 'live');
-        setData(upcoming);
+        // console.log(contestData);
+        const filtered = FUNCTIONS.filterContest(contestData, 'live');
+        setData(filtered);
     }, []);
+
     return (
-        <View className='space-y-4 flex'>
+        <View className="space-y-4 flex">
             {data.map((item, idx) => (
-                <ContestItem state='live' data={item} key={idx} />
+                <LiveContestItem state="live" data={item} key={idx} />
             ))}
-            <LiveContestCard/>
+            {/* <LiveContestCard /> */}
         </View>
-    )
-}
+    );
+};
 
-export default Live
+export default Live;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

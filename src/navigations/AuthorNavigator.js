@@ -5,6 +5,9 @@ import AuthorDashboard from '../screens/drawerScreens/AuthorDashboard';
 import ContestSectionHome from '../screens/authorScreens/contestSection/ContestSectionHome';
 import CreateContest from '../screens/authorScreens/contestSection/CreateContest';
 import EditContest from '../screens/authorScreens/contestSection/EditContest';
+import QuestionSectionHome from '../screens/authorScreens/questionSection/QuestionSectionHome';
+import QuestionCreate from '../screens/authorScreens/questionSection/QuestionCreate';
+import QuestionEdit from '../screens/authorScreens/questionSection/QuestionEdit';
 
 const Stack = createStackNavigator();
 
@@ -16,6 +19,18 @@ function AuthorNavigator() {
             <Stack.Screen
                 name={ROUTES.AUTHOR_HOME}
                 component={AuthorDashboard}
+            />
+            <Stack.Screen
+                name={ROUTES.AUTHOR_QUESTION}
+                component={QuestionSectionHome}
+            />
+            <Stack.Screen
+                name={ROUTES.AUTHOR_QUESTION_CREATE}
+                component={QuestionCreate}
+            />
+            <Stack.Screen
+                name={ROUTES.AUTHOR_QUESTION_EDIT}
+                component={QuestionEdit}
             />
             <Stack.Screen
                 name={ROUTES.AUTHOR_CONTEST}

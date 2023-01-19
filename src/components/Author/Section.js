@@ -3,7 +3,7 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
-const Section = ({ route }) => {
+const Section = ({ route, data }) => {
     const navigation = useNavigation();
 
     return (
@@ -15,7 +15,7 @@ const Section = ({ route }) => {
                 <View className="w-5/6 bg-gray-700 px-2">
                     <View>
                         <Text className="text-white text-xl font-bold">
-                            Contest Section
+                            {data.sectionName}
                         </Text>
                     </View>
                     <View>

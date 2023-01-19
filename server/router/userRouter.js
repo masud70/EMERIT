@@ -6,19 +6,16 @@ const {
     getUserDataController,
     registerUserController,
     loginUserController,
-    updateUser
+    updateUser,
+    getQuestion
 } = require('../controllers/userController');
 const { checkLogin, errorValidationHander } = require('../middlewares/common');
 
 //API endpoint
-router.post(
-    '/register',
-    registerValidator,
-    errorValidationHander,
-    registerUserController
-);
+router.post('/register', registerValidator, errorValidationHander, registerUserController);
 router.post('/login', loginUserController);
 router.get('/getUserData', checkLogin, getUserDataController);
 router.post('/update', checkLogin, updateUser);
+router.get('/getAllQuestion', checkLogin, getQuestion);
 
 module.exports = router;

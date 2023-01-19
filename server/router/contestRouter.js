@@ -7,11 +7,15 @@ const {
     addQuestionController,
     getQuestionByContestId,
     findContestByUserId,
-    registerContest
+    registerContest,
+    addQuestion,
+    getOneById
 } = require('../controllers/contestController');
+const { errorValidationHander } = require('../middlewares/common');
 const {
     createContestDataSelector,
-    createContestDataValidator
+    createContestDataValidator,
+    questionDataChecker
 } = require('../middlewares/contest');
 
 //API endpoints
@@ -21,10 +25,12 @@ router.post(
     createContestDataSelector,
     createNewContestController
 );
-router.get('/getUserContest', findContestByUserId)
-router.get('/getAll/:id', getAllContest);
+router.get('/getUserContest', findContestByUserId);
+router.get('/getAll', getAllContest);
 router.post('/question/add', addQuestionController);
 router.get('/question/:id', getQuestionByContestId);
-router.post('/register', registerContest);
+router.get('/register/:id', registerContest);
+router.post('/addQuestion', questionDataChecker, errorValidationHander, addQuestion);
+router.get('/getOneById/:id', getOneById);
 
 module.exports = router;

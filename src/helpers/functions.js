@@ -158,20 +158,21 @@ export default {
     filterContest: (data, type) => {
         switch (type) {
             case 'upcoming': {
-                return data.filter(
-                    item => moment(item.start).diff(moment(), 'seconds') > 0
-                );
+                return data.filter(item => parseInt(item.start) > new Date().getTime() / 1000);
             }
             case 'live': {
                 return data.filter(
                     item =>
-                        moment(item.end).diff(moment(), 'seconds') > 0 &&
-                        moment(item.start).diff(moment(), 'seconds') <= 0
+                        parseInt(item.start) < new Date().getTime() / 1000 &&
+                        parseInt(item.start) + parseInt(item.duration) * 60 >
+                            new Date().getTime() / 1000
                 );
             }
             case 'ended': {
                 return data.filter(
-                    item => moment(item.end).diff(moment(), 'seconds') <= 0
+                    item =>
+                        parseInt(item.start) + parseInt(item.duration) * 60 <
+                        new Date().getTime() / 1000
                 );
             }
         }

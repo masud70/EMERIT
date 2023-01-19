@@ -12,8 +12,8 @@ const AuthorDashboard = () => {
                 </View>
                 <ScrollView>
                     <View className="mb-1">
-                        <Section route={ROUTES.AUTHOR_CONTEST} />
-                        <Section route={ROUTES.AUTHOR_CONTEST} />
+                        <Section data={{sectionName: 'Contest Section'}} route={ROUTES.AUTHOR_CONTEST} />
+                        <Section data={{sectionName: 'Question Section'}} route={ROUTES.AUTHOR_QUESTION} />
                     </View>
                 </ScrollView>
             </View>

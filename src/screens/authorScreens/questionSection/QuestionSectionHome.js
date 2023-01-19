@@ -3,23 +3,21 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { CONSTANT, ROUTES } from '../../../constants';
-import ContestItem from '../../../components/Author/ContestItem';
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useState } from 'react';
-import { setUserContestData } from '../../../redux/state/contestSlice';
 import { ActivityIndicator } from 'react-native';
+import Question from '../../../components/Author/Question';
 
-const ContestSectionHome = () => {
-    const [contestData, setContestData] = useState([]);
+const QuestionSectionHome = () => {
+    const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
-    const dispatch = useDispatch();
     let auth = useSelector(st => st.auth);
 
-    const loadContest = () => {
-        const url = CONSTANT.SERVER_URL + 'contest/getUserContest';
+    const loadQuestion = () => {
         setLoading(true);
+        const url = CONSTANT.BASE_URL + '/user/getAllQuestion';
         fetch(url, {
             method: 'GET',
             headers: {
@@ -30,50 +28,41 @@ const ContestSectionHome = () => {
         })
             .then(r => r.json())
             .then(res => {
-                console.log("->",res);
+                console.log(res);
                 if (res.status) {
-                    dispatch(setUserContestData({ data: res.data }));
-                    setContestData(res.data);
+                    setQuestions(res.data);
                 }
             })
             .catch(err => {
-                console.log(err.message);
+                console.log(err);
             })
             .finally(() => setLoading(false));
     };
 
     useEffect(() => {
-        loadContest();
+        loadQuestion();
     }, []);
 
     return (
         <SafeAreaView>
             <View className="h-screen px-2 py-1 w-screen bg-white">
                 <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2">
-                    <Text className="font-bold text-xl ">Contest Dashboard</Text>
+                    <Text className="font-bold text-xl ">Question Dashboard</Text>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View>
                         <TouchableOpacity
                             className="w-full bg-gray-200 justify-center items-center rounded p-1 mt-1"
-                            onPress={() => navigation.navigate(ROUTES.AUTHOR_CONTEST_CREATE)}>
+                            onPress={() => navigation.navigate(ROUTES.AUTHOR_QUESTION_CREATE)}>
                             <Text className="font-bold text-lg text-green-500">
-                                Create A New Contest
+                                Create A New Question
                             </Text>
                         </TouchableOpacity>
+
                         <View className="">
-                            {!loading && contestData.Contests ? (
-                                contestData.Contests.map((item, idx) => (
-                                    <ContestItem
-                                        data={{
-                                            ...item,
-                                            username: contestData.username,
-                                            name: contestData.name,
-                                            userId: contestData.id
-                                        }}
-                                        key={idx}
-                                        mode="admin"
-                                    />
+                            {!loading && questions ? (
+                                questions.map((item, idx) => (
+                                    <Question data={{ ...item, solved: false, tried: false }} key={idx} />
                                 ))
                             ) : (
                                 <ActivityIndicator className="mt-10" size={40} color="gray" />
@@ -86,6 +75,6 @@ const ContestSectionHome = () => {
     );
 };
 
-export default ContestSectionHome;
+export default QuestionSectionHome;
 
 const styles = StyleSheet.create({});

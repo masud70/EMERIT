@@ -19,6 +19,7 @@ module.exports = {
     },
 
     findContestByUserId: (req, res, next) => {
+        console.log(req.body);
         req.db.User.findByPk(req.body.auth.userId, {
             attributes: ['id', 'name', 'username', 'avatar'],
             include: [
@@ -41,21 +42,39 @@ module.exports = {
             .catch(error => next(error.message));
     },
 
-    getAllContest: (req, res, next) => {
-        const id = req.params.id;
-        const query =
-            'SELECT c.*, r.userId, r.time, p.username, (SELECT COUNT(*) FROM registration WHERE contestId=c.id) AS regCount FROM contest c LEFT JOIN( SELECT * FROM registration WHERE userId = ? ) r ON r.contestId = c.id LEFT JOIN people p ON c.createdBy = p.id ORDER BY c.id DESC';
-        req.mysql.query(query, [id], (err, results) => {
-            if (err) {
-                next(err.message);
-            } else {
-                res.json({
-                    status: true,
-                    message: results.length + ' items found.',
-                    data: results
+    getAllContest: async (req, res, next) => {
+        const contests = await req.db.Contest.findAll({
+            include: [
+                {
+                    association: 'User',
+                    attributes: ['id', 'name', 'username']
+                }
+            ]
+        });
+
+        if (!contests) next('There was an error retrieving the contest data.');
+        else {
+            let retData = [];
+
+            for (let i = 0; i < contests.length; i++) {
+                const { count, rows } = await req.db.Registration.findAndCountAll({
+                    where: { ContestId: contests[i].id }
+                });
+                const registered = rows.filter(row => row.UserId === req.body.auth.userId);
+
+                retData.push({
+                    ...contests[i].dataValues,
+                    regCount: count,
+                    isRegistered: registered.length > 0
                 });
             }
-        });
+            console.log(retData);
+            res.json({
+                status: true,
+                message: retData.length + ' data found.',
+                data: retData
+            });
+        }
     },
 
     addQuestionController: async (req, res, next) => {
@@ -97,8 +116,87 @@ module.exports = {
             .catch(error => next(error.message));
     },
 
-    registerContest: (req, res, next) => {
-        const user = req.body;
-        console.log(user);
+    registerContest: async (req, res, next) => {
+        const data = req.body;
+        try {
+            const pre = await req.db.Registration.findAll({
+                where: { UserId: data.auth.userId, ContestId: req.params.id }
+            });
+
+            if (pre.length > 0) next('Already registered.');
+            else {
+                const registration = await req.db.Registration.create({
+                    time: new Date().getTime() / 1000,
+                    UserId: data.auth.userId,
+                    ContestId: req.params.id
+                });
+                if (registration) {
+                    req.io.emit('loadContest', registration);
+                    res.json({
+                        status: true,
+                        message: 'Registration successful.',
+                        data: registration
+                    });
+                } else next('Registration failed.');
+            }
+        } catch (error) {
+            next(error.message);
+        }
+    },
+
+    addQuestion: (req, res, next) => {
+        const data = req.body;
+        console.log(data);
+
+        req.db.Question.create({
+            title: data.title,
+            description: data.description,
+            marks: data.marks,
+            answer: data.answer,
+            UserId: data.auth.userId
+        })
+            .then(resp => {
+                console.log(resp);
+                if (resp) {
+                    const optArray = data.options.map(opt => {
+                        return { value: opt, QuestionId: resp.id };
+                    });
+                    req.db.Option.bulkCreate(optArray)
+                        .then(resp2 => {
+                            if (resp2)
+                                res.json({
+                                    status: true,
+                                    message: 'Question created successfully.',
+                                    data: resp2
+                                });
+                            else next('There was an error. Please try again.');
+                        })
+                        .catch(error2 => next(error2.message));
+                } else next('There was an error. Please try again.');
+            })
+            .catch(error => {
+                console.log(error);
+                next(error.message);
+            });
+    },
+
+    getOneById: (req, res, next) => {
+        req.db.Contest.findByPk(req.params.id, {
+            include: [
+                {
+                    association: 'Question',
+                    include: [
+                        {
+                            association: 'Option'
+                        }
+                    ]
+                }
+            ]
+        })
+            .then(resp => {
+                console.log(resp);
+                res.json({ status: true, data: resp });
+            })
+            .catch(error => next(error.message));
     }
 };
