@@ -26,7 +26,14 @@ module.exports = {
         else if (start < new Date().getTime() / 1000)
             next('Start time must be greater than present time.');
         else {
-            req.body = data;
+            req.body = {
+                ...req.body,
+                title: req.body.title,
+                start: req.body.start.toString(),
+                duration: duration.toString(),
+                description: req.body.description || '',
+                UserId: req.body.auth.userId
+            };
             next();
         }
     },

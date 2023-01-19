@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         marks: {
             type: DataTypes.INTEGER,
             defaultValue: 1
+        },
+        privacy: {
+            type: DataTypes.STRING,
+            defaultValue: 'private'
         }
     });
     Question.associate = () => {

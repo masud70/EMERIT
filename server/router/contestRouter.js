@@ -9,7 +9,9 @@ const {
     findContestByUserId,
     registerContest,
     addQuestion,
-    getOneById
+    getOneById,
+    getUserAvailableQuestion,
+    updateContest
 } = require('../controllers/contestController');
 const { errorValidationHander } = require('../middlewares/common');
 const {
@@ -25,6 +27,7 @@ router.post(
     createContestDataSelector,
     createNewContestController
 );
+router.post('/update', createContestDataValidator, createContestDataSelector, updateContest);
 router.get('/getUserContest', findContestByUserId);
 router.get('/getAll', getAllContest);
 router.post('/question/add', addQuestionController);
@@ -32,5 +35,6 @@ router.get('/question/:id', getQuestionByContestId);
 router.get('/register/:id', registerContest);
 router.post('/addQuestion', questionDataChecker, errorValidationHander, addQuestion);
 router.get('/getOneById/:id', getOneById);
+router.get('/getAvaliableQuestion', getUserAvailableQuestion);
 
 module.exports = router;

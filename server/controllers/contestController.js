@@ -1,4 +1,5 @@
 const db = require('./../models');
+const { Op } = require('sequelize');
 
 //Register user controller
 module.exports = {
@@ -16,6 +17,37 @@ module.exports = {
                 } else next('Attempt failed. Please try again.');
             })
             .catch(error => next(error.message));
+    },
+
+    updateContest: async (req, res, next) => {
+        let data = req.body;
+        console.log(data);
+
+        const qArray = data.questions?.map(it => ({ ContestId: data.id, QuestionId: it }));
+        console.log(qArray);
+
+        try {
+            if (data.questions?.length > 0) {
+                await req.db.ContestQuestion.bulkCreate(qArray);
+            }
+
+            const dt = await req.db.Contest.update(
+                {
+                    title: data.title,
+                    description: data.description,
+                    start: data.start,
+                    duration: data.duration
+                },
+                { where: { id: data.id } }
+            );
+
+            console.log(dt);
+
+            res.json({ status: true, message: 'Contest updated successfully.' });
+        } catch (error) {
+            console.log(error);
+            next(error.message);
+        }
     },
 
     findContestByUserId: (req, res, next) => {
@@ -196,6 +228,31 @@ module.exports = {
             .then(resp => {
                 console.log(resp);
                 res.json({ status: true, data: resp });
+            })
+            .catch(error => next(error.message));
+    },
+
+    getUserAvailableQuestion: (req, res, next) => {
+        req.db.Question.findAll({
+            where: {
+                [Op.or]: [
+                    {
+                        UserId: req.body.auth.userId
+                    },
+                    {
+                        privacy: 'public'
+                    }
+                ]
+            }
+        })
+            .then(resp => {
+                console.log(resp);
+                if (resp)
+                    res.json({
+                        status: true,
+                        data: resp
+                    });
+                else next('There was an error.');
             })
             .catch(error => next(error.message));
     }

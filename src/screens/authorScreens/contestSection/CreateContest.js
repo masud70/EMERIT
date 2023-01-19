@@ -46,9 +46,7 @@ const CreateContest = () => {
         <SafeAreaView>
             <View className="h-screen px-2 py-1 w-screen bg-white">
                 <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2">
-                    <Text className="font-bold text-xl text-gray-600">
-                        Contest Details
-                    </Text>
+                    <Text className="font-bold text-xl text-gray-600">Contest Details</Text>
                 </View>
                 <ScrollView>
                     <View className="space-y-1 mt-1">
@@ -57,9 +55,7 @@ const CreateContest = () => {
                             className="bg-gray-100 rounded"
                             value={data.title}
                             activeUnderlineColor="rgb(34,197,94)"
-                            onChangeText={text =>
-                                setData(pre => ({ ...pre, title: text }))
-                            }
+                            onChangeText={text => setData(pre => ({ ...pre, title: text }))}
                         />
                         <TextInput
                             label="Description"
@@ -68,9 +64,7 @@ const CreateContest = () => {
                             multiline
                             numberOfLines={4}
                             activeUnderlineColor="rgb(34,197,94)"
-                            onChangeText={text =>
-                                setData(pre => ({ ...pre, description: text }))
-                            }
+                            onChangeText={text => setData(pre => ({ ...pre, description: text }))}
                         />
                         <TextInput
                             label="Start"
@@ -78,27 +72,14 @@ const CreateContest = () => {
                             onTouchEnd={() => setOpenDate(true)}
                             activeUnderlineColor="rgb(34,197,94)"
                             value={moment
-                                .unix(
-                                    data.start
-                                        ? data.start
-                                        : new Date().getTime() / 1000
-                                )
+                                .unix(data.start ? data.start : new Date().getTime() / 1000)
                                 .format('DD/MM/YYYY h:mm A')}
                             right={
-                                <TextInput.Icon
-                                    icon="calendar"
-                                    onPress={() => setOpenDate(true)}
-                                />
+                                <TextInput.Icon icon="calendar" onPress={() => setOpenDate(true)} />
                             }
                         />
                         <DatePicker
-                            date={
-                                new Date(
-                                    data.start
-                                        ? data.start * 1000
-                                        : new Date().getTime()
-                                )
-                            }
+                            date={new Date(data.start ? data.start * 1000 : new Date().getTime())}
                             modal
                             open={openDate}
                             mode="datetime"
@@ -119,18 +100,14 @@ const CreateContest = () => {
                             className="bg-gray-100"
                             value={data.duration}
                             activeUnderlineColor="rgb(34,197,94)"
-                            onChangeText={d =>
-                                setData(pre => ({ ...pre, duration: d }))
-                            }
+                            onChangeText={d => setData(pre => ({ ...pre, duration: d }))}
                         />
                     </View>
                     <View className="w-full my-4">
                         <TouchableOpacity
                             className="bg-green-500 p-2 rounded justify-center items-center"
                             onPress={handleCreate}>
-                            <Text className="font-bold text-xl text-white">
-                                Create Now
-                            </Text>
+                            <Text className="font-bold text-xl text-white">Create Now</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
