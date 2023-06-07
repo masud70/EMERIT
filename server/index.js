@@ -18,11 +18,9 @@ const userRouter = require('./router/userRouter');
 const contestRouter = require('./router/contestRouter');
 const postRouter = require('./router/postRouter');
 const { upload } = require('./middlewares/common/imageUpload');
-const {
-    errorHandler,
-    notFoundHandler,
-    checkLogin
-} = require('./middlewares/common');
+const { errorHandler, notFoundHandler, checkLogin } = require('./middlewares/common');
+const { GraphQLObjectType, GraphQLSchema } = require('graphql');
+const { graphqlHTTP } = require('express-graphql');
 
 //database connection
 // mongoose
@@ -61,6 +59,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //parse cookies
 app.use(cookieParser(process.env.COOKIE_SECRET));
+
+// QraphQL
+const Query = new GraphQLObjectType({
+    name: 'Query',
+    fields: {}
+});
+const Mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: () => ({})
+});
+app.use(
+    '/graphql',
+    graphqlHTTP({
+        graphiql: true,
+        schema: new GraphQLSchema({
+            query: Query,
+            mutation: Mutation
+        })
+    })
+);
 
 //routing setup
 app.use('/user', userRouter);

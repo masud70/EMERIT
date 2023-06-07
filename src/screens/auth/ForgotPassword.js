@@ -8,10 +8,10 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import { COLORS, ROUTES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useContext } from 'react';
+import style from '../../../styles/style.scss';
 import { AuthContext } from '../../contexts/authContext';
 import functions from '../../helpers/functions';
 
@@ -35,27 +35,19 @@ const ForgotPassword = () => {
                         <Text style={styles.brandName}>EMERIT</Text>
                     </View>
 
-                    <Text style={styles.loginContinueTxt}>
+                    <Text style={style.mediumText}>
                         Forgot your password? Enter your Email here.
                     </Text>
                     <TextInput style={styles.input} placeholder="Email" />
 
-                    <View style={styles.loginBtnWrapper}>
-                        <LinearGradient
-                            colors={[COLORS.gradientForm, COLORS.primary]}
-                            style={styles.linearGradient}
-                            start={{ y: 0.0, x: 0.0 }}
-                            end={{ y: 1.0, x: 0.0 }}>
-                            {/******************** FINISH BUTTON *********************/}
-                            <TouchableOpacity
-                                onPress={() => functions.login(auth)}
-                                activeOpacity={0.7}
-                                style={styles.loginBtn}>
-                                <Text style={styles.loginText}>
-                                    Request Password
-                                </Text>
-                            </TouchableOpacity>
-                        </LinearGradient>
+                    <View className="w-full flex bg-slate-500 flex-row justify-between rounded overflow-hidden">
+                        <TouchableOpacity
+                            className="w-full p-3"
+                            style={style.bg_primary}
+                            onPress={() => registerHandler()}
+                            activeOpacity={0.3}>
+                            <Text style={[style.btn]}>Request Password</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>

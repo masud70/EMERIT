@@ -74,6 +74,7 @@ module.exports = {
 
     loginUserController: (req, res, next) => {
         const user = req.body;
+        console.log(user);
         const { email, password } = user;
         db.User.findOne({ where: { email } })
             .then(user => {

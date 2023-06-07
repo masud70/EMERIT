@@ -8,13 +8,13 @@ import {
     Image
 } from 'react-native';
 import React, { useState } from 'react';
-import LinearGradient from 'react-native-linear-gradient';
 import { COLORS, ROUTES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { ActivityIndicator } from 'react-native-paper';
 import { FUNCTIONS } from '../../helpers';
 import { login } from '../../redux/state/auth/authSlice';
+import style from '../../../styles/style.scss';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -25,6 +25,7 @@ const Login = () => {
 
     //login handler
     const loginHandler = () => {
+        console.log('Login credential:', email, password);
         if (email && password) {
             setLoader(true);
             FUNCTIONS.login({ email, password })
@@ -45,9 +46,10 @@ const Login = () => {
                 })
                 .catch(err => {
                     FUNCTIONS.showToast('error', 'Error', err.message);
-                }).finally(()=>{
-                    setLoader(false);
                 })
+                .finally(() => {
+                    setLoader(false);
+                });
         }
     };
 
@@ -65,9 +67,7 @@ const Login = () => {
                         <Text style={styles.brandName}>EMeriT</Text>
                     </View>
 
-                    <Text style={styles.loginContinueTxt}>
-                        Login in to continue
-                    </Text>
+                    <Text style={styles.loginContinueTxt}>Login in to continue</Text>
                     <TextInput
                         style={styles.input}
                         value={email}
@@ -82,19 +82,20 @@ const Login = () => {
                     />
 
                     {/******************** LOGIN BUTTON *********************/}
-                    <View style={styles.loginBtnWrapper}>
-                        <LinearGradient
-                            colors={[COLORS.gradientForm, COLORS.primary]}
-                            style={styles.linearGradient}
-                            start={{ y: 0.0, x: 0.0 }}
-                            end={{ y: 1.0, x: 0.0 }}>
-                            <TouchableOpacity
-                                onPress={() => loginHandler()}
-                                activeOpacity={0.7}
-                                style={styles.loginBtn}>
-                                <Text style={styles.loginText}>Log In</Text>
-                            </TouchableOpacity>
-                        </LinearGradient>
+                    <View className="w-full flex bg-slate-500 flex-row justify-between rounded overflow-hidden">
+                        <TouchableOpacity
+                            className="w-1/2 p-3"
+                            onPress={() => navigation.navigate(ROUTES.REGISTER)}
+                            activeOpacity={0.3}>
+                            <Text style={style.btn}>Register</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            className="w-1/2 p-3"
+                            style={style.bg_primary}
+                            onPress={() => loginHandler()}
+                            activeOpacity={0.3}>
+                            <Text style={[style.btn]}>Log In</Text>
+                        </TouchableOpacity>
                     </View>
 
                     {/***************** FORGOT PASSWORD BUTTON *****************/}
@@ -105,27 +106,12 @@ const Login = () => {
                             })
                         }
                         style={styles.forgotPassBtn}>
-                        <Text style={styles.forgotPassText}>
-                            Forgot Password?
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/******************** REGISTER BUTTON *********************/}
-                <View style={styles.footer}>
-                    <Text style={styles.footerText}>
-                        Don't have an account?
-                    </Text>
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate(ROUTES.REGISTER)}>
-                        <Text style={styles.signupBtn}>Register Now</Text>
+                        <Text style={styles.forgotPassText}>Forgot Password?</Text>
                     </TouchableOpacity>
                 </View>
             </View>
             <ActivityIndicator
-                className={`absolute bg-slate-300 w-screen h-screen ${
-                    !loader && 'hidden'
-                }`}
+                className={`absolute bg-slate-300 w-screen h-screen ${!loader && 'hidden'}`}
                 size={60}
             />
         </SafeAreaView>

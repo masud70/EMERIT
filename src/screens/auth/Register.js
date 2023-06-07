@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import LinearGradient from 'react-native-linear-gradient';
 import { COLORS, CONSTANT, ROUTES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
+import style from '../../../styles/style.scss';
 import {
     StyleSheet,
     Text,
@@ -22,11 +22,7 @@ const Register = () => {
 
     //register handler
     const registerHandler = () => {
-        if (
-            password !== confirmPassword ||
-            password.length === 0 ||
-            name.length === 0
-        ) {
+        if (password !== confirmPassword || password.length === 0 || name.length === 0) {
             alert('Check all the fields.');
         } else {
             FUNCTIONS.register({ email, password, name })
@@ -41,9 +37,7 @@ const Register = () => {
                         navigation.navigate(ROUTES.LOGIN);
                     }
                 })
-                .catch(err =>
-                    FUNCTIONS.showToast('error', 'Error', err.message)
-                );
+                .catch(err => FUNCTIONS.showToast('error', 'Error', err.message));
         }
     };
 
@@ -58,14 +52,10 @@ const Register = () => {
                             height={50}
                             style={styles.mr7}
                         />
-                        <Text style={styles.brandName}>
-                            {CONSTANT.APP_NAME}
-                        </Text>
+                        <Text style={styles.brandName}>{CONSTANT.APP_NAME}</Text>
                     </View>
 
-                    <Text style={styles.loginContinueTxt}>
-                        Register a new account
-                    </Text>
+                    <Text style={styles.loginContinueTxt}>Register a new account</Text>
                     <TextInput
                         onChangeText={value => setEmail(value)}
                         style={styles.input}
@@ -87,46 +77,21 @@ const Register = () => {
                         placeholder="Confirm Password"
                     />
 
-                    <View style={styles.loginBtnWrapper}>
-                        <LinearGradient
-                            colors={[COLORS.gradientForm, COLORS.primary]}
-                            style={styles.linearGradient}
-                            start={{ y: 0.0, x: 0.0 }}
-                            end={{ y: 1.0, x: 0.0 }}>
-                            {/******************** LOGIN BUTTON *********************/}
-                            <TouchableOpacity
-                                onPress={registerHandler}
-                                activeOpacity={0.7}
-                                style={styles.loginBtn}>
-                                <Text style={styles.loginText}>Register</Text>
-                            </TouchableOpacity>
-                        </LinearGradient>
-                    </View>
-                    <Text style={styles.orTxt}>OR</Text>
-                    <View style={styles.googleLoginBtnWrapper}>
-                        {/******************** GOOGLE REGISTER BUTTON *********************/}
+                    <View className="w-full flex bg-slate-500 flex-row justify-between rounded overflow-hidden">
                         <TouchableOpacity
-                            onPress={() =>
-                                navigation.navigate(ROUTES.OTP_ROUTE)
-                            }
-                            activeOpacity={0.7}
-                            style={styles.loginBtn}>
-                            <Text style={styles.googleLoginText}>
-                                Register with google
-                            </Text>
+                            className="w-1/2 p-3"
+                            onPress={() => navigation.navigate(ROUTES.LOGIN)}
+                            activeOpacity={0.3}>
+                            <Text style={style.btn}>Log In</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            className="w-1/2 p-3"
+                            style={style.bg_primary}
+                            onPress={() => registerHandler()}
+                            activeOpacity={0.3}>
+                            <Text style={[style.btn]}>Register</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
-
-                <View style={styles.footer}>
-                    <Text style={styles.footerText}>
-                        Already have an account?{' '}
-                    </Text>
-                    {/******************** LOGIN BUTTON *********************/}
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate(ROUTES.LOGIN)}>
-                        <Text style={styles.signupBtn}>Login</Text>
-                    </TouchableOpacity>
                 </View>
             </View>
         </SafeAreaView>

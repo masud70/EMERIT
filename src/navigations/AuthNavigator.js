@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Login, ForgotPassword, Register } from '../screens';
 import { ROUTES } from '../constants';

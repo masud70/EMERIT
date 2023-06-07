@@ -8,11 +8,16 @@ import { Provider } from 'react-redux';
 import { Provider as AppProvider } from '@react-native-material/core';
 import { AuthContext } from './src/contexts/authContext';
 import { PortalProvider } from '@react-native-material/core';
+// import { InMemoryCache, ApolloProvider, ApolloClient } from '@apollo/client';
 
 export default function App() {
     var initialValue = {
         loginStatus: 'false1'
     };
+    // const client = new ApolloClient({
+    //     uri: 'https://countries.trevorblades.com/graphql',
+    //     cache: new InMemoryCache()
+    //   });
 
     return (
         <NavigationContainer>

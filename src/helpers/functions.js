@@ -1,10 +1,12 @@
 import moment from 'moment';
 import Toast from 'react-native-toast-message';
 import { CONSTANT } from '../constants';
+import { BASE_URL } from '@env';
 
 export default {
     login: async data => {
-        const url = CONSTANT.SERVER_URL + 'user/login';
+        const url = BASE_URL + '/user/login';
+        console.log(url);
         try {
             const response = await fetch(url, {
                 method: 'POST',

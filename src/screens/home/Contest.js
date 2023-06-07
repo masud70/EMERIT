@@ -109,7 +109,7 @@ const Contest = () => {
                         </Text>
                     </TouchableOpacity>
                 </View>
-                <ScrollView className="mt-2 rounded-xl mb-20">
+                <ScrollView className="mt-2 rounded-xl mb-20" showsVerticalScrollIndicator={false}>
                     <View className="rounded h-full mx-1">
                         {type === 1 ? <Upcoming /> : type === 2 ? <Live /> : <Ended />}
                     </View>
