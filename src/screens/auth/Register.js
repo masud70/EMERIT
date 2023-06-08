@@ -25,6 +25,7 @@ const Register = () => {
         if (password !== confirmPassword || password.length === 0 || name.length === 0) {
             alert('Check all the fields.');
         } else {
+            console.log(email, password, name);
             FUNCTIONS.register({ email, password, name })
                 .then(res => {
                     console.log(res);

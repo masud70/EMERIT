@@ -2,6 +2,10 @@ $bg-primary: #7d5fff;
 $white: #ffffff;
 $size-medium: 18px;
 
+.mainContainer {
+    padding: 5px;
+    border-radius: 3px;
+}
 .btn {
     font-weight: bold;
     color: $white;
@@ -13,7 +17,7 @@ $size-medium: 18px;
     background-color: $bg-primary;
 }
 
-.mediumText{
+.mediumText {
     font-size: 16px;
     font-weight: bold;
 }

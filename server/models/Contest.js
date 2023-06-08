@@ -1,11 +1,9 @@
-const { UUIDV4 } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
     const Contest = sequelize.define('Contest', {
         id: {
-            type: DataTypes.UUID,
+            type: DataTypes.INTEGER,
             primaryKey: true,
-            defaultValue: UUIDV4
+            autoIncrement: true
         },
         title: {
             type: DataTypes.TEXT,
@@ -19,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         duration: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER,
             allowNull: false
         }
     });

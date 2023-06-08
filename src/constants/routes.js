@@ -17,6 +17,8 @@ export default {
     CONTEST_DRAWER: 'Contest Drawer',
     CONTEST_SCREEN: 'Contest Screen',
 
+    CONTEST_DETAILS: 'Contest Details',
+
     ARCHIVE: 'Archive',
     ARCHIVE_TAB: 'Archive Tab',
     ARCHIVE_DRAWER: 'Archive Drawer',

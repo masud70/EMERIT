@@ -21,7 +21,7 @@ export default {
     },
 
     register: async data => {
-        const url = CONSTANT.SERVER_URL + 'user/register';
+        const url = BASE_URL + '/user/register';
         try {
             const response = await fetch(url, {
                 method: 'POST',

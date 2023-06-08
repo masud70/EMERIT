@@ -8,31 +8,34 @@ import { Provider } from 'react-redux';
 import { Provider as AppProvider } from '@react-native-material/core';
 import { AuthContext } from './src/contexts/authContext';
 import { PortalProvider } from '@react-native-material/core';
-// import { InMemoryCache, ApolloProvider, ApolloClient } from '@apollo/client';
+import { InMemoryCache, ApolloProvider, ApolloClient } from '@apollo/client';
+import { BASE_URL } from '@env';
 
 export default function App() {
     var initialValue = {
         loginStatus: 'false1'
     };
-    // const client = new ApolloClient({
-    //     uri: 'https://countries.trevorblades.com/graphql',
-    //     cache: new InMemoryCache()
-    //   });
+    const client = new ApolloClient({
+        uri: BASE_URL + '/graphql',
+        cache: new InMemoryCache()
+    });
 
     return (
         <NavigationContainer>
-            <AuthContext.Provider value={initialValue}>
-                <Provider store={store}>
-                    <PaperProvider>
-                        <PortalProvider>
-                            <AppProvider>
-                                <AuthNavigator />
-                                <Toast />
-                            </AppProvider>
-                        </PortalProvider>
-                    </PaperProvider>
-                </Provider>
-            </AuthContext.Provider>
+            <ApolloProvider client={client}>
+                <AuthContext.Provider value={initialValue}>
+                    <Provider store={store}>
+                        <PaperProvider>
+                            <PortalProvider>
+                                <AppProvider>
+                                    <AuthNavigator />
+                                    <Toast />
+                                </AppProvider>
+                            </PortalProvider>
+                        </PaperProvider>
+                    </Provider>
+                </AuthContext.Provider>
+            </ApolloProvider>
         </NavigationContainer>
     );
 }

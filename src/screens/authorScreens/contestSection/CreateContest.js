@@ -1,4 +1,4 @@
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import React from 'react';
 import { TextInput } from 'react-native-paper';
 import { ActivityIndicator } from 'react-native';
@@ -9,38 +9,29 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { FUNCTIONS } from '../../../helpers';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { CONSTANT, ROUTES } from '../../../constants';
+import { ROUTES } from '../../../constants';
+import { useMutation } from '@apollo/client';
+import { CREATE_CONTEST_MUTATION } from '../../../graphql/query';
 
 const CreateContest = () => {
-    const [data, setData] = useState({});
+    const [input, setInput] = useState({});
     const [openDate, setOpenDate] = useState(false);
-    const [animator, setAnimator] = useState(false);
     const auth = useSelector(st => st.auth);
     const navigation = useNavigation();
 
+    const [createContest, { loading, error, data }] = useMutation(CREATE_CONTEST_MUTATION);
+
     const handleCreate = () => {
-        setAnimator(true);
-        const url = CONSTANT.SERVER_URL + 'contest/create';
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                authorization: 'Bearer ' + auth.token
-            },
-            body: JSON.stringify(data)
-        })
-            .then(r => r.json())
-            .then(res => {
-                FUNCTIONS.showToast2(res.status, res.message);
-                if (res.status) {
-                    setData({});
-                    navigation.navigate(ROUTES.AUTHOR_CONTEST);
-                }
-            })
-            .catch(err => FUNCTIONS.showToast2(false, err.message))
-            .finally(() => setAnimator(false));
+        input.token = auth.token;
+        input.start = input.start.toString();
+        createContest({ variables: input });
     };
+
+    if (!loading && data) {
+        FUNCTIONS.showToast2(data.createContest.status, data.createContest.message);
+        if (data.createContest.status) navigation.navigate(ROUTES.AUTHOR_CONTEST);
+    }
+    if (error) FUNCTIONS.showToast2(false, error.message);
 
     return (
         <SafeAreaView>
@@ -53,18 +44,18 @@ const CreateContest = () => {
                         <TextInput
                             label="Contest title"
                             className="bg-gray-100 rounded"
-                            value={data.title}
+                            value={input.title}
                             activeUnderlineColor="rgb(34,197,94)"
-                            onChangeText={text => setData(pre => ({ ...pre, title: text }))}
+                            onChangeText={text => setInput(pre => ({ ...pre, title: text }))}
                         />
                         <TextInput
                             label="Description"
                             className="bg-gray-100 rounded"
-                            value={data.description}
+                            value={input.description}
                             multiline
                             numberOfLines={4}
                             activeUnderlineColor="rgb(34,197,94)"
-                            onChangeText={text => setData(pre => ({ ...pre, description: text }))}
+                            onChangeText={text => setInput(pre => ({ ...pre, description: text }))}
                         />
                         <TextInput
                             label="Start"
@@ -72,21 +63,21 @@ const CreateContest = () => {
                             onTouchEnd={() => setOpenDate(true)}
                             activeUnderlineColor="rgb(34,197,94)"
                             value={moment
-                                .unix(data.start ? data.start : new Date().getTime() / 1000)
+                                .unix(input.start ? input.start : new Date().getTime() / 1000)
                                 .format('DD/MM/YYYY h:mm A')}
                             right={
                                 <TextInput.Icon icon="calendar" onPress={() => setOpenDate(true)} />
                             }
                         />
                         <DatePicker
-                            date={new Date(data.start ? data.start * 1000 : new Date().getTime())}
+                            date={new Date(input.start ? input.start * 1000 : new Date().getTime())}
                             modal
                             open={openDate}
                             mode="datetime"
                             activeUnderlineColor="rgb(34,197,94)"
                             onConfirm={date => {
                                 setOpenDate(false);
-                                setData(pre => ({
+                                setInput(pre => ({
                                     ...pre,
                                     start: date.getTime() / 1000
                                 }));
@@ -98,9 +89,9 @@ const CreateContest = () => {
                         <TextInput
                             label={'Duration (minutes)'}
                             className="bg-gray-100"
-                            value={data.duration}
+                            value={input.duration}
                             activeUnderlineColor="rgb(34,197,94)"
-                            onChangeText={d => setData(pre => ({ ...pre, duration: d }))}
+                            onChangeText={d => setInput(pre => ({ ...pre, duration: parseInt(d) }))}
                         />
                     </View>
                     <View className="w-full my-4">
@@ -114,14 +105,12 @@ const CreateContest = () => {
             </View>
             <View
                 className={`absolute bg-gray-100 h-screen w-screen items-center ${
-                    !animator ? 'hidden' : ''
+                    !loading ? 'hidden' : ''
                 } justify-center`}>
-                <ActivityIndicator color="red" animating={animator} size={60} />
+                <ActivityIndicator color="red" animating={loading} size={60} />
             </View>
         </SafeAreaView>
     );
 };
 
 export default CreateContest;
-
-const styles = StyleSheet.create({});

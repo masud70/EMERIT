@@ -22,6 +22,9 @@ const { errorHandler, notFoundHandler, checkLogin } = require('./middlewares/com
 const { GraphQLObjectType, GraphQLSchema } = require('graphql');
 const { graphqlHTTP } = require('express-graphql');
 
+const contestQuery = require('./graphql/contest/query');
+const contestMutation = require('./graphql/contest/mutation');
+
 //database connection
 // mongoose
 //     .connect(process.env.MONGO_CONNECTION_STRING, {
@@ -63,11 +66,11 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 // QraphQL
 const Query = new GraphQLObjectType({
     name: 'Query',
-    fields: {}
+    fields: { ...contestQuery }
 });
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
-    fields: () => ({})
+    fields: { ...contestMutation }
 });
 app.use(
     '/graphql',
@@ -85,7 +88,7 @@ app.use('/user', userRouter);
 app.use('/contest', checkLogin, contestRouter);
 app.use('/post', checkLogin, postRouter);
 app.get('/', (req, res) => {
-    res.json({ status: true, message: 'Welcome' });
+    res.json({ status: true, message: 'Welcome!' });
 });
 
 //avatar upload

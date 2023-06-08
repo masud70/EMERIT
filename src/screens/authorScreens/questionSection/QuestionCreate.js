@@ -1,20 +1,14 @@
-import {
-    Keyboard,
-    Pressable,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View
-} from 'react-native';
+import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { IconButton, TextInput } from 'react-native-paper';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
 import { SelectList } from 'react-native-dropdown-select-list';
-import { CONSTANT, ROUTES } from '../../../constants';
 import { useSelector } from 'react-redux';
 import { FUNCTIONS } from '../../../helpers';
 import { useNavigation } from '@react-navigation/native';
+import { useMutation } from '@apollo/client';
+import { CREATE_QUESTION_MUTATION } from '../../../graphql/query';
+import { ROUTES } from '../../../constants';
 
 const QuestionCreate = () => {
     const richText = React.useRef();
@@ -24,6 +18,9 @@ const QuestionCreate = () => {
     const auth = useSelector(state => state.auth);
     const navigation = useNavigation();
 
+    const [submitQuestion, { loading, error, data: mutationData }] =
+        useMutation(CREATE_QUESTION_MUTATION);
+
     const handleCancel = key => {
         setOptions(prevData => {
             const newData = { ...prevData };
@@ -31,33 +28,19 @@ const QuestionCreate = () => {
             return newData;
         });
     };
+
     const handleSubmit = () => {
-        const url = CONSTANT.BASE_URL + '/contest/addQuestion';
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                authorization: 'Bearer ' + auth.token
-            },
-            body: JSON.stringify({
-                ...data,
-                options: Object.values(options)
-            })
-        })
-            .then(r => r.json())
-            .then(res => {
-                FUNCTIONS.showToast2(res.status, res.message);
-                if (res.status) {
-                    setData({});
-                    setOptions({});
-                    setAns([]);
-                    navigation.navigate(ROUTES.AUTHOR_QUESTION)
-                }
-            })
-            .catch(err => {
-                FUNCTIONS.showToast2(false, err.message);
-            });
+        const variables = {
+            ...data,
+            options: Object.values(options),
+            privacy: 'private',
+            marks: 1,
+            token: auth.token
+        };
+
+        console.log(variables);
+
+        submitQuestion({ variables: variables });
     };
 
     useEffect(() => {
@@ -75,9 +58,13 @@ const QuestionCreate = () => {
         }
     }, [options]);
 
-    useEffect(() => {
-        console.log(data);
-    }, [data]);
+    if (!loading && mutationData) {
+        FUNCTIONS.showToast2(
+            mutationData.createQuestion.status,
+            mutationData.createQuestion.message
+        );
+        navigation.navigate(ROUTES.AUTHOR_QUESTION);
+    }
 
     return (
         <SafeAreaView>

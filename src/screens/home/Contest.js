@@ -1,35 +1,24 @@
-import {
-    Dimensions,
-    ImageBackground,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
-} from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import { Dimensions, RefreshControl, SafeAreaView, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
-import Upcoming from '../../components/contest/Upcoming';
-import Live from '../../components/contest/Live';
-import Ended from '../../components/contest/Ended';
-import { COLORS, CONSTANT } from '../../constants';
+import { CONSTANT } from '../../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { setContestData } from '../../redux/state/contestSlice';
 import { io } from 'socket.io-client';
 const { width, height } = Dimensions.get('window');
+import style from '../../../styles/style.scss';
+import Item from '../../components/contest/Item';
+import { useQuery } from '@apollo/client';
+import { GET_ALL_CONTEST_QUERY } from '../../graphql/query';
 const socket = io(CONSTANT.BASE_URL, { transports: ['websocket'] });
 
 const Contest = () => {
-    const [data, setData] = useState([]);
-    const [dataToShow, setDataToShow] = useState([]);
-    const [type, setType] = useState(1);
-    const [loading, setLoading] = useState(false);
     const auth = useSelector(state => state.auth);
-    const contest = useSelector(state => state.contest);
     const dispatch = useDispatch();
 
+    const { loading, error, data, refetch } = useQuery(GET_ALL_CONTEST_QUERY);
+
     const loadContest = () => {
-        setLoading(true);
         const url = CONSTANT.BASE_URL + '/contest/getAll';
         fetch(url, {
             method: 'GET',
@@ -48,84 +37,37 @@ const Contest = () => {
             })
             .catch(err => {
                 console.log(err);
-            })
-            .finally(() => setLoading(false));
+            });
     };
 
     useEffect(() => {
         loadContest();
     }, []);
-    
+
     useEffect(() => {
         socket.off('loadContest').on('loadContest', () => loadContest());
     }, [socket]);
 
     return (
-        <ImageBackground
-            source={require('../../assets/bg/4.png')}
-            width={width}
-            height={height}
-            resizeMode="cover"
-            className="h-full">
-            <SafeAreaView className="px-2 pt-2">
-                <View className="h-10 flex items-center justify-center rounded">
-                    <Text className="font-bold text-2xl text-white">Contest</Text>
+        <SafeAreaView style={style.mainContainer}>
+            <View className="h-full">
+                <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2 mb-1">
+                    <Text className="font-bold text-2xl text-gray-600">Contest</Text>
                 </View>
-                <View className="bg-white flex flex-row justify-between h-10 items-center rounded-3xl">
-                    <TouchableOpacity
-                        onPress={() => setType(1)}
-                        className={`w-1/3 ${
-                            type === 1 ? 'bg-slate-500' : ''
-                        } h-full items-center justify-center rounded-full`}>
-                        <Text
-                            className={`font-bold text-lg ${
-                                type === 1 ? 'text-slate-100' : 'text-slate-800'
-                            }`}>
-                            Upcoming
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => setType(2)}
-                        className={`w-1/3 ${
-                            type === 2 ? 'bg-slate-500' : ''
-                        } h-full items-center justify-center rounded-full`}>
-                        <Text
-                            className={`font-bold text-lg ${
-                                type === 2 ? 'text-slate-100' : 'text-slate-800'
-                            }`}>
-                            Live
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => setType(3)}
-                        className={`w-1/3 ${
-                            type === 3 ? 'bg-slate-500' : ''
-                        } h-full items-center justify-center rounded-full`}>
-                        <Text
-                            className={`font-bold text-lg ${
-                                type === 3 ? 'text-slate-100' : 'text-slate-800'
-                            }`}>
-                            Ended
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-                <ScrollView className="mt-2 rounded-xl mb-20" showsVerticalScrollIndicator={false}>
-                    <View className="rounded h-full mx-1">
-                        {type === 1 ? <Upcoming /> : type === 2 ? <Live /> : <Ended />}
-                    </View>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}>
+                    {loading ? (
+                        <Text>Loading...</Text>
+                    ) : error ? (
+                        <Text>Error</Text>
+                    ) : (
+                        data.getAllContest.map((item, idx) => <Item data={item} key={idx} />)
+                    )}
                 </ScrollView>
-            </SafeAreaView>
-        </ImageBackground>
+            </View>
+        </SafeAreaView>
     );
 };
 
 export default Contest;
-
-const styles = StyleSheet.create({
-    bb: {
-        backgroundColor: COLORS.primary,
-        height: '100%',
-        alignItems: 'center',
-        backgroundColor: 'black'
-    }
-});

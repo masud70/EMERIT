@@ -123,7 +123,7 @@ const Home = () => {
                 }>
                 <View style={styles.textSection}>
                     <Text className="font-bold text-xl text-gray-600">
-                        Hi, {userData.name + ' ' + data}
+                        Hi, {userData.name}
                     </Text>
                     <Text className={' font-bold text-slate-400'}>
                         Let's make this day productive
