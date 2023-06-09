@@ -19,8 +19,8 @@ module.exports = {
             status: { type: GraphQLBoolean },
             message: { type: GraphQLString },
             User: { type: UserType },
-            Question: { type: GraphQLList(module.exports.QuestionType) },
-            Registration: { type: module.exports.RegistrationType }
+            Questions: { type: GraphQLList(module.exports.QuestionType) },
+            Registration: { type: GraphQLList(module.exports.RegistrationType) }
         })
     }),
 

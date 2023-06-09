@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     Question.associate = () => {
         Question.belongsTo(sequelize.models.User);
         Question.hasMany(sequelize.models.Option);
+        Question.belongsToMany(sequelize.models.Contest, { through: 'Contest_Question' });
     };
 
     return Question;

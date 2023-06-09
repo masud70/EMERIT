@@ -29,9 +29,8 @@ const CreateContest = () => {
 
     if (!loading && data) {
         FUNCTIONS.showToast2(data.createContest.status, data.createContest.message);
-        if (data.createContest.status) navigation.navigate(ROUTES.AUTHOR_CONTEST);
-    }
-    if (error) FUNCTIONS.showToast2(false, error.message);
+        navigation.navigate(ROUTES.AUTHOR_CONTEST);
+    } else if (error) FUNCTIONS.showToast2(false, error.message);
 
     return (
         <SafeAreaView>

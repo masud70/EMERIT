@@ -98,6 +98,80 @@ module.exports = {
         }
     `,
 
+    UPDATE_CONTEST_MUTATION: gql`
+        mutation UpdateContest(
+            $id: Int!
+            $title: String!
+            $description: String!
+            $start: String!
+            $duration: Int!
+            $questions: [String!]!
+        ) {
+            updateContest(
+                id: $id
+                title: $title
+                description: $description
+                start: $start
+                duration: $duration
+                questions: $questions
+            ) {
+                status
+                message
+                id
+                title
+            }
+        }
+    `,
+
+    GET_CONTEST_BY_USER_ID_QUERY: gql`
+        query GetContestByUserId($token: String!) {
+            getContestByUserId(token: $token) {
+                id
+                title
+                description
+                start
+                duration
+                Questions {
+                    id
+                    title
+                }
+            }
+        }
+    `,
+
+    GET_CONTEST_BY_CONTEST_ID_QUERY: gql`
+        query GetContestByContestId($id: Int!) {
+            getContestByContestId(id: $id) {
+                id
+                title
+                description
+                start
+                duration
+                status
+                message
+                Questions {
+                    id
+                    title
+                }
+                User {
+                    id
+                    name
+                }
+            }
+        }
+    `,
+
+    GET_ALL_QUESTION_BY_USER_ID_QUERY: gql`
+        query GetAllQuestionByUserId($token: String!) {
+            getAllQuestionByUserId(token: $token) {
+                id
+                title
+                status
+                message
+            }
+        }
+    `,
+
     GET_REGISTRATION_STATUS_QUERY: gql`
         query ($id: Int!, $token: String!) {
             getRegistrationStatus(id: $id, token: $token) {

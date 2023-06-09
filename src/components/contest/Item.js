@@ -7,7 +7,7 @@ import prettyMilliseconds from 'pretty-ms';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 
-const Item = ({ data }) => {
+const Item = ({ data, route }) => {
     const [remaining, setRemaining] = useState('');
     const [state, setState] = useState(1);
     const navigation = useNavigation();
@@ -41,11 +41,10 @@ const Item = ({ data }) => {
         return () => {
             clearInterval(timer);
         };
-    }, []);
+    }, [data]);
 
     return (
-        <TouchableOpacity
-            onPress={() => navigation.navigate(ROUTES.CONTEST_DETAILS, { contestId: data.id })}>
+        <TouchableOpacity onPress={() => navigation.navigate(route, { contestId: data.id })}>
             <View className="w-full flex flex-row bg-green-200 rounded overflow-hidden mb-1">
                 <View
                     className={`w-1/12 ${

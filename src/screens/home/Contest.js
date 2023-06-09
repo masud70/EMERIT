@@ -1,7 +1,7 @@
 import { Dimensions, RefreshControl, SafeAreaView, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
-import { CONSTANT } from '../../constants';
+import { CONSTANT, ROUTES } from '../../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { setContestData } from '../../redux/state/contestSlice';
 import { io } from 'socket.io-client';
@@ -62,7 +62,7 @@ const Contest = () => {
                     ) : error ? (
                         <Text>Error</Text>
                     ) : (
-                        data.getAllContest.map((item, idx) => <Item data={item} key={idx} />)
+                        data.getAllContest.map((item, idx) => <Item data={item} key={idx} route={ROUTES.CONTEST_DETAILS} />)
                     )}
                 </ScrollView>
             </View>
