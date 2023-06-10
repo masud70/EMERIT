@@ -42,6 +42,7 @@ module.exports = (sequelize, DataTypes) => {
         User.hasMany(sequelize.models.Question);
         User.hasMany(sequelize.models.Registration);
         User.hasMany(sequelize.models.Post);
+        User.hasMany(sequelize.models.Submission);
         User.hasMany(sequelize.models.Reaction);
         User.hasMany(sequelize.models.Comment);
     };

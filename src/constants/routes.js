@@ -18,6 +18,7 @@ export default {
     CONTEST_SCREEN: 'Contest Screen',
 
     CONTEST_DETAILS: 'Contest Details',
+    CONTEST_LEADERBOARD: 'Contest Leaderboard',
 
     ARCHIVE: 'Archive',
     ARCHIVE_TAB: 'Archive Tab',

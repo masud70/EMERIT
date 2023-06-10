@@ -19,12 +19,17 @@ module.exports = (sequelize, DataTypes) => {
         duration: {
             type: DataTypes.INTEGER,
             allowNull: false
+        },
+        resultPublished: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true
         }
     });
     Contest.associate = () => {
         Contest.belongsTo(sequelize.models.User);
         Contest.hasMany(sequelize.models.Registration);
-        Contest.belongsToMany(sequelize.models.Question, {through: "Contest_Question"});
+        Contest.hasMany(sequelize.models.Submission);
+        Contest.belongsToMany(sequelize.models.Question, { through: 'Contest_Question' });
     };
     return Contest;
 };

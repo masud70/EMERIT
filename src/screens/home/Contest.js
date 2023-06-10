@@ -1,6 +1,5 @@
-import { Dimensions, RefreshControl, SafeAreaView, Text, View } from 'react-native';
+import { Dimensions, RefreshControl, SafeAreaView, Text, View, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { ScrollView } from 'react-native-gesture-handler';
 import { CONSTANT, ROUTES } from '../../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { setContestData } from '../../redux/state/contestSlice';
@@ -10,6 +9,7 @@ import style from '../../../styles/style.scss';
 import Item from '../../components/contest/Item';
 import { useQuery } from '@apollo/client';
 import { GET_ALL_CONTEST_QUERY } from '../../graphql/query';
+import { ActivityIndicator } from 'react-native';
 const socket = io(CONSTANT.BASE_URL, { transports: ['websocket'] });
 
 const Contest = () => {
@@ -48,6 +48,8 @@ const Contest = () => {
         socket.off('loadContest').on('loadContest', () => loadContest());
     }, [socket]);
 
+    if (error) console.log(error.message);
+
     return (
         <SafeAreaView style={style.mainContainer}>
             <View className="h-full">
@@ -56,13 +58,18 @@ const Contest = () => {
                 </View>
                 <ScrollView
                     showsVerticalScrollIndicator={false}
+                    className='h-screen'
                     refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}>
                     {loading ? (
-                        <Text>Loading...</Text>
+                        <ActivityIndicator size={40} color="gray" />
                     ) : error ? (
-                        <Text>Error</Text>
+                        <Text className="w-full text-center font-bold text-lg text-slate-700 p-4">
+                            {error.message}
+                        </Text>
                     ) : (
-                        data.getAllContest.map((item, idx) => <Item data={item} key={idx} route={ROUTES.CONTEST_DETAILS} />)
+                        data.getAllContest.map((item, idx) => (
+                            <Item data={item} key={idx} route={ROUTES.CONTEST_DETAILS} />
+                        ))
                     )}
                 </ScrollView>
             </View>

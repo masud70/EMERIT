@@ -20,7 +20,7 @@ module.exports = {
             message: { type: GraphQLString },
             User: { type: UserType },
             Questions: { type: GraphQLList(module.exports.QuestionType) },
-            Registration: { type: GraphQLList(module.exports.RegistrationType) }
+            Registrations: { type: GraphQLList(module.exports.RegistrationType) }
         })
     }),
 
@@ -35,7 +35,7 @@ module.exports = {
             privacy: { type: GraphQLString },
             status: { type: GraphQLString },
             message: { type: GraphQLString },
-            Option: { type: module.exports.OptionType }
+            Options: { type: GraphQLList(module.exports.OptionType) }
         })
     }),
 
@@ -55,6 +55,42 @@ module.exports = {
             time: { type: GraphQLString },
             status: { type: GraphQLBoolean },
             message: { type: GraphQLString }
+        })
+    }),
+
+    ResultType: new GraphQLObjectType({
+        name: 'Result',
+        fields: () => ({
+            status: { type: GraphQLBoolean },
+            message: { type: GraphQLString },
+            solved: { type: GraphQLInt },
+            correct: { type: GraphQLInt },
+            incorrect: { type: GraphQLInt },
+            marks: { type: GraphQLInt },
+            rank: { type: GraphQLInt }
+        })
+    }),
+
+    SubmissionType: new GraphQLObjectType({
+        name: 'Submission',
+        fields: () => ({
+            name: { type: GraphQLString },
+            UserId: { type: GraphQLString },
+            correct: { type: GraphQLInt },
+            incorrect: { type: GraphQLInt },
+            marks: { type: GraphQLInt },
+            rank: { type: GraphQLInt },
+            User: { type: UserType }
+        })
+    }),
+
+    RankListType: new GraphQLObjectType({
+        name: 'RankList',
+        fields: () => ({
+            status: { type: GraphQLBoolean },
+            message: { type: GraphQLString },
+            title: { type: GraphQLString },
+            Submissions: { type: GraphQLList(module.exports.SubmissionType) }
         })
     })
 };

@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, TouchableOpacity } from 'react-native';
+import { View, Text, ImageBackground } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshControl } from 'react-native-gesture-handler';
@@ -17,13 +17,19 @@ import { useEffect } from 'react';
 import prettyMilliseconds from 'pretty-ms';
 import { useSelector } from 'react-redux';
 import { FUNCTIONS } from '../../helpers';
+import { Pressable } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from '../../constants';
+import { LEADERBOARD_TYPE_1 } from '@env';
+import { ActivityIndicator } from 'react-native';
 
 const ContestDetails = ({ route }) => {
     const [remaining, setRemaining] = useState('');
     const [state, setState] = useState(1);
     const auth = useSelector(a => a.auth);
+    const navigation = useNavigation();
 
-    const { loading, error, data } = useQuery(GET_CONTEST_QUERY, {
+    const { loading, error, data, refetch } = useQuery(GET_CONTEST_QUERY, {
         variables: { id: route.params.contestId }
     });
 
@@ -87,6 +93,7 @@ const ContestDetails = ({ route }) => {
                 mutationData.registration.message
             );
             regRefetch();
+            refetch();
         }
     }, [mutationData]);
 
@@ -97,7 +104,7 @@ const ContestDetails = ({ route }) => {
                     <Text className="font-bold text-2xl text-gray-600">Contest</Text>
                 </View>
                 {loading || error ? (
-                    <Text>Loading...</Text>
+                    <ActivityIndicator className="mt-10" size={40} color="gray" />
                 ) : (
                     <View className="w-full rounded overflow-hidden">
                         <ImageBackground
@@ -138,34 +145,64 @@ const ContestDetails = ({ route }) => {
                                     <Text className="font-bold">{data.getContest.User.name}</Text>
                                 </View>
                             </View>
+                            <View className="w-full flex flex-row items-center">
+                                <View className="w-1/2 flex flex-row space-x-2 items-center">
+                                    <Icon2 name="users" size={18} />
+                                    <Text className="font-bold">
+                                        {data.getContest.Registrations.length}
+                                    </Text>
+                                </View>
+                            </View>
                         </View>
                         <View className="w-full p-1 bg-slate-200 min-h-[50px]">
                             <Text>{data.getContest.description}</Text>
                         </View>
-                        <View className="w-full my-1">
+                        <View className="w-full my-1 space-y-2">
                             {regData && !regData.getRegistrationStatus.status ? (
-                                <TouchableOpacity onPress={registerHandler} className="w-full">
+                                <Pressable
+                                    onPress={registerHandler}
+                                    className="w-full rounded overflow-hidden">
                                     <Text
-                                        className="w-full text-center p-1"
+                                        className="w-full text-center p-2"
                                         style={[style.btn, style.bg_primary]}>
                                         Register
                                     </Text>
-                                </TouchableOpacity>
+                                </Pressable>
                             ) : state === 1 ? (
                                 <Text
-                                    className="w-full text-center p-1"
+                                    className="w-full text-center p-2"
                                     style={[style.btn, style.bg_primary]}>
                                     Registered
                                 </Text>
                             ) : (
-                                <TouchableOpacity className="w-full">
+                                <Pressable
+                                    className="w-full rounded overflow-hidden"
+                                    onPress={() =>
+                                        navigation.navigate(ROUTES.CONTEST_SCREEN, {
+                                            id: route.params.contestId
+                                        })
+                                    }>
                                     <Text
-                                        className="w-full text-center p-1"
+                                        className="w-full text-center p-2"
                                         style={[style.btn, style.bg_primary]}>
                                         {state === 2 ? 'Enter' : 'Practice'}
                                     </Text>
-                                </TouchableOpacity>
+                                </Pressable>
                             )}
+                            <Pressable
+                                className="w-full rounded overflow-hidden"
+                                onPress={() =>
+                                    navigation.navigate(ROUTES.CONTEST_LEADERBOARD, {
+                                        id: route.params.contestId,
+                                        type: 1
+                                    })
+                                }>
+                                <Text
+                                    className="w-full text-center p-2"
+                                    style={[style.btn, style.bg_primary]}>
+                                    Leaderboard
+                                </Text>
+                            </Pressable>
                         </View>
                     </View>
                 )}

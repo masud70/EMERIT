@@ -5,7 +5,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import moment from 'moment';
 import prettyMilliseconds from 'pretty-ms';
 import { useNavigation } from '@react-navigation/native';
-import { ROUTES } from '../../constants';
+import { Pressable } from 'react-native';
 
 const Item = ({ data, route }) => {
     const [remaining, setRemaining] = useState('');
@@ -44,7 +44,7 @@ const Item = ({ data, route }) => {
     }, [data]);
 
     return (
-        <TouchableOpacity onPress={() => navigation.navigate(route, { contestId: data.id })}>
+        <Pressable onPress={() => navigation.navigate(route, { contestId: data.id })}>
             <View className="w-full flex flex-row bg-green-200 rounded overflow-hidden mb-1">
                 <View
                     className={`w-1/12 ${
@@ -74,7 +74,7 @@ const Item = ({ data, route }) => {
                     </View>
                 </View>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     );
 };
 

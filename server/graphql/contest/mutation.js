@@ -1,5 +1,5 @@
-const { GraphQLString, GraphQLInt, GraphQLList, GraphQLBoolean } = require('graphql');
-const { ContestType, RegistrationType, QuestionType } = require('./typeDef');
+const { GraphQLString, GraphQLInt, GraphQLList, GraphQLNonNull } = require('graphql');
+const { ContestType, RegistrationType, QuestionType, ResultType } = require('./typeDef');
 const jwt = require('jsonwebtoken');
 const db = require('../../models');
 
@@ -107,7 +107,9 @@ module.exports = {
                 if (args.title.length < 2)
                     throw new Error('Title length must be greater than 2 chars.');
                 if (!args.options.includes(args.answer))
-                    throw new Error('Ansers must be an option.');
+                    throw new Error('Answer must be an option.');
+                if (args.options.length < 3 || args.options.length > 5)
+                    throw new Error('Number of options should be 3 to 5.');
 
                 const question = await db.Question.create({
                     title: args.title,
@@ -130,6 +132,88 @@ module.exports = {
                     ...question.dataValues,
                     ...options.dataValues
                 };
+            } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
+    },
+
+    submitAnswer: {
+        type: ResultType,
+        args: {
+            id: { type: GraphQLNonNull(GraphQLInt) },
+            token: { type: GraphQLNonNull(GraphQLString) },
+            answers: { type: GraphQLNonNull(GraphQLString) }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const decoded = jwt.verify(args.token, process.env.JWT_SECRET);
+                const ids = args.answers.split('>>::<<')[0].split('<<::>>');
+                const values = args.answers.split('>>::<<')[1].split('<<::>>');
+
+                const submissionValues = [];
+
+                for (let i = 0; i < ids.length; i++) {
+                    submissionValues.push({
+                        ContestId: args.id,
+                        UserId: decoded.userId,
+                        QuestionId: ids[i],
+                        solution: values[i]
+                    });
+                }
+
+                const x = submissionValues.map(item => {
+                    return db.Submission.findOne({
+                        where: {
+                            ContestId: item.ContestId,
+                            UserId: item.UserId,
+                            QuestionId: item.QuestionId
+                        }
+                    }).then(res => {
+                        if (res) {
+                            return db.Submission.update(
+                                { solution: item.solution },
+                                {
+                                    where: {
+                                        ContestId: item.ContestId,
+                                        UserId: item.UserId,
+                                        QuestionId: item.QuestionId
+                                    }
+                                }
+                            )
+                                .then(r => {
+                                    return 1;
+                                })
+                                .catch(error => {
+                                    return 0;
+                                });
+                        } else {
+                            return db.Submission.create(item)
+                                .then(r => {
+                                    return 1;
+                                })
+                                .catch(error => {
+                                    return 0;
+                                });
+                        }
+                    });
+                });
+
+                const ret = await Promise.all(x)
+                    .then(rr => {
+                        return {
+                            status: true,
+                            message: 'Solutions submitted successfully!',
+                            solved: rr.reduce((a, b) => a + b, 0)
+                        };
+                    })
+                    .catch(error => {
+                        throw new Error(error.message);
+                    });
+                return ret;
             } catch (error) {
                 return {
                     status: false,
@@ -164,7 +248,6 @@ module.exports = {
                     ...registration.dataValues
                 };
             } catch (error) {
-                console.log(error.message);
                 return {
                     status: false,
                     message: error.message

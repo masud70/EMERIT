@@ -1,127 +1,126 @@
-import {
-    Dimensions,
-    ImageBackground,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View
-} from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { CONSTANT } from '../../constants';
+import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React from 'react';
 import { useSelector } from 'react-redux';
+import { useMutation, useQuery } from '@apollo/client';
+import { GET_CONTEST_QUESTION_OPTION_QUERY, SUBMIT_ANSWER_MUTATION } from '../../graphql/query';
+import style from '../../../styles/style.scss';
+import QuestionItem from '../../components/contest/QuestionItem';
+import { Pressable } from 'react-native';
+import { useEffect } from 'react';
+import { useState } from 'react';
+import prettyMilliseconds from 'pretty-ms';
+import { useNavigation } from '@react-navigation/native';
+import { FUNCTIONS } from '../../helpers';
 
 const ContestScreen = ({ route }) => {
-    const { width, height } = Dimensions.get('window');
-    const [contestData, setContestData] = useState({});
-    const [loading, setLoading] = useState(false);
-    const [data, setData] = useState({});
+    const [remaining, setRemaining] = useState('');
+    const [answer, setAnswer] = useState([]);
     const auth = useSelector(state => state.auth);
+    const navigation = useNavigation();
 
-    const loadData = () => {
-        setLoading(true);
-        const url = CONSTANT.BASE_URL + '/contest/getOneById/' + route.params.data.id;
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                authorization: 'Bearer ' + auth.token
-            }
-        })
-            .then(r => r.json())
-            .then(res => {
-                console.log(res);
-            })
-            .catch(err => {
-                console.log(err);
-                setData(res.data);
-            })
-            .finally(() => setLoading(false));
+    const { loading, error, data, refetch } = useQuery(GET_CONTEST_QUESTION_OPTION_QUERY, {
+        variables: { id: route.params.id }
+    });
+
+    const [submitAnswer, { loading: submitLoading, error: submitError, data: submitData }] =
+        useMutation(SUBMIT_ANSWER_MUTATION);
+
+    const handleSubmit = () => {
+        const ids = Object.keys(answer).join('<<::>>');
+        const values = Object.values(answer).join('<<::>>');
+
+        const variables = {
+            id: route.params.id,
+            token: auth.token,
+            answers: ids + '>>::<<' + values
+        };
+        submitAnswer({ variables: variables });
     };
 
     useEffect(() => {
-        loadData();
-        setContestData(route.params.data);
-    }, []);
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            let remainingTime = parseInt(data.getContestQuestionOption.start) * 1000 - now;
+
+            if (
+                now >=
+                (parseInt(data.getContestQuestionOption.start) +
+                    data.getContestQuestionOption.duration * 60) *
+                    1000
+            ) {
+                setRemaining('Ended');
+            } else if (now >= parseInt(data.getContestQuestionOption.start) * 1000) {
+                remainingTime =
+                    (parseInt(data.getContestQuestionOption.start) +
+                        data.getContestQuestionOption.duration * 60) *
+                        1000 -
+                    now;
+                setRemaining(
+                    prettyMilliseconds(remainingTime, {
+                        secondsDecimalDigits: 0
+                    })
+                );
+            } else {
+                setRemaining(
+                    prettyMilliseconds(remainingTime, {
+                        secondsDecimalDigits: 0
+                    })
+                );
+            }
+        }, 1000);
+
+        return () => {
+            clearInterval(timer);
+        };
+    }, [data]);
+
+    useEffect(() => {
+        if (submitData) {
+            FUNCTIONS.showToast2(submitData.submitAnswer.status, submitData.submitAnswer.message);
+            if (submitData.submitAnswer.status) navigation.goBack();
+        }
+    }, [submitData]);
 
     return (
-        <ImageBackground
-            source={require('../../assets/bg/2.png')}
-            width={width}
-            height={height}
-            resizeMode="cover"
-            className="h-full">
-            <SafeAreaView className="px-2 pt-2 flex justify-between h-full">
-                <View className="w-full h- flex items-center border-b-2 border-b-slate-600 pb-2">
-                    <Text className="font-bold text-2xl text-white w-full text-center">
-                        EMERIT Testing Contest 01 Lorem ipsum dolor sit amet.
-                    </Text>
-                </View>
-                {/* Question */}
-                <View className="w-full bg-slate-100 rounded  min-h-[50%] max-h-[70%] p-2">
-                    <ScrollView className="max-h-[70%] overflow-auto">
-                        <Text className="font-medium text-base select-none">
-                            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Architecto quo
-                            atque ad voluptas facilis, doloribus quibusdam iste numquam in
-                            reiciendis illo facere maxime non odit deserunt? Eos odit dicta
-                            suscipit. ipsum dolor, আমার sit amet consectetur adipisicing elit. Animi
-                            corrupti laudantium exercitationem eveniet in! Laborum expedita
-                            praesentium voluptates minus necessitatibus, accusamus incidunt ut
-                            distinctio nemo sed fugit asperiores, porro eius sunt. Doloribus
-                            temporibus dicta labore ad at, quam repudiandae beatae, distinctio sint
-                            quod quasi sunt porro eligendi eaque reiciendis ipsa. Lorem ipsum dolor
-                            sit amet consectetur adipisicing elit. Corporis architecto nostrum et
-                            eos quis dolor dicta modi expedita quod laudantium placeat doloremque
-                            sit esse est, dolores facere in temporibus atque! Lorem ipsum dolor sit
-                            amet, consectetur adipisicing elit. Quidem consectetur aspernatur
-                            excepturi iure? Quibusdam dolores laudantium dolorum beatae, voluptatum
-                            eveniet earum, rerum placeat natus consectetur ducimus temporibus est?
-                            Ut accusantium beatae nisi obcaecati, cum veritatis architecto dolor,
-                            nam, possimus libero commodi. Eum, eaque iste! Dolores id dolore ipsa
-                            omnis fugiat!
-                        </Text>
-                    </ScrollView>
-                    <View className="flex justify-between space-y-1 mt-3">
-                        <View className="w-full bg-slate-300 p-1 flex flex-row space-x-2 items-center rounded">
-                            <Text className="font-bold">A.</Text>
-                            <Text className="text-base w-11/12">Lorem ipsum dolor sit amet.</Text>
-                        </View>
-                        <View className="w-full bg-slate-300 p-1 flex flex-row space-x-2 items-center rounded">
-                            <Text className="font-bold">B.</Text>
-                            <Text className="text-base w-11/12">
-                                Lorem ipsum dolor sit amet. consectetur adipisicing elit. Officia,
-                                voluptatem?
+        <SafeAreaView style={style.mainContainer}>
+            <View className="h-full pb-16">
+                {loading || error ? (
+                    <ActivityIndicator className="mt-10" size={40} color="gray" />
+                ) : (
+                    <View className="pb-1">
+                        <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2 mb-1">
+                            <Text className="font-bold text-xl text-gray-500">
+                                {data.getContestQuestionOption.title}
+                            </Text>
+                            <Text className="w-full text-center text-base">
+                                Remaining: {remaining}
                             </Text>
                         </View>
-                        <View className="w-full bg-slate-300 p-1 flex flex-row space-x-2 items-center rounded">
-                            <Text className="font-bold">C.</Text>
-                            <Text className="text-base w-11/12">Lorem ipsum dolor sit amet.</Text>
-                        </View>
-                        <View className="w-full bg-slate-300 p-1 flex flex-row space-x-2 items-center rounded">
-                            <Text className="font-bold">D.</Text>
-                            <Text className="text-base w-11/12">Lorem ipsum dolor sit amet.</Text>
-                        </View>
+                        <ScrollView
+                            className="flex flex-col mb-3"
+                            showsVerticalScrollIndicator={false}>
+                            {data.getContestQuestionOption.Questions.map((item, idx) => {
+                                return (
+                                    <QuestionItem
+                                        data={{ ...item, sl: idx }}
+                                        answer={answer}
+                                        setAnswer={setAnswer}
+                                        key={idx}
+                                    />
+                                );
+                            })}
+                            <View className="w-full">
+                                <Pressable
+                                    onPress={handleSubmit}
+                                    className="bg-green-500 p-2 rounded">
+                                    <Text style={style.btn}>Finish</Text>
+                                </Pressable>
+                            </View>
+                        </ScrollView>
                     </View>
-                </View>
-                <View className="w-full rounded mb-2 space-y-3">
-                    <View className="w-full">
-                        <TouchableOpacity className="w-full items-center p-2 bg-green-700 rounded-2xl">
-                            <Text className="text-white font-bold text-lg">Submit</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View className="w-full flex flex-row justify-between">
-                        <TouchableOpacity className="bg-slate-300 p-2 rounded-xl w-24 items-center">
-                            <Text className="font-bold text-base">Previous</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity className="bg-slate-300 p-2 rounded-xl w-24 items-center">
-                            <Text className="font-bold text-base">Next</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </SafeAreaView>
-        </ImageBackground>
+                )}
+            </View>
+        </SafeAreaView>
     );
 };
 

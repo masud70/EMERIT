@@ -1,0 +1,4 @@
+input AnswerInput {
+    questionId: String!
+    answer: String!
+}

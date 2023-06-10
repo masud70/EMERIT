@@ -1,4 +1,5 @@
 const { gql } = require('@apollo/client');
+import { AnswerType } from '../../server/graphql/contest/typeDef';
 
 module.exports = {
     CREATE_CONTEST_MUTATION: gql`
@@ -94,6 +95,34 @@ module.exports = {
                     name
                     email
                 }
+                Registrations {
+                    id
+                    time
+                }
+            }
+        }
+    `,
+
+    GET_CONTEST_QUESTION_OPTION_QUERY: gql`
+        query GetContestQuestionOption($id: Int!) {
+            getContestQuestionOption(id: $id) {
+                id
+                title
+                description
+                start
+                duration
+                status
+                message
+                Questions {
+                    id
+                    title
+                    description
+                    marks
+                    Options {
+                        id
+                        value
+                    }
+                }
             }
         }
     `,
@@ -178,6 +207,38 @@ module.exports = {
                 status
                 message
                 id
+            }
+        }
+    `,
+
+    SUBMIT_ANSWER_MUTATION: gql`
+        mutation SubmitAnswer($id: Int!, $token: String!, $answers: String!) {
+            submitAnswer(id: $id, token: $token, answers: $answers) {
+                status
+                message
+                solved
+                correct
+                incorrect
+                rank
+                marks
+            }
+        }
+    `,
+
+    GET_LEADERBOARD_QUERY: gql`
+        query GetRankList($id: Int!, $type: Int!) {
+            getRankList(id: $id, type: $type) {
+                status
+                message
+                title
+                Submissions {
+                    name
+                    UserId
+                    correct
+                    incorrect
+                    marks
+                    rank
+                }
             }
         }
     `

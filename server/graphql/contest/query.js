@@ -1,7 +1,7 @@
 const { GraphQLString, GraphQLList, GraphQLInt } = require('graphql');
 const db = require('../../models');
 const jwt = require('jsonwebtoken');
-const { ContestType, RegistrationType, QuestionType } = require('./typeDef');
+const { ContestType, RegistrationType, QuestionType, RankListType } = require('./typeDef');
 const { Op } = require('sequelize');
 
 module.exports = {
@@ -32,7 +32,7 @@ module.exports = {
             try {
                 const contest = await db.Contest.findOne({
                     where: { id: args.id },
-                    include: ['User', 'Registrations']
+                    include: ['User', db.Registration]
                 });
 
                 return {
@@ -84,7 +84,31 @@ module.exports = {
                     include: [db.Question, db.User]
                 });
 
-                console.log(contest);
+                return contest;
+            } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
+    },
+
+    getContestQuestionOption: {
+        type: ContestType,
+        args: {
+            id: { type: GraphQLInt }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const contest = await db.Contest.findByPk(args.id, {
+                    include: [
+                        {
+                            model: db.Question,
+                            include: [db.Option]
+                        }
+                    ]
+                });
 
                 return contest;
             } catch (error) {
@@ -144,6 +168,98 @@ module.exports = {
                     status: true,
                     message: 'Registered!',
                     ...reg.dataValues
+                };
+            } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
+    },
+
+    getRankList: {
+        type: RankListType,
+        args: {
+            type: { type: GraphQLInt },
+            id: { type: GraphQLInt }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const contest = await db.Contest.findByPk(args.id);
+
+                const time = (parseInt(contest.start) + contest.duration * 60) * 1000;
+
+                if ((time >= new Date().getTime() || !contest.resultPublished) && args.type === 1) {
+                    return {
+                        status: false,
+                        message: 'Ranklist not published yet.',
+                        title: contest.title
+                    };
+                }
+
+                const whereCondition = args.type === 1 ? { ContestId: args.id } : {};
+
+                const RankingList = await db.Submission.findAll({
+                    attributes: [
+                        'UserId',
+                        [db.sequelize.literal('User.name'), 'name'],
+                        [
+                            db.sequelize.fn(
+                                'SUM',
+                                db.sequelize.literal(
+                                    'CASE WHEN Question.answer = Submission.solution THEN 1 ELSE 0 END'
+                                )
+                            ),
+                            'correct'
+                        ],
+                        [
+                            db.sequelize.fn(
+                                'SUM',
+                                db.sequelize.literal(
+                                    `CASE
+                                        WHEN Submission.solution IS NOT NULL
+                                        AND Question.id NOT IN (
+                                            SELECT s2.QuestionId
+                                            FROM Submissions AS s2
+                                        WHERE s2.UserId = Submission.UserId
+                                            AND s2.ContestId = Submission.ContestId
+                                            AND s2.solution IS NOT NULL
+                                            AND s2.solution = Question.answer
+                                    ) THEN 1
+                                    ELSE 0
+                                  END`
+                                )
+                            ),
+                            'incorrect'
+                        ],
+                        [
+                            db.sequelize.fn(
+                                'SUM',
+                                db.sequelize.literal(
+                                    'CASE WHEN Question.answer = Submission.solution THEN Question.marks ELSE 0 END'
+                                )
+                            ),
+                            'marks'
+                        ],
+                        [
+                            db.sequelize.literal(
+                                'ROW_NUMBER() OVER (ORDER BY SUM(CASE WHEN Question.answer = Submission.solution THEN Question.marks ELSE 0 END) DESC)'
+                            ),
+                            'rank'
+                        ]
+                    ],
+                    include: [db.User, db.Question, db.Contest],
+                    where: whereCondition,
+                    group: ['UserId'],
+                    order: [[db.sequelize.literal('marks'), 'DESC']]
+                });
+
+                return {
+                    status: true,
+                    message: 'Ranklist published.',
+                    title: contest.title,
+                    Submissions: RankingList.map(item => item.dataValues)
                 };
             } catch (error) {
                 return {
