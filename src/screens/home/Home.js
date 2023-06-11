@@ -4,9 +4,10 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    ActivityIndicator
 } from 'react-native';
-import React, { useState } from 'react';
+import React from 'react';
 import { COLORS, CONSTANT, ROUTES } from '../../constants';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Category from '../../components/category/Category';
@@ -20,14 +21,22 @@ import { Avatar } from 'react-native-paper';
 import { io } from 'socket.io-client';
 import Updates from './homeComponents/Updates';
 import { setPostData } from '../../redux/state/postSlice';
+import { useQuery } from '@apollo/client';
 const socket = io(CONSTANT.SERVER_URL, { transports: ['websocket'] });
+import { GET_USER_INFO_QUERY } from '../../graphql/query';
+import { BASE_URL } from '@env';
 
 const Home = () => {
-    const [data, setData] = useState('Empty');
-    const [userData, setUserData] = useState({});
     const auth = useSelector(state => state.auth);
     const navigation = useNavigation();
     const dispatch = useDispatch();
+
+    const {
+        loading: userLoading,
+        error: userError,
+        data: userData,
+        refetch: userRefetch
+    } = useQuery(GET_USER_INFO_QUERY, { variables: { token: auth.token } });
 
     const category = [
         {
@@ -107,13 +116,24 @@ const Home = () => {
     };
 
     useEffect(() => {
-        setUserData(auth.userData);
+        // setUserData(auth.userData);
         loadPost();
         socket.off('loadPost').on('loadPost', data => {
             console.log(data);
             loadPost();
         });
     }, []);
+
+    if (userLoading || userError) {
+        return (
+            <SafeAreaView style={styles.mainContainer}>
+                <View className="w-full flex items-center h-screen justify-center">
+                    <ActivityIndicator size={40} />
+                    <Text>Loading...</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.mainContainer} className="space-y-3">
@@ -123,7 +143,7 @@ const Home = () => {
                 }>
                 <View style={styles.textSection}>
                     <Text className="font-bold text-xl text-gray-600">
-                        Hi, {userData.name}
+                        Hi, {userData.getUserInfo.name}
                     </Text>
                     <Text className={' font-bold text-slate-400'}>
                         Let's make this day productive
@@ -131,9 +151,9 @@ const Home = () => {
                 </View>
                 <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
                     <Avatar.Image
-                        className="overflow-hidden p-0 m-0 items-center justify-center border-green-500 border-4"
-                        source={{ uri: CONSTANT.SERVER_URL + userData.avatar }}
-                        size={60}
+                        className="overflow-hidden p-0 m-0 items-center justify-center border-green-400 border-4"
+                        source={{ uri: BASE_URL + userData.getUserInfo.avatar }}
+                        size={50}
                     />
                 </TouchableOpacity>
             </View>
@@ -141,32 +161,20 @@ const Home = () => {
                 <View className="flex-2 flex-row justify-between bg-slate-100 rounded py-3 mb-2 divide-x-2 divide-slate-300">
                     <View className="w-1/2 flex flex-row items-center space-x-2 px-3 justify-center">
                         <View>
-                            <Icon
-                                name="trophy-sharp"
-                                size={35}
-                                color={'#F49D1A'}
-                            />
+                            <Icon name="trophy-sharp" size={35} color={'#F49D1A'} />
                         </View>
                         <View>
                             <Text className="font-bold text-md">Ranking</Text>
-                            <Text className="font-bold text-lg text-amber-500">
-                                123
-                            </Text>
+                            <Text className="font-bold text-lg text-amber-500">123</Text>
                         </View>
                     </View>
                     <View className="w-1/2 flex flex-row items-center justify-center space-x-2 px-3">
                         <View>
-                            <Icon
-                                name="server-sharp"
-                                size={35}
-                                color={'#F49D1A'}
-                            />
+                            <Icon name="server-sharp" size={35} color={'#F49D1A'} />
                         </View>
                         <View>
                             <Text className="font-bold text-md">Points</Text>
-                            <Text className="font-bold text-lg text-amber-500">
-                                1256
-                            </Text>
+                            <Text className="font-bold text-lg text-amber-500">1256</Text>
                         </View>
                     </View>
                 </View>
@@ -185,7 +193,7 @@ const Home = () => {
                     </View>
                 </ImageBackground>
                 <Divider text={'Top Solvers'} css="text-lg font-bold" />
-                <ScrollView horizontal={true}>
+                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
                     <View className="flex flex-row py-2">{topSolvers}</View>
                 </ScrollView>
                 <View>

@@ -1,8 +1,12 @@
 import { View, Text } from 'react-native';
 import React from 'react';
 import { RadioButton } from 'react-native-paper';
+import { useWindowDimensions } from 'react-native';
+import RenderHtml from 'react-native-render-html';
 
 const QuestionItem = ({ data, answer, setAnswer }) => {
+    const { width } = useWindowDimensions();
+
     return (
         <View className="w-full bg-slate-200 rounded overflow-hidden mb-2">
             <View className="w-full flex flex-row border-b border-slate-500">
@@ -11,8 +15,8 @@ const QuestionItem = ({ data, answer, setAnswer }) => {
                 </View>
                 <Text className="w-11/12 p-1 font-semibold">{data.title}</Text>
             </View>
-            <View className="p-1 w-full">
-                <Text className="w-full text-base">{data.description}</Text>
+            <View className="p-2 w-full">
+                <RenderHtml source={{ html: data.description }} contentWidth={width} />
             </View>
             <View className="w-full bg-slate-500">
                 <RadioButton.Group

@@ -8,10 +8,11 @@ module.exports = {
             name: { type: GraphQLString },
             email: { type: GraphQLString },
             username: { type: GraphQLString },
-            avatar: { type: GraphQLInt },
-            role: { type: GraphQLBoolean },
+            avatar: { type: GraphQLString },
+            role: { type: GraphQLString },
             phone: { type: GraphQLString },
-            status: { type: GraphQLBoolean }
+            status: { type: GraphQLBoolean },
+            message: { type: GraphQLString }
         })
     })
 };

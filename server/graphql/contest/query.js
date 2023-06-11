@@ -10,8 +10,24 @@ module.exports = {
         args: {},
         resolve: async (parent, args, ctx, info) => {
             try {
-                const contests = await db.Contest.findAll({ order: [['createdAt', 'DESC']] });
-                return contests;
+                const upcomingContests = await db.Contest.findAll({
+                    where: {
+                        start: db.sequelize.literal(
+                            'CASE WHEN CONVERT(start, DECIMAL) + duration * 60 > UNIX_TIMESTAMP() THEN start ELSE NULL END'
+                        )
+                    },
+                    order: [[db.sequelize.literal('start'), 'ASC']]
+                });
+                const pastContests = await db.Contest.findAll({
+                    where: {
+                        start: db.sequelize.literal(
+                            'CASE WHEN CONVERT(start, DECIMAL) + duration * 60 <= UNIX_TIMESTAMP() THEN start ELSE NULL END'
+                        )
+                    },
+                    order: [[db.sequelize.literal('start'), 'DESC']]
+                });
+                const combinedContests = upcomingContests.concat(pastContests);
+                return combinedContests;
             } catch (error) {
                 return [
                     {

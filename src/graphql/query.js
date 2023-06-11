@@ -241,5 +241,20 @@ module.exports = {
                 }
             }
         }
+    `,
+
+    GET_USER_INFO_QUERY: gql`
+        query GetUserInfo($token: String!) {
+            getUserInfo(token: $token) {
+                id
+                name
+                email
+                username
+                avatar
+                phone
+                status
+                message
+            }
+        }
     `
 };
