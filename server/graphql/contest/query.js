@@ -73,12 +73,29 @@ module.exports = {
         resolve: async (parent, args, ctx, info) => {
             try {
                 const decoded = jwt.verify(args.token, process.env.JWT_SECRET);
-                const contests = db.Contest.findAll({
-                    where: { UserId: decoded.userId },
-                    include: [db.Question, db.User]
+                const upcomingContests = await db.Contest.findAll({
+                    where: {
+                        UserId: decoded.userId,
+                        start: db.sequelize.literal(
+                            'CASE WHEN CONVERT(start, DECIMAL) + duration * 60 > UNIX_TIMESTAMP() THEN start ELSE NULL END'
+                        )
+                    },
+                    include: [db.Question, db.User],
+                    order: [[db.sequelize.literal('start'), 'ASC']]
                 });
+                const pastContests = await db.Contest.findAll({
+                    where: {
+                        UserId: decoded.userId,
+                        start: db.sequelize.literal(
+                            'CASE WHEN CONVERT(start, DECIMAL) + duration * 60 <= UNIX_TIMESTAMP() THEN start ELSE NULL END'
+                        )
+                    },
+                    include: [db.Question, db.User],
+                    order: [[db.sequelize.literal('start'), 'DESC']]
+                });
+                const combinedContests = upcomingContests.concat(pastContests);
 
-                return contests;
+                return combinedContests;
             } catch (error) {
                 return {
                     status: false,

@@ -206,6 +206,10 @@ module.exports = {
         delete user.password;
         delete user.confirmPassword;
         delete user.token;
+        delete user.avatar;
+        delete user.__typename;
+        delete user.message
+        delete user.status
         req.mysql.query(
             'UPDATE users SET ? WHERE id = ?',
             [user, user.id],
@@ -224,12 +228,16 @@ module.exports = {
     },
 
     getQuestion: async (req, res, next) => {
-        const questions = await req.db.Question.findAll({ where: { UserId: req.body.auth.userId } });
+        const questions = await req.db.Question.findAll({
+            where: { UserId: req.body.auth.userId }
+        });
         let retData = questions;
 
         if (questions.length > 0) {
             for (let i = 0; i < questions.length; i++) {
-                const options = await req.db.Option.findAll({ where: { QuestionId: questions[i].id } });
+                const options = await req.db.Option.findAll({
+                    where: { QuestionId: questions[i].id }
+                });
                 retData[i].dataValues.options = options;
             }
             console.log(retData);

@@ -73,15 +73,16 @@ export default {
         });
     },
 
-    uploadImage: async data => {
+    uploadImage: async (data, token) => {
         let fd = new FormData();
-        fd.append('avatar', data);
-        const imgUploadUrl = CONSTANT.SERVER_URL + 'uploadImage';
+        fd.append('image', data);
+        const imgUploadUrl = BASE_URL + '/upload';
         try {
             const response = await fetch(imgUploadUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    authorization: 'Bearer ' + token
                 },
                 body: fd
             });
@@ -93,7 +94,7 @@ export default {
     },
 
     updateUser: async (data, token) => {
-        const url = CONSTANT.SERVER_URL + 'user/update';
+        const url = BASE_URL + '/user/update';
         try {
             const response = await fetch(url, {
                 method: 'POST',

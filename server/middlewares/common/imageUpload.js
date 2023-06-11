@@ -1,3 +1,4 @@
+const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 
@@ -7,16 +8,8 @@ const storage = multer.diskStorage({
         cb(null, process.env.IMG_UPLOAD_FOLDER);
     },
     filename: (req, file, cb) => {
-        const fileExt = path.extname(file.originalname);
-        const fileName =
-            file.originalname
-                .replace(fileExt, '')
-                .toLowerCase()
-                .split(' ')
-                .join('-') +
-            '-' +
-            Date.now();
-        cb(null, fileName + fileExt);
+        const fileName = Date.now() + path.extname(file.originalname);
+        cb(null, fileName);
     }
 });
 
@@ -39,4 +32,36 @@ var upload = multer({
     }
 });
 
-module.exports = { upload };
+const updateDatabase = async (req, res, next) => {
+    const user = await req.db.User.findByPk(req.auth.userId);
+
+    try {
+        if (user.avatar) {
+            const filePath = '.\\public' + user.avatar;
+            console.log(filePath);
+            fs.unlink(filePath, err => {
+                if (err) {
+                    console.log(err.message);
+                    return;
+                } else console.log('Existing file deleted.');
+            });
+        }
+    } catch (error) {
+        console.log(error);
+    }
+
+    const updatedFilePath = req.file.path.replace('public', '');
+    req.db.User.update({ avatar: updatedFilePath }, { where: { id: req.auth.userId } })
+        .then(data => {
+            res.json({
+                status: true,
+                message: 'Upload successful!',
+                path: updatedFilePath
+            });
+        })
+        .catch(error => {
+            next(error.message);
+        });
+};
+
+module.exports = { upload, updateDatabase };

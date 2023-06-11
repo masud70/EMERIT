@@ -9,8 +9,10 @@ module.exports = {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const { email, userId } = decoded;
             req.body.auth = { email, userId };
+            req.auth = { email, userId };
             next();
-        } catch {
+        } catch (error) {
+            console.log(error.message);
             next('Authentication failed!');
         }
     },
@@ -33,7 +35,7 @@ module.exports = {
     notFoundHandler: (req, res, next) => {
         next(createError(404, 'Your requested content was not found.'));
     },
-    
+
     //default errorHandler
     errorHandler: (err, req, res, next) => {
         res.json({

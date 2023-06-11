@@ -1,7 +1,6 @@
 import { View, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import moment from 'moment';
 import prettyMilliseconds from 'pretty-ms';
 import { useNavigation } from '@react-navigation/native';

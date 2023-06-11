@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
-const mongoose = require('mongoose');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -17,7 +16,7 @@ const db = require('./models');
 const userRouter = require('./router/userRouter');
 const contestRouter = require('./router/contestRouter');
 const postRouter = require('./router/postRouter');
-const { upload } = require('./middlewares/common/imageUpload');
+const { upload, updateDatabase } = require('./middlewares/common/imageUpload');
 const { errorHandler, notFoundHandler, checkLogin } = require('./middlewares/common');
 const { GraphQLObjectType, GraphQLSchema } = require('graphql');
 const { graphqlHTTP } = require('express-graphql');
@@ -93,13 +92,7 @@ app.get('/', (req, res) => {
 });
 
 //avatar upload
-app.post('/uploadImage', upload.single('avatar'), (req, res, next) => {
-    res.json({
-        status: true,
-        message: 'Upload successful!',
-        path: 'images/' + req.file.filename
-    });
-});
+app.post('/upload', checkLogin, upload.single('image'), updateDatabase);
 
 // let x = 0;
 // setInterval(() => {

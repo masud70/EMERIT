@@ -5,41 +5,42 @@ import {
     StyleSheet,
     Text,
     View,
-    TouchableOpacity
+    TouchableOpacity,
+    ActivityIndicator
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { IconButton, MD3Colors, TextInput } from 'react-native-paper';
 import DocumentPicker from 'react-native-document-picker';
 import { useDispatch, useSelector } from 'react-redux';
-import { CONSTANT } from '../../constants';
 import { FUNCTIONS } from '../../helpers';
 import { setAuthUserData } from '../../redux/state/auth/authSlice';
+import { useQuery } from '@apollo/client';
+import { GET_USER_INFO_QUERY } from '../../graphql/query';
+import { RefreshControl } from 'react-native';
+import { BASE_URL } from '@env';
 
 const EditProfile = () => {
-    const user = useSelector(st => st.auth);
     const [image, setImage] = useState(null);
     const [userData, setUserData] = useState({});
     const [imagePicked, setImagePicked] = useState(null);
     const dispatch = useDispatch();
+    const auth = useSelector(st => st.auth);
 
-    useEffect(() => {
-        setUserData(user.userData);
-    }, []);
+    const { loading, error, data, refetch } = useQuery(GET_USER_INFO_QUERY, {
+        variables: { token: auth.token }
+    });
 
     const onImageSelect = async () => {
         try {
             const res = await DocumentPicker.pickSingle({
                 type: [DocumentPicker.types.images]
             });
+            console.log('Image', res);
             if (res.size < 2000000) {
                 setImage(res.uri);
                 setImagePicked(res);
             } else {
-                FUNCTIONS.showToast(
-                    'error',
-                    'Error',
-                    'Image size should be less than 2MB'
-                );
+                FUNCTIONS.showToast2(false, 'Image size should be less than 2MB');
             }
         } catch (error) {
             console.log(error.message);
@@ -47,36 +48,42 @@ const EditProfile = () => {
     };
 
     const handleUpdate = async () => {
-        if (userData.password) {
-            try {
-                if (image) {
-                    const imgData = await FUNCTIONS.uploadImage(imagePicked);
-                    userData.avatar = imgData.path;
-                    setImage(null);
-                }
-                const response = await FUNCTIONS.updateUser(
-                    userData,
-                    user.token
-                );
-                if (response.status === true) {
-                    FUNCTIONS.showToast('success', 'Success', response.message);
-                    userData.password = '';
-                    userData.confirmPassword = '';
-                    dispatch(setAuthUserData({ userData: userData }));
-                } else {
-                    FUNCTIONS.showToast('error', 'Error', response.message);
-                }
-            } catch (error) {
-                FUNCTIONS.showToast('error', 'Error', error.message);
+        try {
+            if (image) {
+                const imgData = await FUNCTIONS.uploadImage(imagePicked, auth.token);
+                userData.avatar = imgData.path;
             }
-        } else {
-            FUNCTIONS.showToast('info', 'Warning', 'Password cannot be empty.');
+            const response = await FUNCTIONS.updateUser(userData, auth.token);
+            if (response.status) dispatch(setAuthUserData({ userData: userData }));
+            FUNCTIONS.showToast2(response.status, response.message);
+            
+        } catch (error) {
+            FUNCTIONS.showToast2(false, error.message);
         }
     };
 
+    useEffect(() => {
+        setUserData(data.getUserInfo);
+    }, [data]);
+
+    if (loading || error) {
+        return (
+            <SafeAreaView className="w-full h-screen">
+                <ScrollView
+                    refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}>
+                    <View className="w-full h-full flex justify-center items-center">
+                        <ActivityIndicator size={40} />
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
+        );
+    }
+    console.log(data);
+
     return (
         <SafeAreaView>
-            <ScrollView>
+            <ScrollView
+                refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}>
                 <ImageBackground
                     source={require('../../assets/bg/2.png')}
                     className="w-full flex-1 min-h-[220px] justify-around flex items-center rounded-b-3xl overflow-hidden">
@@ -87,24 +94,17 @@ const EditProfile = () => {
                     </View>
                     <View>
                         <ImageBackground
-                            source={{
-                                uri: image
-                                    ? image
-                                    : user
-                                    ? CONSTANT.SERVER_URL + userData.avatar
-                                    : CONSTANT.SERVER_URL + 'images/user.jpg'
-                            }}
-                            className="w-32 h-32 rounded-full overflow-hidden items-center justify-center bg-slate-300"
+                            source={{ uri: image ? image : BASE_URL + data.getUserInfo.avatar }}
+                            className="w-32 h-32 rounded-full overflow-hidden items-center justify-end bg-slate-300"
                             style={styles.border}>
                             <IconButton
+                                className="w-full rounded-none mb-0"
                                 icon={'camera'}
-                                size={30}
+                                size={25}
                                 animated
-                                iconColor={MD3Colors.error20}
+                                iconColor={MD3Colors.error10}
                                 containerColor="rgba(149, 165, 166, 0.5)"
-                                onPress={() => {
-                                    onImageSelect();
-                                }}
+                                onPress={onImageSelect}
                             />
                         </ImageBackground>
                     </View>
@@ -185,9 +185,7 @@ const EditProfile = () => {
                     <TouchableOpacity
                         className="w-full bg-green-500 p-2 items-center rounded"
                         onPress={handleUpdate}>
-                        <Text className="text-lg font-bold text-white">
-                            Update
-                        </Text>
+                        <Text className="text-lg font-bold text-white">Update</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
