@@ -134,7 +134,7 @@ const Timeline = () => {
                             <ActivityIndicator size={40} />
                         ) : (
                             postData.getAllPost.map((item, idx) => (
-                                <PostBox key={idx} data={item} />
+                                <PostBox key={idx} refetch={postRefetch} data={item} />
                             ))
                         )}
                     </View>

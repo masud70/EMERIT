@@ -9,10 +9,37 @@ module.exports = {
         resolve: async (parent, args, ctx, info) => {
             try {
                 const posts = await db.Post.findAll({
-                    order: [['createdAt', 'DESC']],
-                    include: [db.User, db.Reaction, db.Comment]
+                    attributes: {
+                        include: [
+                            [
+                                db.sequelize.literal(
+                                    '(SELECT COUNT(*) FROM reactions WHERE reactions.PostId = Post.id AND reactions.type = "like")'
+                                ),
+                                'likes'
+                            ],
+                            [
+                                db.sequelize.literal(
+                                    '(SELECT COUNT(*) FROM reactions WHERE reactions.PostId = Post.id AND reactions.type = "dislike")'
+                                ),
+                                'dislikes'
+                            ]
+                        ]
+                    },
+                    include: [
+                        {
+                            model: db.Comment,
+                            order: [['id', 'DESC']],
+                            include: [db.User],
+                            separate: true
+                        },
+                        db.User
+                    ],
+                    order: [['createdAt', 'DESC']]
                 });
-                return posts;
+                const ret = posts.map(item => {
+                    return item.dataValues;
+                });
+                return ret;
             } catch (error) {
                 return {
                     status: false,

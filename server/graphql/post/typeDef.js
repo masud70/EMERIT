@@ -1,4 +1,10 @@
-const { GraphQLObjectType, GraphQLString, GraphQLBoolean, GraphQLInt } = require('graphql');
+const {
+    GraphQLObjectType,
+    GraphQLString,
+    GraphQLBoolean,
+    GraphQLInt,
+    GraphQLList
+} = require('graphql');
 const { UserType } = require('../user/typeDef');
 
 module.exports = {
@@ -9,8 +15,9 @@ module.exports = {
             body: { type: GraphQLString },
             time: { type: GraphQLString },
             User: { type: UserType },
-            Reactions: { type: module.exports.ReactionType },
-            Comments: { type: module.exports.CommentType },
+            likes: { type: GraphQLInt },
+            dislikes: { type: GraphQLInt },
+            Comments: { type: GraphQLList(module.exports.CommentType) },
             status: { type: GraphQLBoolean },
             message: { type: GraphQLString }
         })
@@ -21,7 +28,9 @@ module.exports = {
         fields: () => ({
             id: { type: GraphQLString },
             type: { type: GraphQLString },
-            User: { type: UserType }
+            User: { type: UserType },
+            status: { type: GraphQLBoolean },
+            message: { type: GraphQLString }
         })
     }),
 
@@ -31,7 +40,9 @@ module.exports = {
             id: { type: GraphQLString },
             body: { type: GraphQLString },
             time: { type: GraphQLString },
-            User: { type: UserType }
+            User: { type: UserType },
+            status: { type: GraphQLBoolean },
+            message: { type: GraphQLString }
         })
     })
 };
