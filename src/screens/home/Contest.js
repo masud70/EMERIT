@@ -1,5 +1,5 @@
 import { Dimensions, RefreshControl, SafeAreaView, Text, View, ScrollView } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { CONSTANT, ROUTES } from '../../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { setContestData } from '../../redux/state/contestSlice';

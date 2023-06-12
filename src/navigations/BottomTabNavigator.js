@@ -1,14 +1,13 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StyleSheet, Platform, TouchableOpacity } from 'react-native';
+import { Platform, TouchableOpacity } from 'react-native';
 import { COLORS, ROUTES } from '../constants';
-import { Home, Notifications, Archive } from '../screens';
+import { Home, Archive } from '../screens';
 import Icon from 'react-native-vector-icons/Ionicons';
 import SettingsNavigator from './SettingsNavigator';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import QuestionBoxScreen from '../screens/home/QuestionBoxScreen';
-import ContestScreen from '../screens/home/ContestScreen';
+import { useNavigation } from '@react-navigation/native';
 import ContestNavigator from './ContestNavigator';
+import Timeline from '../screens/timeline/Timeline';
 
 const Tab = createBottomTabNavigator();
 
@@ -34,15 +33,26 @@ function BottomTabNavigator() {
                         iconName = focused ? 'md-notifications-sharp' : 'md-notifications-outline';
                     } else if (route.name === ROUTES.ARCHIVE) {
                         iconName = focused ? 'file-tray-full-sharp' : 'file-tray-full-outline';
+                    } else if (route.name === ROUTES.TIMELINE_TAB) {
+                        iconName = focused ? 'menu' : 'menu-outline';
                     }
-                    return <Icon name={iconName} size={22} color={color} />;
+                    return <Icon name={iconName} size={focused ? 28 : 22} color={color} />;
                 }
             })}
             initialRouteName={ROUTES.HOME}>
-            <Tab.Screen name={ROUTES.HOME_TAB} component={Home} />
-            <Tab.Screen name={ROUTES.CONTEST_NAVIGATOR} component={ContestNavigator} />
-            <Tab.Screen name={ROUTES.ARCHIVE} component={Archive} />
-            <Tab.Screen name={ROUTES.NOTIFICATIONS} component={Notifications} />
+            <Tab.Screen name={ROUTES.HOME_TAB} options={{ title: 'Home' }} component={Home} />
+            <Tab.Screen
+                name={ROUTES.TIMELINE_TAB}
+                options={{ title: 'Timeline' }}
+                component={Timeline}
+            />
+            <Tab.Screen
+                name={ROUTES.CONTEST_NAVIGATOR}
+                options={{ title: 'Contest' }}
+                component={ContestNavigator}
+            />
+            <Tab.Screen name={ROUTES.ARCHIVE} options={{ title: 'Archive' }} component={Archive} />
+            {/* <Tab.Screen name={ROUTES.NOTIFICATIONS} component={Notifications} /> */}
             <Tab.Screen
                 name={ROUTES.SETTINGS_NAVIGATOR}
                 component={SettingsNavigator}

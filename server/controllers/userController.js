@@ -200,19 +200,22 @@ module.exports = {
         // );
     },
 
-    updateUser: (req, res) => {
+    updateUser: async (req, res) => {
+        const auth = req.body.auth;
+        delete req.body.auth;
         const user = req.body;
-        delete user.auth.userId;
+        const p1 = user.password;
+        const p2 = user.confirmPassword;
         delete user.password;
         delete user.confirmPassword;
-        delete user.token;
-        delete user.avatar;
-        delete user.__typename;
-        delete user.message
-        delete user.status
+
+        if (p1 && p2 && p1 === p2) {
+            user.password = await bcrypt.hash(p1, 10);
+        }
+
         req.mysql.query(
             'UPDATE users SET ? WHERE id = ?',
-            [user, user.id],
+            [user, auth.userId],
             (err, results, rows) => {
                 if (err) {
                     res.json({ status: false, message: err.message });

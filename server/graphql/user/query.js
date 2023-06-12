@@ -1,7 +1,7 @@
 const { GraphQLString } = require('graphql');
 const db = require('../../models');
 const jwt = require('jsonwebtoken');
-const { UserType } = require('./typeDef');
+const { UserType, MessageType } = require('./typeDef');
 
 module.exports = {
     getUserInfo: {
@@ -20,6 +20,31 @@ module.exports = {
                     message: 'Data found!',
                     ...user.dataValues
                 };
+            } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
+    },
+
+    getAvaialability: {
+        type: MessageType,
+        args: {
+            id: { type: GraphQLString },
+            value: { type: GraphQLString }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const data = await db.User.findOne({ where: { [args.id]: args.value } });
+
+                if (data)
+                    return {
+                        status: true,
+                        message: 'Data found.'
+                    };
+                throw new Error('No data found.');
             } catch (error) {
                 return {
                     status: false,

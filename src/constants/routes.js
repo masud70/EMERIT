@@ -8,6 +8,8 @@ export default {
     HOME_TAB: 'Home Tab',
     HOME_DRAWER: 'Home Drawer',
 
+    TIMELINE_TAB: 'Timeline Tab',
+
     WALLET: 'Wallet',
     WALLET_DRAWER: 'Wallet Drawer',
 

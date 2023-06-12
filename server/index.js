@@ -24,6 +24,8 @@ const { graphqlHTTP } = require('express-graphql');
 const contestQuery = require('./graphql/contest/query');
 const contestMutation = require('./graphql/contest/mutation');
 const userQuery = require('./graphql/user/query');
+const postQuery = require('./graphql/post/query');
+const postMutation = require('./graphql/post/mutation');
 
 //database connection
 // mongoose
@@ -66,11 +68,11 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 // QraphQL
 const Query = new GraphQLObjectType({
     name: 'Query',
-    fields: { ...contestQuery, ...userQuery }
+    fields: { ...contestQuery, ...userQuery, ...postQuery }
 });
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
-    fields: { ...contestMutation }
+    fields: { ...contestMutation, ...postMutation }
 });
 app.use(
     '/graphql',

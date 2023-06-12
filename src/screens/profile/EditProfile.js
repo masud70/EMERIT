@@ -14,21 +14,25 @@ import DocumentPicker from 'react-native-document-picker';
 import { useDispatch, useSelector } from 'react-redux';
 import { FUNCTIONS } from '../../helpers';
 import { setAuthUserData } from '../../redux/state/auth/authSlice';
-import { useQuery } from '@apollo/client';
-import { GET_USER_INFO_QUERY } from '../../graphql/query';
+import { useLazyQuery, useQuery } from '@apollo/client';
+import { GET_USER_INFO_QUERY, GET_AVAILABILITY_QUERY } from '../../graphql/query';
 import { RefreshControl } from 'react-native';
 import { BASE_URL } from '@env';
 
 const EditProfile = () => {
     const [image, setImage] = useState(null);
     const [userData, setUserData] = useState({});
+    const [updateData, setUpdateData] = useState({});
     const [imagePicked, setImagePicked] = useState(null);
+    const [usernameAvail, setUsernameAvail] = useState(1);
     const dispatch = useDispatch();
     const auth = useSelector(st => st.auth);
 
     const { loading, error, data, refetch } = useQuery(GET_USER_INFO_QUERY, {
         variables: { token: auth.token }
     });
+    const [getAvailability, { loading: availLoading, data: availData }] =
+        useLazyQuery(GET_AVAILABILITY_QUERY);
 
     const onImageSelect = async () => {
         try {
@@ -49,14 +53,23 @@ const EditProfile = () => {
 
     const handleUpdate = async () => {
         try {
-            if (image) {
-                const imgData = await FUNCTIONS.uploadImage(imagePicked, auth.token);
-                userData.avatar = imgData.path;
-            }
-            const response = await FUNCTIONS.updateUser(userData, auth.token);
-            if (response.status) dispatch(setAuthUserData({ userData: userData }));
-            FUNCTIONS.showToast2(response.status, response.message);
-            
+            let imgData = null;
+            if (image) imgData = await FUNCTIONS.uploadImage(imagePicked, auth.token);
+
+            if (Object.keys(updateData).length > 0) {
+                if (usernameAvail !== 3 && updateData.username) {
+                    FUNCTIONS.showToast2(false, 'This username is not available.');
+                    return;
+                }
+                console.log(updateData);
+                const response = await FUNCTIONS.updateUser(updateData, auth.token);
+                if (response.status) {
+                    dispatch(setAuthUserData({ userData: userData }));
+                    refetch();
+                }
+                FUNCTIONS.showToast2(response.status, response.message);
+            } else if (imgData) FUNCTIONS.showToast2(imgData.status, imgData.message);
+            else FUNCTIONS.showToast('info', 'Warning', 'There was no changes.');
         } catch (error) {
             FUNCTIONS.showToast2(false, error.message);
         }
@@ -65,6 +78,20 @@ const EditProfile = () => {
     useEffect(() => {
         setUserData(data.getUserInfo);
     }, [data]);
+    useEffect(() => {
+        if (availData) {
+            if (updateData.username.length < 3) setUsernameAvail(2);
+            else {
+                const state =
+                    data.getUserInfo.username === updateData.username
+                        ? 1
+                        : availData.getAvaialability.status
+                        ? 2
+                        : 3;
+                setUsernameAvail(state);
+            }
+        }
+    }, [availData]);
 
     if (loading || error) {
         return (
@@ -78,7 +105,6 @@ const EditProfile = () => {
             </SafeAreaView>
         );
     }
-    console.log(data);
 
     return (
         <SafeAreaView>
@@ -118,6 +144,7 @@ const EditProfile = () => {
                             value={userData.name}
                             onChangeText={val => {
                                 setUserData({ ...userData, name: val });
+                                setUpdateData(pre => ({ ...pre, name: val }));
                             }}
                         />
                     </View>
@@ -125,10 +152,26 @@ const EditProfile = () => {
                         <Text className="font-bold">Username</Text>
                         <TextInput
                             mode="outlined"
-                            right={<TextInput.Icon icon="pencil" />}
+                            right={
+                                <TextInput.Icon
+                                    icon={
+                                        usernameAvail === 1
+                                            ? 'pencil'
+                                            : usernameAvail === 2
+                                            ? 'close-thick'
+                                            : 'check-bold'
+                                    }
+                                />
+                            }
                             value={userData.username}
                             onChangeText={val => {
                                 setUserData({ ...userData, username: val });
+                                setUpdateData(pre => ({ ...pre, username: val }));
+                            }}
+                            onBlur={() => {
+                                getAvailability({
+                                    variables: { id: 'username', value: updateData.username }
+                                });
                             }}
                         />
                     </View>
@@ -141,6 +184,7 @@ const EditProfile = () => {
                             value={userData.email}
                             onChangeText={val => {
                                 setUserData({ ...userData, email: val });
+                                setUpdateData(pre => ({ ...pre, email: val }));
                             }}
                         />
                     </View>
@@ -152,6 +196,7 @@ const EditProfile = () => {
                             value={userData.phone}
                             onChangeText={val => {
                                 setUserData({ ...userData, phone: val });
+                                setUpdateData(pre => ({ ...pre, phone: val }));
                             }}
                         />
                     </View>
@@ -163,6 +208,7 @@ const EditProfile = () => {
                             value={userData.password}
                             onChangeText={val => {
                                 setUserData({ ...userData, password: val });
+                                setUpdateData(pre => ({ ...pre, password: val }));
                             }}
                         />
                     </View>
@@ -173,10 +219,8 @@ const EditProfile = () => {
                             right={<TextInput.Icon icon="pencil" />}
                             value={userData.confirmPassword}
                             onChangeText={val => {
-                                setUserData({
-                                    ...userData,
-                                    confirmPassword: val
-                                });
+                                setUserData(pre => ({ ...pre, confirmPassword: val }));
+                                setUpdateData(pre => ({ ...pre, confirmPassword: val }));
                             }}
                         />
                     </View>

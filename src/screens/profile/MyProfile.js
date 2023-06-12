@@ -6,14 +6,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
 import TextCard from '../../components/profile/TextCard';
 import { CONSTANT, ROUTES } from '../../constants';
-import {
-    StyleSheet,
-    Text,
-    SafeAreaView,
-    ScrollView,
-    View,
-    ImageBackground
-} from 'react-native';
+import { StyleSheet, Text, SafeAreaView, ScrollView, View, ImageBackground } from 'react-native';
+import { BASE_URL } from '@env';
 
 const MyProfile = () => {
     const navigation = useNavigation();
@@ -51,14 +45,8 @@ const MyProfile = () => {
                         </View>
                         <View className="justify-center absolute right-6 top-4">
                             <TouchableOpacity
-                                onPress={() =>
-                                    navigation.navigate(ROUTES.EDIT_PROFILE)
-                                }>
-                                <Icon
-                                    name="ellipsis-horizontal-outline"
-                                    size={20}
-                                    color="white"
-                                />
+                                onPress={() => navigation.navigate(ROUTES.EDIT_PROFILE)}>
+                                <Icon name="ellipsis-horizontal-outline" size={20} color="white" />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -67,7 +55,7 @@ const MyProfile = () => {
                             className="overflow-hidden p-0 m-0 items-center justify-center"
                             source={{
                                 uri: user
-                                    ? CONSTANT.SERVER_URL + user.avatar
+                                    ? BASE_URL + user.avatar
                                     : CONSTANT.IMG_BASE_URL + 'user.jpg'
                             }}
                             size={130}
@@ -86,36 +74,20 @@ const MyProfile = () => {
                         <View className="w-full flex flex-row justify-between bg-slate-100 rounded py-3 mb-2 divide-x-2 divide-slate-300">
                             <View className="w-1/2 flex flex-row items-center space-x-2 justify-center">
                                 <View>
-                                    <Icon
-                                        name="trophy-sharp"
-                                        size={35}
-                                        color={'#F49D1A'}
-                                    />
+                                    <Icon name="trophy-sharp" size={35} color={'#F49D1A'} />
                                 </View>
                                 <View>
-                                    <Text className="font-bold text-md">
-                                        Ranking
-                                    </Text>
-                                    <Text className="font-bold text-lg text-amber-500">
-                                        123
-                                    </Text>
+                                    <Text className="font-bold text-md">Ranking</Text>
+                                    <Text className="font-bold text-lg text-amber-500">123</Text>
                                 </View>
                             </View>
                             <View className="w-1/2 flex flex-row items-center justify-center space-x-2 px-3">
                                 <View>
-                                    <Icon
-                                        name="server-sharp"
-                                        size={35}
-                                        color={'#F49D1A'}
-                                    />
+                                    <Icon name="server-sharp" size={35} color={'#F49D1A'} />
                                 </View>
                                 <View>
-                                    <Text className="font-bold text-md">
-                                        Points
-                                    </Text>
-                                    <Text className="font-bold text-lg text-amber-500">
-                                        1256
-                                    </Text>
+                                    <Text className="font-bold text-md">Points</Text>
+                                    <Text className="font-bold text-lg text-amber-500">1256</Text>
                                 </View>
                             </View>
                         </View>

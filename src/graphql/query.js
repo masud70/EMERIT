@@ -1,5 +1,4 @@
 const { gql } = require('@apollo/client');
-import { AnswerType } from '../../server/graphql/contest/typeDef';
 
 module.exports = {
     CREATE_CONTEST_MUTATION: gql`
@@ -252,6 +251,15 @@ module.exports = {
                 username
                 avatar
                 phone
+                status
+                message
+            }
+        }
+    `,
+
+    GET_AVAILABILITY_QUERY: gql`
+        query GetAvailability($id: String!, $value: String!) {
+            getAvaialability(id: $id, value: $value) {
                 status
                 message
             }

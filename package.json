@@ -38,6 +38,7 @@
         "react-native-image-picker": "^4.10.1",
         "react-native-linear-gradient": "^2.6.1",
         "react-native-material-dropdown": "github:noway/react-native-material-dropdown",
+        "react-native-modal": "^13.0.1",
         "react-native-paper": "^5.0.0-rc.10",
         "react-native-paper-select": "^0.4.0",
         "react-native-pell-rich-editor": "^1.8.8",
