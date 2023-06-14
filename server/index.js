@@ -24,6 +24,7 @@ const { graphqlHTTP } = require('express-graphql');
 const contestQuery = require('./graphql/contest/query');
 const contestMutation = require('./graphql/contest/mutation');
 const userQuery = require('./graphql/user/query');
+const userMutation = require('./graphql/user/mutation');
 const postQuery = require('./graphql/post/query');
 const postMutation = require('./graphql/post/mutation');
 
@@ -72,7 +73,7 @@ const Query = new GraphQLObjectType({
 });
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
-    fields: { ...contestMutation, ...postMutation }
+    fields: { ...contestMutation, ...userMutation, ...postMutation }
 });
 app.use(
     '/graphql',
