@@ -108,24 +108,25 @@ const PostBox = ({ data, refetch }) => {
                     placeholder="Write your comment here..."
                     mode="outlined"
                     value={comment}
+                    returnKeyType="go"
+                    onSubmitEditing={handleSubmitComment}
                     onChangeText={val => setComment(val)}
                     right={<TextInput.Icon icon="send" onPress={handleSubmitComment} />}
                 />
                 <View className="w-full">
                     {data.Comments.map((item, idx) => (
-                        <View
-                            key={idx}
-                            className="w-full flex flex-row items-center space-x-2 my-1">
-                            <View className="w-1/12">
+                        <View key={idx} className="w-full flex flex-row space-x-2 my-1">
+                            <View className="w-1/12 pt-1 mr-2">
                                 <Avatar.Image
-                                    className="overflow-hidden p-0 m-0 items-center justify-center border-green-400 border-2"
+                                    className="overflow-hidden p-0 m-0 items-center justify-center border"
                                     source={{ uri: BASE_URL + item.User.avatar }}
                                     size={40}
                                 />
                             </View>
-                            <View className="w-11/12 pl-2">
+                            <View className="max-w-[86%] px-3 py-1 bg-slate-300 rounded-xl">
+                                <Text className="w-full text-sm font-bold">{item.User.name}</Text>
                                 <Text className="w-full text-sm">{item.body}</Text>
-                                <Text className="w-full text-xs">
+                                <Text className="w-full text-xs text-[10px]">
                                     {moment(parseInt(item.time)).fromNow()}
                                 </Text>
                             </View>
