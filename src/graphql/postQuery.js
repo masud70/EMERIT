@@ -40,6 +40,33 @@ module.exports = {
         }
     `,
 
+    GET_POST_BY_PAGE_QUERY: gql`
+        query GetPostByPage($page: Int!){
+            getPostByPage(page: $page){
+                id
+                body
+                time
+                likes
+                dislikes
+                User {
+                    id
+                    name
+                    avatar
+                }
+                Comments {
+                    id
+                    body
+                    time
+                    User {
+                        id
+                        name
+                        avatar
+                    }
+                }
+            }
+        }
+    `,
+
     CREATE_REACTION_MUTATION: gql`
         mutation CreateReaction($token: String!, $id: Int!, $type: String!) {
             createReaction(token: $token, id: $id, type: $type) {

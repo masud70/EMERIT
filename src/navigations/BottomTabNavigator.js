@@ -51,7 +51,7 @@ function BottomTabNavigator() {
                 options={{ title: 'Contest' }}
                 component={ContestNavigator}
             />
-            <Tab.Screen name={ROUTES.ARCHIVE} options={{ title: 'Archive' }} component={Archive} />
+            <Tab.Screen name={ROUTES.ARCHIVE} options={{ title: 'About' }} component={Archive} />
             {/* <Tab.Screen name={ROUTES.NOTIFICATIONS} component={Notifications} /> */}
             <Tab.Screen
                 name={ROUTES.SETTINGS_NAVIGATOR}

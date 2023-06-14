@@ -21,3 +21,14 @@ $size-medium: 18px;
     font-size: 16px;
     font-weight: bold;
 }
+
+.paginationBtn{
+    font-weight: bold;
+    padding: 0.5rem;
+    text-align: center;
+    color: $white;
+    display: flex;
+    flex-direction: row;
+    min-width: 60px;
+    border-radius: 0.25rem;
+}
