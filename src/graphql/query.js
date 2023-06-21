@@ -264,5 +264,23 @@ module.exports = {
                 message
             }
         }
+    `,
+
+    SEND_OTP_MUTATION: gql`
+        mutation SendMailOtp($email: String!) {
+            sendMailOtp(email: $email) {
+                status
+                message
+            }
+        }
+    `,
+
+    VERIFY_OTP_MUTATION: gql`
+        mutation VerifyOtp($email: String!, $otp: String!) {
+            verifyOtp(email: $email, otp: $otp) {
+                status
+                message
+            }
+        }
     `
 };

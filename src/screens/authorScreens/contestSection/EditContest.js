@@ -18,6 +18,8 @@ import {
     UPDATE_CONTEST_MUTATION
 } from '../../../graphql/query';
 import { ActivityIndicator } from 'react-native';
+import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor';
+import { useRef } from 'react';
 
 const EditContest = ({ route }) => {
     const [newData, setNewData] = useState({});
@@ -26,6 +28,7 @@ const EditContest = ({ route }) => {
     const [openDate, setOpenDate] = useState(false);
     const auth = useSelector(state => state.auth);
     const navigation = useNavigation();
+    const richText = useRef();
     const { contestId } = route.params;
 
     const { loading, error, data } = useQuery(GET_CONTEST_BY_CONTEST_ID_QUERY, {
@@ -108,23 +111,44 @@ const EditContest = ({ route }) => {
                                             }));
                                         }}
                                     />
-                                    <TextInput
-                                        label="Description"
-                                        className="bg-gray-100 rounded"
-                                        value={
+                                    <RichEditor
+                                        className="p-[2px] bg-slate-300"
+                                        initialHeight={150}
+                                        placeholder="Question description..."
+                                        ref={richText}
+                                        initialContentHTML={
                                             newData.description
                                                 ? newData.description
                                                 : data.getContestByContestId.description
                                         }
-                                        multiline
-                                        numberOfLines={4}
-                                        activeUnderlineColor="rgb(34,197,94)"
-                                        onChangeText={text =>
+                                        onChange={text =>
                                             setNewData(pre => ({
                                                 ...pre,
                                                 description: text
                                             }))
                                         }
+                                    />
+                                    <RichToolbar
+                                        editor={richText}
+                                        actions={[
+                                            actions.setBold,
+                                            actions.setItalic,
+                                            actions.setUnderline,
+                                            actions.heading1,
+                                            actions.insertBulletsList,
+                                            actions.insertOrderedList,
+                                            actions.checkboxList,
+                                            actions.insertLink,
+                                            actions.setStrikethrough,
+                                            actions.removeFormat,
+                                            actions.undo,
+                                            actions.redo
+                                        ]}
+                                        iconMap={{
+                                            [actions.heading1]: ({ tintColor }) => (
+                                                <Text style={[{ color: tintColor }]}>H1</Text>
+                                            )
+                                        }}
                                     />
                                     <TextInput
                                         label="Start"

@@ -20,6 +20,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false
         },
+        type: {
+            type: DataTypes.STRING,
+            defaultValue: 'private'
+        },
+        password: {
+            type: DataTypes.STRING
+        },
         resultPublished: {
             type: DataTypes.BOOLEAN,
             defaultValue: true
@@ -29,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
         Contest.belongsTo(sequelize.models.User);
         Contest.hasMany(sequelize.models.Registration);
         Contest.hasMany(sequelize.models.Submission);
+        Contest.hasMany(sequelize.models.Rating);
         Contest.belongsToMany(sequelize.models.Question, { through: 'Contest_Question' });
     };
     return Contest;

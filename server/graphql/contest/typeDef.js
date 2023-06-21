@@ -89,6 +89,7 @@ module.exports = {
         fields: () => ({
             status: { type: GraphQLBoolean },
             message: { type: GraphQLString },
+            me: { type: module.exports.SubmissionType },
             title: { type: GraphQLString },
             Submissions: { type: GraphQLList(module.exports.SubmissionType) }
         })

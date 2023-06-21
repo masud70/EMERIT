@@ -301,5 +301,87 @@ module.exports = {
                 };
             }
         }
+    },
+
+    getOverallRank: {
+        type: RankListType,
+        args: {
+            token: { type: GraphQLString }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const { userId } = jwt.verify(args.token, process.env.JWT_SECRET);
+                const RankingList = await db.Submission.findAll({
+                    attributes: [
+                        'UserId',
+                        [db.sequelize.literal('User.name'), 'name'],
+                        [
+                            db.sequelize.fn(
+                                'SUM',
+                                db.sequelize.literal(
+                                    'CASE WHEN Question.answer = Submission.solution THEN 1 ELSE 0 END'
+                                )
+                            ),
+                            'correct'
+                        ],
+                        [
+                            db.sequelize.fn(
+                                'SUM',
+                                db.sequelize.literal(
+                                    `CASE
+                              WHEN Submission.solution IS NOT NULL
+                              AND Question.id NOT IN (
+                                SELECT s2.QuestionId
+                                FROM Submissions AS s2
+                                WHERE s2.UserId = Submission.UserId
+                                AND s2.ContestId = Submission.ContestId
+                                AND s2.solution IS NOT NULL
+                                AND s2.solution = Question.answer
+                              ) THEN 1
+                              ELSE 0
+                            END`
+                                )
+                            ),
+                            'incorrect'
+                        ],
+                        [
+                            db.sequelize.fn(
+                                'SUM',
+                                db.sequelize.literal(
+                                    'CASE WHEN Question.answer = Submission.solution THEN Question.marks ELSE 0 END'
+                                )
+                            ),
+                            'marks'
+                        ],
+                        [
+                            db.sequelize.literal(
+                                'ROW_NUMBER() OVER (ORDER BY SUM(CASE WHEN Question.answer = Submission.solution THEN Question.marks ELSE 0 END) DESC)'
+                            ),
+                            'rank'
+                        ]
+                    ],
+                    include: [db.User, db.Question, db.Contest],
+                    where: {
+                        '$Contest.resultPublished$': true
+                    },
+                    group: ['UserId'],
+                    order: [[db.sequelize.literal('marks'), 'DESC']]
+                });
+
+                const extraEntryIndex = RankingList.findIndex(entry => entry.UserId === userId);
+
+                return {
+                    status: true,
+                    message: 'Ranklist published.',
+                    me: RankingList[extraEntryIndex].dataValues,
+                    Submissions: RankingList.map(item => item.dataValues)
+                };
+            } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
     }
 };

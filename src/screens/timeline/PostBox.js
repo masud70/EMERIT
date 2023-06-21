@@ -1,6 +1,7 @@
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Avatar, TextInput } from 'react-native-paper';
+import Modal from 'react-native-modal';
 import RenderHTML from 'react-native-render-html';
 import { useWindowDimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -14,6 +15,7 @@ import { BASE_URL } from '@env';
 const PostBox = ({ data, refetch }) => {
     const auth = useSelector(state => state.auth);
     const [commentVisibility, setCommentVisibility] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const [comment, setComment] = useState('');
     const { width } = useWindowDimensions();
 
@@ -57,12 +59,41 @@ const PostBox = ({ data, refetch }) => {
                         size={45}
                     />
                 </View>
-                <View className="w-5/6 flex pl-2">
+                <Pressable
+                    onLongPress={() => setShowModal(pre => !pre)}
+                    className="w-5/6 flex pl-2">
                     <Text className="font-bold w-full">{data.User.name}</Text>
                     <Text className="text-small w-full text-gray-500">
                         {moment(parseInt(data.time)).fromNow()}
                     </Text>
-                </View>
+                </Pressable>
+                <Modal
+                    avoidKeyboard
+                    isVisible={showModal}
+                    onBackdropPress={() => setShowModal(pre => !pre)}
+                    onBackButtonPress={() => setShowModal(pre => !pre)}>
+                    <View className="w-full bg-white rounded overflow-hidden px-2 py-6 flex items-center">
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <View className="w-full flex flex-col justify-center items-center space-y-2">
+                                <Pressable className="min-w-[80%] items-center bg-red-500 rounded p-1">
+                                    <Text className="w-full text-center text-white font-bold text-lg">
+                                        Delete
+                                    </Text>
+                                </Pressable>
+                                <Pressable className="min-w-[80%] items-center bg-slate-400 rounded p-1">
+                                    <Text className="w-full text-center text-white font-bold text-lg">
+                                        Update
+                                    </Text>
+                                </Pressable>
+                                <Pressable className="min-w-[80%] items-center bg-blue-500 rounded p-1">
+                                    <Text className="w-full text-center text-white font-bold text-lg">
+                                        Edit
+                                    </Text>
+                                </Pressable>
+                            </View>
+                        </ScrollView>
+                    </View>
+                </Modal>
             </View>
             <View className="w-full px-2 py-1">
                 <RenderHTML source={{ html: data.body }} contentWidth={width} />

@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground } from 'react-native';
+import { View, Text, ImageBackground, useWindowDimensions } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshControl } from 'react-native-gesture-handler';
@@ -20,14 +20,16 @@ import { FUNCTIONS } from '../../helpers';
 import { Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
-import { LEADERBOARD_TYPE_1 } from '@env';
 import { ActivityIndicator } from 'react-native';
+import { Rating } from 'react-native-ratings';
+import RenderHTML from 'react-native-render-html';
 
 const ContestDetails = ({ route }) => {
     const [remaining, setRemaining] = useState('');
     const [state, setState] = useState(1);
     const auth = useSelector(a => a.auth);
     const navigation = useNavigation();
+    const { width } = useWindowDimensions();
 
     const { loading, error, data, refetch } = useQuery(GET_CONTEST_QUERY, {
         variables: { id: route.params.contestId }
@@ -154,9 +156,7 @@ const ContestDetails = ({ route }) => {
                                 </View>
                             </View>
                         </View>
-                        <View className="w-full p-1 bg-slate-200 min-h-[50px]">
-                            <Text>{data.getContest.description}</Text>
-                        </View>
+
                         <View className="w-full my-1 space-y-2">
                             {regData && !regData.getRegistrationStatus.status ? (
                                 <Pressable
@@ -203,6 +203,22 @@ const ContestDetails = ({ route }) => {
                                     Leaderboard
                                 </Text>
                             </Pressable>
+                        </View>
+                        <View className="w-full p-1 bg-slate-200 min-h-[50px]">
+                            <RenderHTML
+                                source={{ html: data.getContest.description }}
+                                contentWidth={width}
+                            />
+                        </View>
+                        <View className="w-full bg-white pb-2">
+                            <Rating
+                                type="star"
+                                ratingCount={5}
+                                imageSize={30}
+                                fractions={1}
+                                showRating
+                                onFinishRating={r => console.log(r)}
+                            />
                         </View>
                     </View>
                 )}

@@ -5,7 +5,8 @@ import {
     Text,
     TouchableOpacity,
     View,
-    ActivityIndicator
+    ActivityIndicator,
+    RefreshControl
 } from 'react-native';
 import React from 'react';
 import { COLORS, CONSTANT, ROUTES } from '../../constants';
@@ -15,16 +16,14 @@ import Divider from '../../components/utilities/Divider';
 import UserProfile from '../../components/utilities/UserProfile';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Avatar } from 'react-native-paper';
 import { io } from 'socket.io-client';
-import Updates from './homeComponents/Updates';
-import { setPostData } from '../../redux/state/postSlice';
 import { useQuery } from '@apollo/client';
 const socket = io(CONSTANT.SERVER_URL, { transports: ['websocket'] });
 import { GET_USER_INFO_QUERY } from '../../graphql/query';
 import { BASE_URL } from '@env';
+import { GET_OVERALL_RANK } from '../../graphql/contestQuery';
 
 const Home = () => {
     const auth = useSelector(state => state.auth);
@@ -37,6 +36,18 @@ const Home = () => {
         data: userData,
         refetch: userRefetch
     } = useQuery(GET_USER_INFO_QUERY, { variables: { token: auth.token } });
+
+    const {
+        loading: rankLoading,
+        error: rankError,
+        data: rankData,
+        refetch: rankRefetch
+    } = useQuery(GET_OVERALL_RANK, { variables: { token: auth.token } });
+
+    const refetchAll = () => {
+        userRefetch();
+        rankRefetch();
+    };
 
     const category = [
         {
@@ -68,79 +79,24 @@ const Home = () => {
             route: ROUTES.CONTEST
         }
     ];
-    const topSolver = [
-        {
-            name: 'Masud',
-            rank: 1,
-            solved: 120,
-            point: 750
-        },
-        {
-            name: 'Nishat',
-            rank: 2,
-            solved: 100,
-            point: 700
-        },
-        {
-            name: 'Shifat',
-            rank: 3,
-            solved: 90,
-            point: 690
-        },
-        {
-            name: 'Riaj',
-            rank: 4,
-            solved: 70,
-            point: 680
-        }
-    ];
-    const topSolvers = topSolver.map((user, idx) => {
-        return <UserProfile user={user} key={idx} />;
-    });
-    const loadPost = () => {
-        const url = CONSTANT.SERVER_URL + 'post/getAll';
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                authorization: 'Bearer ' + auth.token
-            }
-        })
-            .then(r => r.json())
-            .then(res => {
-                if (res.status) {
-                    dispatch(setPostData({ data: res.data }));
-                }
-            })
-            .catch(err => console.log(err));
-    };
 
-    useEffect(() => {
-        // setUserData(auth.userData);
-        loadPost();
-        socket.off('loadPost').on('loadPost', data => {
-            console.log(data);
-            loadPost();
-        });
-    }, []);
-
-    if (userLoading || userError) {
+    if (userLoading || userError || rankLoading || rankError) {
         return (
             <SafeAreaView style={styles.mainContainer}>
                 <View className="w-full flex items-center h-screen justify-center">
                     <ActivityIndicator size={40} />
-                    <Text>Loading...</Text>
                 </View>
             </SafeAreaView>
         );
     }
 
+    const topSolvers = rankData.getOverallRank.Submissions.slice(0, 5).map((user, idx) => {
+        return <UserProfile user={user} key={idx} />;
+    });
+
     return (
         <SafeAreaView style={styles.mainContainer} className="space-y-3">
-            <View
-                className={
-                    'px-3 py-1 bg-emerald-100 flex flex-row rounded bg-opacity-10 justify-center items-center'
-                }>
+            <View className="px-3 py-1 bg-emerald-100 flex flex-row rounded bg-opacity-10 justify-center items-center">
                 <View style={styles.textSection}>
                     <Text className="font-bold text-xl text-gray-600">
                         Hi, {userData.getUserInfo.name}
@@ -151,13 +107,20 @@ const Home = () => {
                 </View>
                 <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
                     <Avatar.Image
-                        className="overflow-hidden p-0 m-0 items-center justify-center border-green-400 border-4"
+                        className="overflow-hidden p-0 m-0 items-center justify-center border-green-400 border-2"
                         source={{ uri: BASE_URL + userData.getUserInfo.avatar }}
                         size={50}
                     />
                 </TouchableOpacity>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={userLoading || rankLoading}
+                        onRefresh={refetchAll}
+                    />
+                }>
                 <View className="flex-2 flex-row justify-between bg-slate-100 rounded py-3 mb-2 divide-x-2 divide-slate-300">
                     <View className="w-1/2 flex flex-row items-center space-x-2 px-3 justify-center">
                         <View>
@@ -165,7 +128,9 @@ const Home = () => {
                         </View>
                         <View>
                             <Text className="font-bold text-md">Ranking</Text>
-                            <Text className="font-bold text-lg text-amber-500">123</Text>
+                            <Text className="font-bold text-lg text-amber-500">
+                                {rankData.getOverallRank.me.rank}
+                            </Text>
                         </View>
                     </View>
                     <View className="w-1/2 flex flex-row items-center justify-center space-x-2 px-3">
@@ -173,8 +138,10 @@ const Home = () => {
                             <Icon name="server-sharp" size={35} color={'#F49D1A'} />
                         </View>
                         <View>
-                            <Text className="font-bold text-md">Points</Text>
-                            <Text className="font-bold text-lg text-amber-500">1256</Text>
+                            <Text className="font-bold text-md">Marks</Text>
+                            <Text className="font-bold text-lg text-amber-500">
+                                {rankData.getOverallRank.me.marks}
+                            </Text>
                         </View>
                     </View>
                 </View>
@@ -196,9 +163,6 @@ const Home = () => {
                 <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
                     <View className="flex flex-row py-2">{topSolvers}</View>
                 </ScrollView>
-                <View>
-                    <Updates />
-                </View>
             </ScrollView>
         </SafeAreaView>
     );

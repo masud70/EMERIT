@@ -1,5 +1,5 @@
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
-import React from 'react';
+import React, { useRef } from 'react';
 import { TextInput } from 'react-native-paper';
 import { ActivityIndicator } from 'react-native';
 import DatePicker from 'react-native-date-picker';
@@ -12,12 +12,15 @@ import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../../constants';
 import { useMutation } from '@apollo/client';
 import { CREATE_CONTEST_MUTATION } from '../../../graphql/query';
+import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
+import { Pressable } from 'react-native';
 
 const CreateContest = () => {
     const [input, setInput] = useState({});
     const [openDate, setOpenDate] = useState(false);
     const auth = useSelector(st => st.auth);
     const navigation = useNavigation();
+    const richText = useRef();
 
     const [createContest, { loading, error, data }] = useMutation(CREATE_CONTEST_MUTATION);
 
@@ -38,7 +41,7 @@ const CreateContest = () => {
                 <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2">
                     <Text className="font-bold text-xl text-gray-600">Contest Details</Text>
                 </View>
-                <ScrollView>
+                <ScrollView showsVerticalScrollIndicator={false}>
                     <View className="space-y-1 mt-1">
                         <TextInput
                             label="Contest title"
@@ -47,14 +50,35 @@ const CreateContest = () => {
                             activeUnderlineColor="rgb(34,197,94)"
                             onChangeText={text => setInput(pre => ({ ...pre, title: text }))}
                         />
-                        <TextInput
-                            label="Description"
-                            className="bg-gray-100 rounded"
-                            value={input.description}
-                            multiline
-                            numberOfLines={4}
-                            activeUnderlineColor="rgb(34,197,94)"
-                            onChangeText={text => setInput(pre => ({ ...pre, description: text }))}
+                        <RichEditor
+                            className="p-[2px] bg-slate-300"
+                            initialHeight={150}
+                            placeholder="Question description..."
+                            ref={richText}
+                            initialContentHTML={input.description}
+                            onChange={text => setInput(pre => ({ ...pre, description: text }))}
+                        />
+                        <RichToolbar
+                            editor={richText}
+                            actions={[
+                                actions.setBold,
+                                actions.setItalic,
+                                actions.setUnderline,
+                                actions.heading1,
+                                actions.insertBulletsList,
+                                actions.insertOrderedList,
+                                actions.checkboxList,
+                                actions.insertLink,
+                                actions.setStrikethrough,
+                                actions.removeFormat,
+                                actions.undo,
+                                actions.redo
+                            ]}
+                            iconMap={{
+                                [actions.heading1]: ({ tintColor }) => (
+                                    <Text style={[{ color: tintColor }]}>H1</Text>
+                                )
+                            }}
                         />
                         <TextInput
                             label="Start"
@@ -94,11 +118,11 @@ const CreateContest = () => {
                         />
                     </View>
                     <View className="w-full my-4">
-                        <TouchableOpacity
+                        <Pressable
                             className="bg-green-500 p-2 rounded justify-center items-center"
                             onPress={handleCreate}>
                             <Text className="font-bold text-xl text-white">Create Now</Text>
-                        </TouchableOpacity>
+                        </Pressable>
                     </View>
                 </ScrollView>
             </View>

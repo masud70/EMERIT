@@ -9,22 +9,37 @@ import {
     TextInput,
     SafeAreaView,
     TouchableOpacity,
-    Image
+    Image,
+    Button
 } from 'react-native';
 import { FUNCTIONS } from '../../helpers';
+import { useMutation } from '@apollo/client';
+import { SEND_OTP_MUTATION, VERIFY_OTP_MUTATION } from '../../graphql/query';
+import { useEffect } from 'react';
+import { ScrollView } from 'react-native';
 
 const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [verified, setVerified] = useState(0);
+    const [otp, setOtp] = useState('');
     const navigation = useNavigation();
+
+    const [sendOtp, { loading: sendLoading, data: sendData }] = useMutation(SEND_OTP_MUTATION);
+    const [verify, { loading: otpLoading, data: otpData }] = useMutation(VERIFY_OTP_MUTATION);
+
+    const verifyOtp = val => {
+        setOtp(val);
+        if (val.length === 6) verify({ variables: { email: email, otp: otp } });
+    };
 
     //register handler
     const registerHandler = () => {
         if (password !== confirmPassword || password.length === 0 || name.length === 0) {
             alert('Check all the fields.');
-        } else {
+        } else if (verified === 3) {
             console.log(email, password, name);
             FUNCTIONS.register({ email, password, name })
                 .then(res => {
@@ -39,62 +54,118 @@ const Register = () => {
                     }
                 })
                 .catch(err => FUNCTIONS.showToast('error', 'Error', err.message));
-        }
+        } else FUNCTIONS.showToast2(false, 'Email is not verified.');
     };
+
+    useEffect(() => {
+        if (!sendLoading && sendData) {
+            FUNCTIONS.showToast2(sendData.sendMailOtp.status, sendData.sendMailOtp.message);
+            if (sendData.sendMailOtp.status) setVerified(1);
+        }
+    }, [sendData]);
+
+    useEffect(() => {
+        if (!otpLoading && otpData) {
+            if (otpData.verifyOtp.status) {
+                setVerified(3);
+                FUNCTIONS.showToast2(true, otpData.verifyOtp.message);
+            } else {
+                setVerified(2);
+                FUNCTIONS.showToast2(false, otpData.verifyOtp.message);
+            }
+        }
+    }, [otpData]);
 
     return (
         <SafeAreaView style={styles.main}>
-            <View style={styles.container}>
-                <View style={styles.wFull}>
-                    <View style={styles.row}>
-                        <Image
-                            source={require('../../assets/images/logof.png')}
-                            width={50}
-                            height={50}
-                            style={styles.mr7}
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={styles.container}>
+                    <View style={styles.wFull}>
+                        <View style={styles.row}>
+                            <Image
+                                source={require('../../assets/images/logof.png')}
+                                width={50}
+                                height={50}
+                                style={styles.mr7}
+                            />
+                            <Text style={styles.brandName}>{CONSTANT.APP_NAME}</Text>
+                        </View>
+
+                        <Text style={styles.loginContinueTxt}>Register a new account</Text>
+                        <View className="w-full flex flex-row items-center justify-center rounded overflow-hidden">
+                            <TextInput
+                                className={`w-[80%] border ${
+                                    verified === 3
+                                        ? 'border-green-500'
+                                        : verified === 2
+                                        ? 'border-red-500'
+                                        : ''
+                                } rounded-r-none py-0 my-0`}
+                                onChangeText={value => {
+                                    setVerified(0);
+                                    setEmail(value);
+                                }}
+                                value={email}
+                                style={styles.input}
+                                placeholder="Email"
+                                returnKeyType="send"
+                            />
+                            <View className="w-[20%] h-[60px] flex justify-center">
+                                <Button
+                                    className="w-full rounded-l-none rounded-r h-[60px] text-center"
+                                    title="Send OTP"
+                                    color="#7d5fff"
+                                    onPress={() => sendOtp({ variables: { email: email } })}
+                                />
+                            </View>
+                        </View>
+
+                        {verified === 1 && (
+                            <TextInput
+                                value={otp}
+                                placeholder="OTP"
+                                style={styles.input}
+                                onChangeText={verifyOtp}
+                            />
+                        )}
+
+                        <TextInput
+                            onChangeText={value => setName(value)}
+                            style={styles.input}
+                            placeholder="Name"
+                            value={name}
                         />
-                        <Text style={styles.brandName}>{CONSTANT.APP_NAME}</Text>
-                    </View>
+                        <TextInput
+                            onChangeText={value => setPassword(value)}
+                            style={styles.input}
+                            placeholder="Password"
+                            value={password}
+                        />
+                        <TextInput
+                            onChangeText={value => setConfirmPassword(value)}
+                            style={styles.input}
+                            placeholder="Confirm Password"
+                            value={confirmPassword}
+                        />
 
-                    <Text style={styles.loginContinueTxt}>Register a new account</Text>
-                    <TextInput
-                        onChangeText={value => setEmail(value)}
-                        style={styles.input}
-                        placeholder="Email"
-                    />
-                    <TextInput
-                        onChangeText={value => setName(value)}
-                        style={styles.input}
-                        placeholder="Name"
-                    />
-                    <TextInput
-                        onChangeText={value => setPassword(value)}
-                        style={styles.input}
-                        placeholder="Password"
-                    />
-                    <TextInput
-                        onChangeText={value => setConfirmPassword(value)}
-                        style={styles.input}
-                        placeholder="Confirm Password"
-                    />
-
-                    <View className="w-full flex bg-slate-500 flex-row justify-between rounded overflow-hidden">
-                        <TouchableOpacity
-                            className="w-1/2 p-3"
-                            onPress={() => navigation.navigate(ROUTES.LOGIN)}
-                            activeOpacity={0.3}>
-                            <Text style={style.btn}>Log In</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            className="w-1/2 p-3"
-                            style={style.bg_primary}
-                            onPress={() => registerHandler()}
-                            activeOpacity={0.3}>
-                            <Text style={[style.btn]}>Register</Text>
-                        </TouchableOpacity>
+                        <View className="w-full flex bg-slate-500 flex-row justify-between rounded overflow-hidden">
+                            <TouchableOpacity
+                                className="w-1/2 p-3"
+                                onPress={() => navigation.navigate(ROUTES.LOGIN)}
+                                activeOpacity={0.3}>
+                                <Text style={style.btn}>Log In</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                className="w-1/2 p-3"
+                                style={style.bg_primary}
+                                onPress={() => registerHandler()}
+                                activeOpacity={0.3}>
+                                <Text style={[style.btn]}>Register</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-            </View>
+            </ScrollView>
         </SafeAreaView>
     );
 };
