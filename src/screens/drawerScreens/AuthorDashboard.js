@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, SafeAreaView, ScrollView, View } from 'react-native';
+import { Text, SafeAreaView, ScrollView, View } from 'react-native';
 import Section from '../../components/Author/Section';
 import { ROUTES } from '../../constants';
 
@@ -10,10 +10,16 @@ const AuthorDashboard = () => {
                 <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2">
                     <Text className="font-bold text-xl ">Admin Dashboard</Text>
                 </View>
-                <ScrollView>
-                    <View className="mb-1">
-                        <Section data={{sectionName: 'Contest Section'}} route={ROUTES.AUTHOR_CONTEST} />
-                        <Section data={{sectionName: 'Question Section'}} route={ROUTES.AUTHOR_QUESTION} />
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <View className="mt-1 pb-4">
+                        <Section
+                            data={{ sectionName: 'Contest Section', icon: 'trophy' }}
+                            route={ROUTES.AUTHOR_CONTEST}
+                        />
+                        <Section
+                            data={{ sectionName: 'Question Section', icon: 'help-circle' }}
+                            route={ROUTES.AUTHOR_QUESTION}
+                        />
                     </View>
                 </ScrollView>
             </View>
@@ -22,5 +28,3 @@ const AuthorDashboard = () => {
 };
 
 export default AuthorDashboard;
-
-const styles = StyleSheet.create({});

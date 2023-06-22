@@ -16,6 +16,8 @@ module.exports = {
             description: { type: GraphQLString },
             start: { type: GraphQLString },
             duration: { type: GraphQLInt },
+            privacy: { type: GraphQLString },
+            password: { type: GraphQLString },
             status: { type: GraphQLBoolean },
             message: { type: GraphQLString },
             User: { type: UserType },
@@ -92,6 +94,14 @@ module.exports = {
             me: { type: module.exports.SubmissionType },
             title: { type: GraphQLString },
             Submissions: { type: GraphQLList(module.exports.SubmissionType) }
+        })
+    }),
+
+    MessageType: new GraphQLObjectType({
+        name: 'ContestMessage',
+        fields: () => ({
+            status: { type: GraphQLBoolean },
+            message: { type: GraphQLString }
         })
     })
 };

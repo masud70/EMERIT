@@ -1,12 +1,16 @@
-import { ImageBackground, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import {
+    ImageBackground,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    View,
+    TextInput as Input
+} from 'react-native';
 import React from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import { TextInput } from 'react-native-paper';
-import DatePicker from 'react-native-date-picker';
-import moment from 'moment';
 import { Pressable } from 'react-native';
-import { CONSTANT, ROUTES } from '../../../constants';
+import { ROUTES } from '../../../constants';
 import { useSelector } from 'react-redux';
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
 import { FUNCTIONS } from '../../../helpers';
@@ -17,21 +21,18 @@ import {
     GET_CONTEST_BY_CONTEST_ID_QUERY,
     UPDATE_CONTEST_MUTATION
 } from '../../../graphql/query';
-import { ActivityIndicator } from 'react-native';
-import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor';
-import { useRef } from 'react';
+import { UPDATE } from '../../../graphql/contestMutation';
+import UpdateItem from '../../../components/Author/UpdateItem';
 
 const EditContest = ({ route }) => {
     const [newData, setNewData] = useState({});
     const [question, setQuestion] = useState([]);
     const [selected, setSelected] = useState([]);
-    const [openDate, setOpenDate] = useState(false);
     const auth = useSelector(state => state.auth);
     const navigation = useNavigation();
-    const richText = useRef();
     const { contestId } = route.params;
 
-    const { loading, error, data } = useQuery(GET_CONTEST_BY_CONTEST_ID_QUERY, {
+    const { loading, error, data, refetch } = useQuery(GET_CONTEST_BY_CONTEST_ID_QUERY, {
         variables: { id: contestId }
     });
 
@@ -43,6 +44,8 @@ const EditContest = ({ route }) => {
 
     const [updateNow, { loading: updateLoading, error: updateError, data: updateData }] =
         useMutation(UPDATE_CONTEST_MUTATION);
+
+    const [update, { loading: updLoading, error: updError, data: updData }] = useMutation(UPDATE);
 
     const submitUpdate = () => {
         updateNow({ variables: { ...newData, questions: selected, id: contestId } });
@@ -56,7 +59,9 @@ const EditContest = ({ route }) => {
                 title: data.getContestByContestId.title,
                 description: data.getContestByContestId.description,
                 duration: data.getContestByContestId.duration,
-                start: data.getContestByContestId.start
+                start: data.getContestByContestId.start,
+                privacy: data.getContestByContestId.privacy,
+                password: data.getContestByContestId.password
             });
         }
     }, [data]);
@@ -77,184 +82,134 @@ const EditContest = ({ route }) => {
         navigation.navigate(ROUTES.AUTHOR_CONTEST);
     } else if (updateError) console.log(false, updateError.message);
 
-    return (
+    if (loading || error || !newData) {
         <SafeAreaView>
             <ScrollView>
                 <View className="h-screen px-2 py-1 w-screen bg-white">
                     <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2">
-                        <Text className="font-bold text-xl ">Edit Contest</Text>
+                        <Text className="font-bold text-xl ">Update Contest</Text>
                     </View>
-                    <ScrollView showsVerticalScrollIndicator={false}>
-                        {loading || error ? (
-                            <ActivityIndicator className="mt-10" size={40} color="gray" />
-                        ) : (
+                </View>
+            </ScrollView>
+        </SafeAreaView>;
+    } else
+        return (
+            <SafeAreaView>
+                <ScrollView>
+                    <View className="h-screen px-2 py-1 w-screen bg-white">
+                        <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2">
+                            <Text className="font-bold text-xl ">Update Contest</Text>
+                        </View>
+                        <ScrollView showsVerticalScrollIndicator={false}>
                             <View className="rounded overflow-hidden my-1">
                                 <ImageBackground
                                     source={{ uri: 'https://picsum.photos/900' }}
                                     className="w-full h-[140px]"
                                 />
-                                <View className="w-full bg-gray-600 p-1">
+                                <View className="w-full bg-[#2B3467] p-1">
                                     <Text className="font-bold text-xl text-gray-50">
                                         {data.getContestByContestId.title}
                                     </Text>
                                 </View>
-                                <View>
-                                    <TextInput
-                                        label="Contest Title"
-                                        className="bg-gray-100 rounded"
+
+                                <View className="flex space-y-2">
+                                    {/* Contest Title Update */}
+                                    <UpdateItem
+                                        field={'title'}
                                         value={newData.title}
-                                        activeUnderlineColor="rgb(34,197,94)"
-                                        onChangeText={text => {
-                                            setNewData(pre => ({
-                                                ...pre,
-                                                title: text
-                                            }));
-                                        }}
+                                        placeholder="Contest title"
+                                        detail="Update contest title"
+                                        onUpdate={setNewData}
+                                        contestId={contestId}
+                                        refetch={refetch}
                                     />
-                                    <RichEditor
-                                        className="p-[2px] bg-slate-300"
-                                        initialHeight={150}
-                                        placeholder="Question description..."
-                                        ref={richText}
-                                        initialContentHTML={
-                                            newData.description
-                                                ? newData.description
-                                                : data.getContestByContestId.description
-                                        }
-                                        onChange={text =>
-                                            setNewData(pre => ({
-                                                ...pre,
-                                                description: text
-                                            }))
-                                        }
+
+                                    {/* Update description */}
+                                    <UpdateItem
+                                        field={'description'}
+                                        value={newData.description}
+                                        placeholder="Contest description..."
+                                        detail="Update description"
+                                        onUpdate={setNewData}
+                                        contestId={contestId}
+                                        refetch={refetch}
                                     />
-                                    <RichToolbar
-                                        editor={richText}
-                                        actions={[
-                                            actions.setBold,
-                                            actions.setItalic,
-                                            actions.setUnderline,
-                                            actions.heading1,
-                                            actions.insertBulletsList,
-                                            actions.insertOrderedList,
-                                            actions.checkboxList,
-                                            actions.insertLink,
-                                            actions.setStrikethrough,
-                                            actions.removeFormat,
-                                            actions.undo,
-                                            actions.redo
-                                        ]}
-                                        iconMap={{
-                                            [actions.heading1]: ({ tintColor }) => (
-                                                <Text style={[{ color: tintColor }]}>H1</Text>
-                                            )
-                                        }}
+
+                                    {/* Contest start time */}
+                                    <UpdateItem
+                                        field={'start'}
+                                        value={newData.start}
+                                        placeholder="Start time"
+                                        detail="Update start time"
+                                        onUpdate={setNewData}
+                                        contestId={contestId}
+                                        refetch={refetch}
                                     />
-                                    <TextInput
-                                        label="Start"
-                                        className="bg-gray-100"
-                                        onTouchEnd={() => setOpenDate(true)}
-                                        activeUnderlineColor="rgb(34,197,94)"
-                                        value={moment
-                                            .unix(
-                                                newData.start
-                                                    ? newData.start
-                                                    : parseInt(data.getContestByContestId.start)
-                                            )
-                                            .format('DD/MM/YYYY h:mm A')}
-                                        right={
-                                            <TextInput.Icon
-                                                icon="calendar"
-                                                onPress={() => setOpenDate(true)}
+
+                                    {/* Contest duration Update */}
+                                    <UpdateItem
+                                        field={'duration'}
+                                        value={newData.duration?.toString()}
+                                        placeholder="Duration"
+                                        detail="Update duration"
+                                        onUpdate={setNewData}
+                                        contestId={contestId}
+                                        refetch={refetch}
+                                    />
+
+                                    {/* Contest privacy Update */}
+                                    <UpdateItem
+                                        field={'privacy'}
+                                        value={newData.privacy}
+                                        placeholder="Privacy"
+                                        detail="Update privacy"
+                                        onUpdate={setNewData}
+                                        contestId={contestId}
+                                        password={newData.password}
+                                        refetch={refetch}
+                                    />
+
+                                    {/* Contest Question Update */}
+                                    <View className="w-full rounded overflow-hidden bg-[#00000006] flex flex-col my-4">
+                                        <View>
+                                            <MultipleSelectList
+                                                data={question}
+                                                className="bg-green-200"
+                                                boxStyles={{ backgroundColor: '#DCFCE7' }}
+                                                save="key"
+                                                search={true}
+                                                placeholder="Select question"
+                                                setSelected={val => setSelected(val)}
+                                                defaultOption={{ [selected[0]]: 'Title' }}
                                             />
-                                        }
-                                    />
-                                    <DatePicker
-                                        date={
-                                            new Date(
-                                                newData.start
-                                                    ? parseInt(newData.start) * 1000
-                                                    : parseInt(data.getContestByContestId.start) *
-                                                      1000
-                                            )
-                                        }
-                                        modal
-                                        open={openDate}
-                                        mode="datetime"
-                                        activeUnderlineColor="rgb(34,197,94)"
-                                        onConfirm={date => {
-                                            setOpenDate(false);
-                                            setNewData(pre => ({
-                                                ...pre,
-                                                start: (date.getTime() / 1000).toString()
-                                            }));
-                                        }}
-                                        onCancel={() => {
-                                            setOpenDate(false);
-                                        }}
-                                    />
-                                    <TextInput
-                                        value={
-                                            newData.duration
-                                                ? newData.duration.toString()
-                                                : data.getContestByContestId.duration.toString()
-                                        }
-                                        label="Duration"
-                                        className="bg-gray-100 rounded"
-                                        onChangeText={d =>
-                                            setNewData(pre => ({ ...pre, duration: parseInt(d) }))
-                                        }
-                                    />
-                                </View>
-                                <View className="w-full my-2">
-                                    <View className="w-full items-center bg-green-50 p-2">
-                                        <Text className="font-bold text-lg text-gray-600">
-                                            Questions
-                                        </Text>
-                                    </View>
-                                    <View className="w-full my-1 space-y-1">
-                                        <MultipleSelectList
-                                            data={question}
-                                            className="bg-green-200"
-                                            boxStyles={{ backgroundColor: '#DCFCE7' }}
-                                            save="key"
-                                            search={true}
-                                            placeholder="Select question"
-                                            setSelected={val => setSelected(val)}
-                                            defaultOption={{ [selected[0]]: 'Title' }}
-                                        />
-                                        {/* {selected.map((item, idx) => {
-                                            return (
-                                                <Pressable
-                                                    className="w-full flex flex-row rounded overflow-hidden"
-                                                    key={idx}>
-                                                    <View className="w-2/12 p-1 justify-center items-center bg-gray-600">
-                                                        <Text className="text-white font-bold">
-                                                            {String.fromCharCode(
-                                                                97 + idx
-                                                            ).toUpperCase()}
-                                                        </Text>
-                                                    </View>
-                                                    <Text className="w-10/12 p-1 bg-green-50 font-base">
-                                                        {item}
+                                        </View>
+                                        <View className="flex flex-row justify-between items-center bg-[#2b346710]">
+                                            <View className="w-3/4 p-1">
+                                                <Text className="text-[#2B3467] text-base">
+                                                    Update question(s)
+                                                </Text>
+                                            </View>
+                                            <View className="w-1/4 p-1 bg-[#2B3467]">
+                                                <Pressable className="w-full">
+                                                    <Text className="w-full text-center text-lg text-white font-bold">
+                                                        Update
                                                     </Text>
                                                 </Pressable>
-                                            );
-                                        })} */}
+                                            </View>
+                                        </View>
                                     </View>
                                 </View>
                             </View>
-                        )}
-                    </ScrollView>
-                    <Pressable
-                        className="w-full bg-gray-700 p-2 my-2 rounded items-center"
-                        onPress={submitUpdate}>
-                        <Text className="font-bold text-white text-lg">Save Now</Text>
-                    </Pressable>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
-    );
+                        </ScrollView>
+                        <Pressable
+                            className="w-full bg-[#2B3467] p-2 my-2 rounded items-center"
+                            onPress={submitUpdate}>
+                            <Text className="font-bold text-white text-lg">Update</Text>
+                        </Pressable>
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
+        );
 };
 
 export default EditContest;

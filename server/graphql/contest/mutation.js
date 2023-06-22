@@ -1,5 +1,11 @@
 const { GraphQLString, GraphQLInt, GraphQLList, GraphQLNonNull } = require('graphql');
-const { ContestType, RegistrationType, QuestionType, ResultType } = require('./typeDef');
+const {
+    ContestType,
+    RegistrationType,
+    QuestionType,
+    ResultType,
+    MessageType
+} = require('./typeDef');
 const jwt = require('jsonwebtoken');
 const db = require('../../models');
 
@@ -237,16 +243,139 @@ module.exports = {
                     UserId: decoded.userId,
                     ContestId: args.id
                 };
-                console.log(values);
                 const registration = await db.Registration.create(values);
-
-                console.log(registration);
 
                 return {
                     status: true,
                     message: 'Registration successful.',
                     ...registration.dataValues
                 };
+            } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
+    },
+
+    update: {
+        type: MessageType,
+        args: {
+            id: { type: GraphQLInt },
+            field: { type: GraphQLString },
+            value: { type: GraphQLString },
+            token: { type: GraphQLString }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const { userId } = jwt.verify(args.token, process.env.JWT_SECRET);
+                if (args.field === 'title') {
+                    if (args.value.length > 0 && args.value.length < 50) {
+                        const updated = await db.Contest.update(
+                            { [args.field]: args.value },
+                            { where: { id: args.id } }
+                        );
+                        if (!updated[0]) {
+                            throw new Error('There was an error.');
+                        }
+
+                        return {
+                            status: true,
+                            message: 'Title updated successfully.'
+                        };
+                    } else {
+                        throw new Error('Invalid title length.');
+                    }
+                } else if (args.field === 'description') {
+                    if (args.value.length > 0) {
+                        const updated = await db.Contest.update(
+                            { [args.field]: args.value },
+                            { where: { id: args.id } }
+                        );
+                        if (!updated[0]) {
+                            throw new Error('There was an error.');
+                        }
+                        return {
+                            status: true,
+                            message: 'Description updated successfully.'
+                        };
+                    } else {
+                        throw new Error('Invalid description length.');
+                    }
+                } else if (args.field === 'start') {
+                    const contest = await db.Contest.findByPk(args.id);
+                    if (parseInt(contest.start) * 1000 <= new Date().getTime()) {
+                        throw new Error('Start time cannot be updated.');
+                    } else if (parseInt(args.value) * 1000 <= new Date().getTime()) {
+                        throw new Error('Starting time must be future.');
+                    } else {
+                        const updated = await db.Contest.update(
+                            { [args.field]: args.value },
+                            { where: { id: args.id } }
+                        );
+                        if (!updated[0]) {
+                            throw new Error('There was an error.');
+                        }
+                        return {
+                            status: true,
+                            message: 'Starting time updated successfully.'
+                        };
+                    }
+                } else if (args.field === 'duration') {
+                    if (parseInt(args.value) > 10 && parseInt(args.value) <= 300) {
+                        const updated = await db.Contest.update(
+                            { [args.field]: parseInt(args.value) },
+                            { where: { id: args.id } }
+                        );
+                        if (!updated[0]) {
+                            throw new Error('There was an error.');
+                        }
+
+                        return {
+                            status: true,
+                            message: 'Duration updated successfully.'
+                        };
+                    } else {
+                        throw new Error('Invalid duration.');
+                    }
+                } else if (args.field === 'privacy') {
+                    if (args.value === 'public') {
+                        const updated = await db.Contest.update(
+                            { [args.field]: args.value },
+                            { where: { id: args.id } }
+                        );
+                        if (!updated[0]) {
+                            throw new Error('There was an error.');
+                        }
+                        return {
+                            status: true,
+                            message: 'Privacy updated successfully.'
+                        };
+                    } else if (args.value.substr(0, 7) === 'private') {
+                        console.log(args);
+                        const password = args.value.split('<<@>>')[1];
+                        if (password.length < 3 && password.length > 32) {
+                            throw new Error('Invalid password length.');
+                        }
+                        const updated = await db.Contest.update(
+                            { [args.field]: 'private', password: password },
+                            { where: { id: args.id } }
+                        );
+                        if (!updated[0]) {
+                            throw new Error('There was an error.');
+                        }
+
+                        return {
+                            status: true,
+                            message: 'Privacy updated successfully.'
+                        };
+                    } else {
+                        throw new Error('Invalid privacy type.');
+                    }
+                } else {
+                    throw new Error('Invalid update type.');
+                }
             } catch (error) {
                 return {
                     status: false,

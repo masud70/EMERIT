@@ -22,7 +22,7 @@ $size-medium: 18px;
     font-weight: bold;
 }
 
-.paginationBtn{
+.paginationBtn {
     font-weight: bold;
     padding: 0.5rem;
     text-align: center;
@@ -31,4 +31,8 @@ $size-medium: 18px;
     flex-direction: row;
     min-width: 60px;
     border-radius: 0.25rem;
+}
+
+.shadow {
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.9);
 }

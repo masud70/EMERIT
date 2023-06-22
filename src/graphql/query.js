@@ -159,6 +159,8 @@ module.exports = {
                 description
                 start
                 duration
+                privacy
+                password
                 Questions {
                     id
                     title
@@ -177,6 +179,8 @@ module.exports = {
                 duration
                 status
                 message
+                privacy
+                password
                 Questions {
                     id
                     title

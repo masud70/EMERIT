@@ -116,7 +116,6 @@ module.exports = {
                     where: { id: args.id },
                     include: [db.Question, db.User]
                 });
-
                 return contest;
             } catch (error) {
                 return {

@@ -20,12 +20,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        type: {
+        privacy: {
             type: DataTypes.STRING,
             defaultValue: 'private'
         },
         password: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            defaultValue: 'pass123'
         },
         resultPublished: {
             type: DataTypes.BOOLEAN,

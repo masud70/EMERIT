@@ -18,18 +18,18 @@ const QuestionItem = ({ data, answer, setAnswer }) => {
             <View className="p-2 w-full">
                 <RenderHtml source={{ html: data.description }} contentWidth={width} />
             </View>
-            <View className="w-full bg-slate-500">
+            <View className="w-full bg-slate-100">
                 <RadioButton.Group
                     value={answer[data.id]}
                     onValueChange={val => setAnswer(pre => ({ ...pre, [data.id]: val }))}
                     className="w-full space-y-1">
                     {data.Options.map((item, idx) => (
-                        <View className="w-full flex flex-row items-center bg-slate-300" key={idx}>
-                            <RadioButton value={item.value} />
-                            <Text className="font-bold">
-                                {String.fromCharCode(65 + idx)}. {item.value}
-                            </Text>
-                        </View>
+                        <RadioButton.Item
+                            key={idx}
+                            className="w-full flex flex-row items-center"
+                            label={String.fromCharCode(65 + idx) + '. ' + item.value}
+                            value={item.value}
+                        />
                     ))}
                 </RadioButton.Group>
             </View>
