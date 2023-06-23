@@ -49,5 +49,6 @@ export default {
     AUTHOR_QUESTION_CREATE: 'Create Question',
     AUTHOR_QUESTION_EDIT: 'Edit Question',
     AUTHOR_CONTEST_EDIT: 'Contest Edit Dashboard',
-    AUTHOR_QUESTION: 'Question Dashboard'
+    AUTHOR_QUESTION: 'Question Dashboard',
+    AUTHOR_UPDATE_QUESTION: 'Update Question'
 };

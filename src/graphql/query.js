@@ -126,27 +126,11 @@ module.exports = {
         }
     `,
 
-    UPDATE_CONTEST_MUTATION: gql`
-        mutation UpdateContest(
-            $id: Int!
-            $title: String!
-            $description: String!
-            $start: String!
-            $duration: Int!
-            $questions: [String!]!
-        ) {
-            updateContest(
-                id: $id
-                title: $title
-                description: $description
-                start: $start
-                duration: $duration
-                questions: $questions
-            ) {
+    UPDATE_CONTEST_QUESTION_MUTATION: gql`
+        mutation UpdateContestQuestion($id: Int!, $token: String!, $questions: [String!]!) {
+            updateContestQuestion(id: $id, token: $token, questions: $questions) {
                 status
                 message
-                id
-                title
             }
         }
     `,
