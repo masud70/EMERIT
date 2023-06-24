@@ -28,8 +28,8 @@ module.exports = {
     `,
 
     CONTEST_REGISTRATION_MUTATION: gql`
-        mutation Registration($id: Int!, $token: String!) {
-            registration(id: $id, token: $token) {
+        mutation Registration($id: Int!, $token: String!, $password: String!) {
+            registration(id: $id, token: $token, password: $password) {
                 id
                 time
                 status
@@ -75,6 +75,7 @@ module.exports = {
                 description
                 start
                 duration
+                privacy
             }
         }
     `,
@@ -89,6 +90,7 @@ module.exports = {
                 description
                 start
                 duration
+                privacy
                 User {
                     id
                     name

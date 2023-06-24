@@ -5201,6 +5201,18 @@
   "resolved" "https://registry.npmjs.org/growly/-/growly-1.3.0.tgz"
   "version" "1.3.0"
 
+"gsap-rn@^0.0.18":
+  "integrity" "sha512-P+FGUUlDKWJwS0agTJ3snOgQerPwuNIA3BuVP5c7kYehTTp359Cki3A4R921Xf+F2c7MenPj1izgvHLY8QjmhQ=="
+  "resolved" "https://registry.npmjs.org/gsap-rn/-/gsap-rn-0.0.18.tgz"
+  "version" "0.0.18"
+  dependencies:
+    "gsap" "^3.2.6"
+
+"gsap@^3.12.1", "gsap@^3.2.6":
+  "integrity" "sha512-FXtb2YbBE9l8I9Pl5DFLpCMedaiMPztRlr0Ln0CMSnJn+pbTaeKlzgth8cLNPc7PzNwIZe+SEQiBBAWaBKJdVA=="
+  "resolved" "https://registry.npmjs.org/gsap/-/gsap-3.12.1.tgz"
+  "version" "3.12.1"
+
 "has-bigints@^1.0.1", "has-bigints@^1.0.2":
   "integrity" "sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ=="
   "resolved" "https://registry.npmjs.org/has-bigints/-/has-bigints-1.0.2.tgz"

@@ -228,7 +228,8 @@ module.exports = {
         type: RegistrationType,
         args: {
             id: { type: GraphQLInt },
-            token: { type: GraphQLString }
+            token: { type: GraphQLString },
+            password: { type: GraphQLString }
         },
         resolve: async (parent, args, ctx, info) => {
             try {
@@ -238,6 +239,14 @@ module.exports = {
                     UserId: decoded.userId,
                     ContestId: args.id
                 };
+                const contest = await db.Contest.findByPk(args.id);
+
+                if (
+                    contest.privacy === 'private' &&
+                    (args.password !== contest.password || args.password.length < 3)
+                ) {
+                    throw new Error('Invalid password.');
+                }
                 const registration = await db.Registration.create(values);
 
                 return {

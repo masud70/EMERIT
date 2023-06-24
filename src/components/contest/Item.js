@@ -50,9 +50,13 @@ const Item = ({ data, route }) => {
                         state === 1 ? 'bg-green-600' : state === 2 ? 'bg-red-500' : 'bg-slate-700'
                     }  p-1 flex items-center justify-center`}></View>
                 <View className="w-11/12 p-1">
-                    <Text className="w-full font-bold text-lg border-b border-slate-400 mb-1">
-                        {data.title}
-                    </Text>
+                    <View className="w-full flex flex-row border-b border-slate-400 mb-1 items-center">
+                        <View className="w-[6%]">
+                            <Icon name={data.privacy === 'private' ? 'lock' : 'earth'} size={18} />
+                        </View>
+                        <Text className="w-[94%] font-bold text-lg">{data.title}</Text>
+                    </View>
+
                     <View className="w-full flex flex-row space-x-2 items-center">
                         <Icon name="timetable" size={18} />
                         <Text className="font-bold">

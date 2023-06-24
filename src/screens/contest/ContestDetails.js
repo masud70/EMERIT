@@ -1,7 +1,7 @@
 import { View, Text, ImageBackground, useWindowDimensions } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { RefreshControl } from 'react-native-gesture-handler';
+import Modal from 'react-native-modal';
 import style from '../../../styles/style.scss';
 import { useMutation, useQuery } from '@apollo/client';
 import {
@@ -23,9 +23,15 @@ import { ROUTES } from '../../constants';
 import { ActivityIndicator } from 'react-native';
 import { Rating } from 'react-native-ratings';
 import RenderHTML from 'react-native-render-html';
+import { RefreshControl } from 'react-native';
+import { ScrollView } from 'react-native';
+import { TextInput } from 'react-native';
+import Loading from '../../components/utilities/Loading';
 
 const ContestDetails = ({ route }) => {
     const [remaining, setRemaining] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [password, setPassword] = useState('');
     const [state, setState] = useState(1);
     const auth = useSelector(a => a.auth);
     const navigation = useNavigation();
@@ -47,12 +53,14 @@ const ContestDetails = ({ route }) => {
     const [register, { loading: mutationLoading, error: mutationError, data: mutationData }] =
         useMutation(CONTEST_REGISTRATION_MUTATION);
 
-    const registerHandler = () => {
+    const registerHandler = password => {
         const variables = {
             id: data.getContest.id,
-            token: auth.token
+            token: auth.token,
+            password: password
         };
         register({ variables: variables });
+        setShowModal(pre => !pre);
     };
 
     useEffect(() => {
@@ -101,7 +109,9 @@ const ContestDetails = ({ route }) => {
 
     return (
         <SafeAreaView style={style.mainContainer}>
-            <View className="h-full" refreshControl={<RefreshControl />}>
+            <ScrollView
+                className="h-full"
+                refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}>
                 <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2 mb-1">
                     <Text className="font-bold text-2xl text-gray-600">Contest</Text>
                 </View>
@@ -143,7 +153,7 @@ const ContestDetails = ({ route }) => {
                                     <Text className="font-bold">{remaining}</Text>
                                 </View>
                                 <View className="w-1/2 flex flex-row space-x-2 items-center">
-                                    <Icon2 name="user" size={18} />
+                                    <Icon name="account" size={18} />
                                     <Text className="font-bold">{data.getContest.User.name}</Text>
                                 </View>
                             </View>
@@ -154,13 +164,30 @@ const ContestDetails = ({ route }) => {
                                         {data.getContest.Registrations.length}
                                     </Text>
                                 </View>
+                                <View className="w-1/2 flex flex-row space-x-2 items-center">
+                                    <Icon
+                                        name={
+                                            data.getContest.privacy === 'private' ? 'lock' : 'earth'
+                                        }
+                                        size={18}
+                                    />
+                                    <Text className="font-bold">
+                                        {data.getContest.privacy === 'private'
+                                            ? 'Private'
+                                            : 'Public'}
+                                    </Text>
+                                </View>
                             </View>
                         </View>
 
                         <View className="w-full my-1 space-y-2">
                             {regData && !regData.getRegistrationStatus.status ? (
                                 <Pressable
-                                    onPress={registerHandler}
+                                    onPress={() =>
+                                        data.getContest.privacy === 'private'
+                                            ? setShowModal(pre => !pre)
+                                            : registerHandler('#P')
+                                    }
                                     className="w-full rounded overflow-hidden">
                                     <Text
                                         className="w-full text-center p-2"
@@ -222,7 +249,44 @@ const ContestDetails = ({ route }) => {
                         </View>
                     </View>
                 )}
-            </View>
+            </ScrollView>
+            <Modal
+                avoidKeyboard
+                isVisible={showModal}
+                onBackdropPress={() => setShowModal(pre => !pre)}
+                onBackButtonPress={() => setShowModal(pre => !pre)}>
+                <View className="w-full bg-white rounded overflow-hidden px-2 py-3 flex items-center space-y-4">
+                    <View className="w-full border-b pb-1">
+                        <Text className="text-center font-bold text-lg text-[#2B3467]">
+                            Input Password
+                        </Text>
+                    </View>
+                    <View className="w-full border rounded overflow-hidden">
+                        <TextInput
+                            onChangeText={setPassword}
+                            className="text-center"
+                            placeholder="Password"
+                        />
+                    </View>
+                    <View className="w-full rounded overflow-hidden flex flex-row justify-between my-2">
+                        <Pressable
+                            onPress={() => setShowModal(pre => !pre)}
+                            className="w-1/2 p-2 bg-[#2b34671f]">
+                            <Text className="text-center font-bold text-base text-[#2B3467]">
+                                Cancel
+                            </Text>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => registerHandler(password)}
+                            className="w-1/2 p-2 bg-[#2B3467]">
+                            <Text className="text-center font-bold text-base text-white">
+                                Submit
+                            </Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
+            <Loading loading={loading || mutationLoading} />
         </SafeAreaView>
     );
 };

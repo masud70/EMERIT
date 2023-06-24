@@ -1,4 +1,11 @@
-import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+    ActivityIndicator,
+    RefreshControl,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    View
+} from 'react-native';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useMutation, useQuery } from '@apollo/client';
@@ -11,6 +18,7 @@ import { useState } from 'react';
 import prettyMilliseconds from 'pretty-ms';
 import { useNavigation } from '@react-navigation/native';
 import { FUNCTIONS } from '../../helpers';
+import Loading from '../../components/utilities/Loading';
 
 const ContestScreen = ({ route }) => {
     const [remaining, setRemaining] = useState('');
@@ -98,7 +106,10 @@ const ContestScreen = ({ route }) => {
                         </View>
                         <ScrollView
                             className="flex flex-col mb-3"
-                            showsVerticalScrollIndicator={false}>
+                            showsVerticalScrollIndicator={false}
+                            refreshControl={
+                                <RefreshControl refreshing={loading} onRefresh={refetch} />
+                            }>
                             {data.getContestQuestionOption.Questions.map((item, idx) => {
                                 return (
                                     <QuestionItem
@@ -120,10 +131,9 @@ const ContestScreen = ({ route }) => {
                     </View>
                 )}
             </View>
+            <Loading loading={submitLoading} />
         </SafeAreaView>
     );
 };
 
 export default ContestScreen;
-
-const styles = StyleSheet.create({});
