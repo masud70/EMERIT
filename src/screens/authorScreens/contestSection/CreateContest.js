@@ -32,7 +32,7 @@ const CreateContest = () => {
 
     if (!loading && data) {
         FUNCTIONS.showToast2(data.createContest.status, data.createContest.message);
-        navigation.navigate(ROUTES.AUTHOR_CONTEST);
+        navigation.goBack();
     } else if (error) FUNCTIONS.showToast2(false, error.message);
 
     return (

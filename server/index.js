@@ -8,6 +8,7 @@ const mysql = require('mysql2');
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
+
 const io = new Server(server);
 dotenv.config();
 
@@ -16,7 +17,7 @@ const db = require('./models');
 const userRouter = require('./router/userRouter');
 const contestRouter = require('./router/contestRouter');
 const postRouter = require('./router/postRouter');
-const { upload, updateDatabase } = require('./middlewares/common/imageUpload');
+const { upload, updateDatabase, imageToText } = require('./middlewares/common/imageUpload');
 const { errorHandler, notFoundHandler, checkLogin } = require('./middlewares/common');
 const { GraphQLObjectType, GraphQLSchema } = require('graphql');
 const { graphqlHTTP } = require('express-graphql');
@@ -96,6 +97,7 @@ app.get('/', (req, res) => {
 
 //avatar upload
 app.post('/upload', checkLogin, upload.single('image'), updateDatabase);
+app.post('/imgToText', upload.single('image'), imageToText);
 
 // let x = 0;
 // setInterval(() => {

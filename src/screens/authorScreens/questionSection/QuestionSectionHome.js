@@ -8,40 +8,25 @@ import { useSelector } from 'react-redux';
 import { useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import Question from '../../../components/Author/Question';
+import { RefreshControl } from 'react-native';
+import { useQuery } from '@apollo/client';
+import { GET_USER_QUESTIONS } from '../../../graphql/contestQuery';
 
 const QuestionSectionHome = () => {
     const [questions, setQuestions] = useState([]);
-    const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
     let auth = useSelector(st => st.auth);
 
-    const loadQuestion = () => {
-        setLoading(true);
-        const url = CONSTANT.BASE_URL + '/user/getAllQuestion';
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                authorization: 'Bearer ' + auth.token
-            }
-        })
-            .then(r => r.json())
-            .then(res => {
-                console.log(res);
-                if (res.status) {
-                    setQuestions(res.data);
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            })
-            .finally(() => setLoading(false));
-    };
+    const { loading, error, data, refetch } = useQuery(GET_USER_QUESTIONS, {
+        variables: { token: auth.token }
+    });
 
     useEffect(() => {
-        loadQuestion();
-    }, []);
+        if (!loading && data) {
+            setQuestions(data.getUserQuestions);
+            console.log(auth.token);
+        }
+    }, [data]);
 
     return (
         <SafeAreaView>
@@ -49,7 +34,9 @@ const QuestionSectionHome = () => {
                 <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2">
                     <Text className="font-bold text-xl ">Question Dashboard</Text>
                 </View>
-                <ScrollView showsVerticalScrollIndicator={false}>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}>
                     <View>
                         <TouchableOpacity
                             className="w-full bg-gray-200 justify-center items-center rounded p-1 mt-1"
@@ -61,9 +48,7 @@ const QuestionSectionHome = () => {
 
                         <View className="">
                             {!loading && questions ? (
-                                questions.map((item, idx) => (
-                                    <Question data={{ ...item, solved: false, tried: false }} key={idx} />
-                                ))
+                                questions.map((item, idx) => <Question data={item} key={idx} />)
                             ) : (
                                 <ActivityIndicator className="mt-10" size={40} color="gray" />
                             )}

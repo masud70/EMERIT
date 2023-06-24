@@ -22,6 +22,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { ActivityIndicator } from 'react-native';
 import { FUNCTIONS } from '../../../helpers';
 import { useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 const UpdateQuestion = ({ route }) => {
     const [selectedOptions, setSelectedOptions] = useState([]);
@@ -29,6 +30,7 @@ const UpdateQuestion = ({ route }) => {
     const [showOptions, setShowOptions] = useState([]);
     const auth = useSelector(st => st.auth);
     const { height } = useWindowDimensions();
+    const navigation = useNavigation();
     const { id } = route.params;
 
     const {
@@ -92,6 +94,7 @@ const UpdateQuestion = ({ route }) => {
             updateData.updateContestQuestion.status,
             updateData.updateContestQuestion.message
         );
+        if (updateData.updateContestQuestion.status) navigation.goBack();
     }
     useEffect(() => {
         if (!loading && data) {
@@ -100,7 +103,7 @@ const UpdateQuestion = ({ route }) => {
                 title: item.title
             }));
             setSelectedOptions(questions);
-            refetch()
+            refetch();
         }
     }, [data]);
 

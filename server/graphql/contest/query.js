@@ -183,6 +183,67 @@ module.exports = {
         }
     },
 
+    getUserQuestions: {
+        type: new GraphQLList(QuestionType),
+        args: {
+            token: { type: GraphQLString }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const { userId } = jwt.verify(args.token, process.env.JWT_SECRET);
+                const questions = await db.Question.findAll({
+                    attributes: {
+                        include: [
+                            [
+                                db.sequelize.literal(`
+                                  (SELECT COUNT(*) FROM Submissions
+                                  WHERE Submissions.QuestionId = Question.id)
+                                `),
+                                'tried'
+                            ],
+                            [
+                                db.sequelize.literal(`
+                              (SELECT COUNT(*) FROM Submissions
+                              WHERE Submissions.QuestionId = Question.id
+                              AND Submissions.solution = Question.answer)
+                            `),
+                                'solveCount'
+                            ],
+                            [
+                                db.sequelize.literal(`
+                                  EXISTS (
+                                    SELECT *
+                                    FROM Submissions
+                                    WHERE Submissions.QuestionId = Question.id
+                                    AND Submissions.UserId = :userId
+                                    AND Submissions.solution = Question.answer
+                                  )
+                                `),
+                                'isSolved'
+                            ]
+                        ]
+                    },
+                    include: [
+                        {
+                            model: db.User,
+                            as: 'User',
+                            where: { id: userId }
+                        }
+                    ],
+                    replacements: { userId },
+                    order: [['createdAt', 'DESC']]
+                });
+
+                return questions.map(item => item.dataValues);
+            } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
+    },
+
     getRegistrationStatus: {
         type: RegistrationType,
         args: {

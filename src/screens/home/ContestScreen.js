@@ -19,11 +19,13 @@ import prettyMilliseconds from 'pretty-ms';
 import { useNavigation } from '@react-navigation/native';
 import { FUNCTIONS } from '../../helpers';
 import Loading from '../../components/utilities/Loading';
+import { useWindowDimensions } from 'react-native';
 
 const ContestScreen = ({ route }) => {
     const [remaining, setRemaining] = useState('');
     const [answer, setAnswer] = useState([]);
     const auth = useSelector(state => state.auth);
+    const { height } = useWindowDimensions();
     const navigation = useNavigation();
 
     const { loading, error, data, refetch } = useQuery(GET_CONTEST_QUESTION_OPTION_QUERY, {
@@ -95,7 +97,7 @@ const ContestScreen = ({ route }) => {
                 {loading || error ? (
                     <ActivityIndicator className="mt-10" size={40} color="gray" />
                 ) : (
-                    <View className="pb-1">
+                    <View style={{ minHeight: height * 0.8 }} className="pb-1">
                         <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2 mb-1">
                             <Text className="font-bold text-xl text-gray-500">
                                 {data.getContestQuestionOption.title}
@@ -123,7 +125,7 @@ const ContestScreen = ({ route }) => {
                             <View className="w-full">
                                 <Pressable
                                     onPress={handleSubmit}
-                                    className="bg-green-500 p-2 rounded">
+                                    className="bg-[#2B3467] p-2 rounded">
                                     <Text style={style.btn}>Finish</Text>
                                 </Pressable>
                             </View>

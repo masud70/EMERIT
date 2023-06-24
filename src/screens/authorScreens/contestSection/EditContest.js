@@ -140,8 +140,8 @@ const EditContest = ({ route }) => {
                     </ScrollView>
                     <Pressable
                         className="w-full bg-[#2B3467] p-2 my-2 rounded items-center"
-                        >
-                        <Text className="font-bold text-white text-lg">Update</Text>
+                        onPress={() => navigation.goBack()}>
+                        <Text className="font-bold text-white text-lg">Finish</Text>
                     </Pressable>
                 </View>
                 {/* </ScrollView> */}

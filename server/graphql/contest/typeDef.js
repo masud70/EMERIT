@@ -34,10 +34,14 @@ module.exports = {
             description: { type: GraphQLString },
             answer: { type: GraphQLString },
             marks: { type: GraphQLInt },
+            solveCount: { type: GraphQLInt },
+            isSolved: { type: GraphQLBoolean },
+            tried: { type: GraphQLInt },
             privacy: { type: GraphQLString },
             status: { type: GraphQLString },
             message: { type: GraphQLString },
-            Options: { type: GraphQLList(module.exports.OptionType) }
+            Options: { type: GraphQLList(module.exports.OptionType) },
+            User: { type: UserType }
         })
     }),
 

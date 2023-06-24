@@ -26,5 +26,24 @@ module.exports = {
                 }
             }
         }
+    `,
+
+    GET_USER_QUESTIONS: gql`
+        query GetUserQuestions($token: String!) {
+            getUserQuestions(token: $token) {
+                id
+                title
+                marks
+                solveCount
+                tried
+                isSolved
+                User {
+                    name
+                    username
+                }
+                status
+                message
+            }
+        }
     `
 };

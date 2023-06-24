@@ -1,6 +1,7 @@
 const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
+const { createWorker } = require('tesseract.js');
 
 // storage definition
 const storage = multer.diskStorage({
@@ -64,4 +65,25 @@ const updateDatabase = async (req, res, next) => {
         });
 };
 
-module.exports = { upload, updateDatabase };
+const imageToText = async (req, res, next) => {
+    try {
+        const worker = await createWorker();
+        await worker.loadLanguage('eng');
+        await worker.initialize('eng');
+        const result = await worker.recognize(req.file.path);
+        console.log(result.data.text);
+        await worker.terminate();
+
+        fs.unlink(req.file.path, err => console.log(err));
+
+        res.json({
+            status: true,
+            message: 'Text found.',
+            text: result.data.text
+        });
+    } catch (error) {
+        next(error.message);
+    }
+};
+
+module.exports = { upload, updateDatabase, imageToText };

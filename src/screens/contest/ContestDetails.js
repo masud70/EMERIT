@@ -60,7 +60,7 @@ const ContestDetails = ({ route }) => {
             password: password
         };
         register({ variables: variables });
-        setShowModal(pre => !pre);
+        setShowModal(false);
     };
 
     useEffect(() => {
