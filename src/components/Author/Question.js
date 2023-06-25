@@ -1,9 +1,13 @@
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import React from 'react';
+import { useNavigation } from '@react-navigation/native';
 
-const Question = ({ data }) => {
+const Question = ({ data, route }) => {
+    const navigation = useNavigation();
+
     return (
-        <View
+        <Pressable
+            onPress={() => navigation.navigate(route, { id: data.id })}
             className={`w-full flex-row mt-1 rounded overflow-hidden ${
                 data.isSolved ? 'bg-green-100' : data.tried ? 'bg-red-100' : 'bg-slate-100'
             }`}>
@@ -21,7 +25,7 @@ const Question = ({ data }) => {
                     <Text>Marks: {data.marks}</Text>
                 </View>
             </View>
-        </View>
+        </Pressable>
     );
 };
 

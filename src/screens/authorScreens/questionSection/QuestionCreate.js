@@ -1,12 +1,4 @@
-import {
-    Pressable,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-    TextInput as Input
-} from 'react-native';
+import { Pressable, SafeAreaView, ScrollView, Text, View, TextInput as Input } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { IconButton, TextInput } from 'react-native-paper';
 import { actions, RichEditor, RichToolbar } from 'react-native-pell-rich-editor';
@@ -17,15 +9,12 @@ import { FUNCTIONS } from '../../../helpers';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation } from '@apollo/client';
 import { CREATE_QUESTION_MUTATION } from '../../../graphql/query';
-import RichEditorComponent from './RichEditorComponent';
-import { ROUTES } from '../../../constants';
 import { BASE_URL } from '@env';
 
 const QuestionCreate = () => {
     const richText = React.useRef();
     const [data, setData] = useState({});
     const [options, setOptions] = useState({});
-    const [html, setHtml] = useState('');
     const [ans, setAns] = useState([]);
     const auth = useSelector(state => state.auth);
     const navigation = useNavigation();
@@ -249,5 +238,3 @@ const QuestionCreate = () => {
 };
 
 export default QuestionCreate;
-
-const styles = StyleSheet.create({});

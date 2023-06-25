@@ -443,5 +443,29 @@ module.exports = {
                 };
             }
         }
+    },
+
+    getQuestion: {
+        type: QuestionType,
+        args: {
+            token: { type: GraphQLString },
+            id: { type: GraphQLString }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            console.log("OK",args);
+            try {
+                const { userId } = jwt.verify(args.token, process.env.JWT_SECRET);
+                const question = await db.Question.findOne({
+                    where: { UserId: userId, id: args.id },
+                    include: [db.Option]
+                });
+                return question;
+            } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
     }
 };

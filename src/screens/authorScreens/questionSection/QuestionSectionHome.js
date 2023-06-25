@@ -24,7 +24,6 @@ const QuestionSectionHome = () => {
     useEffect(() => {
         if (!loading && data) {
             setQuestions(data.getUserQuestions);
-            console.log(auth.token);
         }
     }, [data]);
 
@@ -48,7 +47,7 @@ const QuestionSectionHome = () => {
 
                         <View className="">
                             {!loading && questions ? (
-                                questions.map((item, idx) => <Question data={item} key={idx} />)
+                                questions.map((item, idx) => <Question route={ROUTES.AUTHOR_QUESTION_EDIT} data={item} key={idx} />)
                             ) : (
                                 <ActivityIndicator className="mt-10" size={40} color="gray" />
                             )}
@@ -61,5 +60,3 @@ const QuestionSectionHome = () => {
 };
 
 export default QuestionSectionHome;
-
-const styles = StyleSheet.create({});

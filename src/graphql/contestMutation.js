@@ -8,5 +8,30 @@ module.exports = {
                 message
             }
         }
+    `,
+
+    UPDATE_QUESTION: gql`
+        mutation UpdateQuestion(
+            $id: String!
+            $token: String!
+            $title: String!
+            $description: String!
+            $marks: Int!
+            $options: [String!]!
+            $answer: String!
+        ) {
+            updateQuestion(
+                id: $id
+                token: $token
+                title: $title
+                description: $description
+                marks: $marks
+                options: $options
+                answer: $answer
+            ) {
+                status
+                message
+            }
+        }
     `
 };

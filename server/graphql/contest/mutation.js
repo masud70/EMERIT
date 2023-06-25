@@ -111,6 +111,8 @@ module.exports = {
                     throw new Error('Answer must be an option.');
                 if (args.options.length < 3 || args.options.length > 5)
                     throw new Error('Number of options should be 3 to 5.');
+                if (!args.options.includes(args.answer))
+                    throw new Error('Answer is not in options.');
 
                 const question = await db.Question.create({
                     title: args.title,
@@ -381,6 +383,72 @@ module.exports = {
                     throw new Error('Invalid update type.');
                 }
             } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
+    },
+
+    updateQuestion: {
+        type: MessageType,
+        args: {
+            id: { type: GraphQLString },
+            title: { type: GraphQLString },
+            description: { type: GraphQLString },
+            answer: { type: GraphQLString },
+            marks: { type: GraphQLInt },
+            options: { type: GraphQLList(GraphQLString) },
+            token: { type: GraphQLString }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            console.log(args);
+            try {
+                const { userId } = jwt.verify(args.token, process.env.JWT_SECRET);
+                if (args.title.length < 2)
+                    throw new Error('Title length must be greater than 2 chars.');
+                if (!args.options.includes(args.answer))
+                    throw new Error('Answer must be an option.');
+                if (args.options.length < 3 || args.options.length > 5)
+                    throw new Error('Number of options should be 3 to 5.');
+                if (!args.options.includes(args.answer))
+                    throw new Error('Answer is not in options.');
+
+                const updatedQuestion = await db.Question.findOne({
+                    where: { id: args.id, UserId: userId }
+                });
+
+                if (updatedQuestion) {
+                    console.log(updatedQuestion);
+                    updatedQuestion.title = args.title;
+                    updatedQuestion.description = args.description;
+                    updatedQuestion.answer = args.answer;
+                    updatedQuestion.marks = args.marks;
+
+                    await db.Option.destroy({ where: { QuestionId: updatedQuestion.id } });
+
+                    await updatedQuestion.setOptions([]);
+
+                    const updatedOptions = await Promise.all(
+                        args.options.map(async option => {
+                            const newOption = await db.Option.create({ value: option });
+                            return newOption;
+                        })
+                    );
+
+                    await updatedQuestion.setOptions(updatedOptions);
+                    await updatedQuestion.save();
+
+                    return {
+                        status: true,
+                        message: 'Question updated successfully.'
+                    };
+                }
+
+                throw new Error('Question not found.');
+            } catch (error) {
+                console.log(error.message);
                 return {
                     status: false,
                     message: error.message

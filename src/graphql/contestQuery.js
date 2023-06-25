@@ -45,5 +45,23 @@ module.exports = {
                 message
             }
         }
+    `,
+
+    GET_QUESTION: gql`
+        query GetQuestion($id: String!, $token: String!) {
+            getQuestion(id: $id, token: $token) {
+                id
+                title
+                description
+                answer
+                marks
+                status
+                message
+                Options {
+                    id
+                    value
+                }
+            }
+        }
     `
 };
