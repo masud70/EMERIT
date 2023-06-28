@@ -1,24 +1,47 @@
 import { View, Text } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import { ScrollView } from 'react-native';
 import { RefreshControl } from 'react-native';
+import { Dimensions } from 'react-native';
 
-const Wraper = ({ head, children, refresh }) => {
+const Wraper = ({ head, children, refresh, bottomPadding }) => {
+    const [firstViewHeight, setFirstViewHeight] = useState(0);
+    const screenHeight = Dimensions.get('window').height;
+    const secondViewHeight = screenHeight - firstViewHeight;
+
+    const handleFirstViewLayout = event => {
+        const { height } = event.nativeEvent.layout;
+        setFirstViewHeight(height);
+    };
+
     return (
         <SafeAreaView>
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                    <RefreshControl refreshing={refresh.loading} onRefresh={refresh.refetch} />
-                }>
-                <View className="h-screen px-2 py-1 w-screen bg-white">
-                    <View className="w-full items-center justify-center border-b-4 border-[#2B3467] bg-[#2b3467ea] rounded p-2 mb-1">
+            <View className="min-h-[85%] px-2 py-1 w-screen bg-white">
+                <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
+                    <View
+                        onLayout={handleFirstViewLayout}
+                        className="w-full items-center justify-center border-b-4 border-[#2B3467] bg-[#2b3467ea] rounded p-2 mb-1">
                         <Text className="font-bold text-xl text-white">{head}</Text>
                     </View>
-                    <ScrollView showsVerticalScrollIndicator={false}>{children}</ScrollView>
-                </View>
-            </ScrollView>
+
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        nestedScrollEnabled={true}
+                        className="w-full h-full"
+                        style={{
+                            minHeight: bottomPadding ? secondViewHeight - 55 : secondViewHeight - 10
+                        }}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={refresh ? refresh.loading : false}
+                                onRefresh={refresh?.refetch}
+                            />
+                        }>
+                        {children}
+                    </ScrollView>
+                </ScrollView>
+            </View>
         </SafeAreaView>
     );
 };

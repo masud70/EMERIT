@@ -22,5 +22,15 @@ module.exports = {
             status: { type: GraphQLBoolean },
             message: { type: GraphQLString }
         })
+    }),
+
+    AdminMessageType: new GraphQLObjectType({
+        name: 'AdminMessage',
+        fields: () => ({
+            status: { type: GraphQLBoolean },
+            isAdmin: { type: GraphQLBoolean },
+            isSuperAdmin: { type: GraphQLBoolean },
+            message: { type: GraphQLString }
+        })
     })
 };

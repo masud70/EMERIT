@@ -46,6 +46,7 @@ const Login = () => {
                 })
                 .catch(err => {
                     FUNCTIONS.showToast('error', 'Error', err.message);
+                    setLoader(false);
                 })
                 .finally(() => {
                     setLoader(false);

@@ -35,6 +35,14 @@ module.exports = (sequelize, DataTypes) => {
         isActive: {
             type: DataTypes.BOOLEAN,
             defaultValue: true
+        },
+        isAdmin: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        },
+        isSuperAdmin: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
     });
     User.associate = () => {
@@ -46,6 +54,7 @@ module.exports = (sequelize, DataTypes) => {
         User.hasMany(sequelize.models.Rating);
         User.hasMany(sequelize.models.Reaction);
         User.hasMany(sequelize.models.Comment);
+        User.hasMany(sequelize.models.AdminRequest);
     };
     return User;
 };

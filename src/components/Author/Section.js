@@ -21,7 +21,7 @@ const Section = ({ route, data }) => {
                         <Text className="text-white text-xl font-bold">{data.sectionName}</Text>
                     </View>
                     <View>
-                        <Text className="text-white">Contest Details</Text>
+                        <Text className="text-white">{data.sectionName} Details</Text>
                     </View>
                 </View>
             </View>

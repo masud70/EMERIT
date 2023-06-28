@@ -28,6 +28,9 @@ const userQuery = require('./graphql/user/query');
 const userMutation = require('./graphql/user/mutation');
 const postQuery = require('./graphql/post/query');
 const postMutation = require('./graphql/post/mutation');
+const utilityMutation = require('./graphql/utility/mutation');
+const superAdminMutation = require('./graphql/superAdmin/mutation');
+const superAdminQuery = require('./graphql/superAdmin/query');
 
 //database connection
 // mongoose
@@ -70,11 +73,17 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 // QraphQL
 const Query = new GraphQLObjectType({
     name: 'Query',
-    fields: { ...contestQuery, ...userQuery, ...postQuery }
+    fields: { ...contestQuery, ...userQuery, ...postQuery, ...superAdminQuery }
 });
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
-    fields: { ...contestMutation, ...userMutation, ...postMutation }
+    fields: {
+        ...contestMutation,
+        ...userMutation,
+        ...postMutation,
+        ...utilityMutation,
+        ...superAdminMutation
+    }
 });
 app.use(
     '/graphql',

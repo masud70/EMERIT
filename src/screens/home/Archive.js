@@ -1,22 +1,64 @@
-import React from 'react';
-import { SafeAreaView, ScrollView, Text, View } from 'react-native';
-import style from '../../../styles/style.scss';
+import React, { useState } from 'react';
+import { Text, View } from 'react-native';
 import MapView from 'react-native-maps';
+import Wraper from '../../components/utilities/Wraper';
+import Card from '../../components/utilities/Card';
+import { TextInput } from 'react-native';
+import { Pressable } from 'react-native';
+import { useMutation } from '@apollo/client';
+import { SEND_FEEDBACK } from '../../graphql/utility';
+import { FUNCTIONS } from '../../helpers';
+import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import Loading from '../../components/utilities/Loading';
 
 const About = () => {
+    const [feedback, setFeedback] = useState('');
+    const auth = useSelector(st => st.auth);
+    const [sendFeedback, { loading, error, data }] = useMutation(SEND_FEEDBACK);
+
+    const handleSendFeedback = async () => {
+        try {
+            await sendFeedback({
+                variables: {
+                    body: feedback,
+                    token: auth.token
+                }
+            });
+        } catch (error) {
+            FUNCTIONS.showToast2(false, error.message);
+        }
+    };
+
+    useEffect(() => {
+        if (data) {
+            FUNCTIONS.showToast2(data.sendFeedback.status, data.sendFeedback.message);
+        }
+    }, [data]);
+
     return (
-        <SafeAreaView style={style.mainContainer}>
-            <View className="w-full">
-                <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2 mb-1">
-                    <Text className="font-bold text-2xl text-gray-600">About Us</Text>
-                </View>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View className="w-full bg-slate-100 rounded overflow-hidden min-h-screen">
+        <>
+            <Wraper head={'About Us'} bottomPadding>
+                <Card title="Send us feedback">
+                    <TextInput
+                        multiline
+                        numberOfLines={7}
+                        textAlignVertical="top"
+                        className="border rounded mb-2 px-2 border-[#2B3467]"
+                        placeholder="Write your message..."
+                        onChangeText={setFeedback}
+                    />
+                    <Pressable className="w-full" onPress={handleSendFeedback}>
+                        <Text className="text-center font-bold text-lg text-white bg-[#2B3467] p-2 rounded">
+                            Send Now
+                        </Text>
+                    </Pressable>
+                </Card>
+                <View className="w-full bg-slate-100 rounded overflow-hidden">
                     <Text className="w-full text-center text-white font-bold text-2xl bg-slate-800">
                         View us on Google Maps
                     </Text>
-                    <View className="boder border-2 border-green-400">
+                    <View className="boder border-2 border-t-0 border-green-400">
                         <MapView
                             className="min-h-[200px]"
                             minZoomLevel={10}
@@ -29,8 +71,9 @@ const About = () => {
                         />
                     </View>
                 </View>
-            </ScrollView>
-        </SafeAreaView>
+            </Wraper>
+            <Loading loading={loading} />
+        </>
     );
 };
 

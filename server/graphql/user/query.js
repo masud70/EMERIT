@@ -1,7 +1,7 @@
 const { GraphQLString } = require('graphql');
 const db = require('../../models');
 const jwt = require('jsonwebtoken');
-const { UserType, MessageType } = require('./typeDef');
+const { UserType, MessageType, AdminMessageType } = require('./typeDef');
 
 module.exports = {
     getUserInfo: {
@@ -45,6 +45,35 @@ module.exports = {
                         message: 'Data found.'
                     };
                 throw new Error('No data found.');
+            } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
+    },
+
+    getIsAdmin: {
+        type: AdminMessageType,
+        args: {
+            token: { type: GraphQLString }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const { userId } = jwt.verify(args.token, process.env.JWT_SECRET);
+                const user = await db.User.findByPk(userId);
+                console.log(user);
+                if (user) {
+                    return {
+                        status: true,
+                        isAdmin: user.isAdmin,
+                        isSuperAdmin: user.isSuperAdmin,
+                        message: 'This user is an admin.'
+                    };
+                } else {
+                    throw new Error('There was an error.');
+                }
             } catch (error) {
                 return {
                     status: false,

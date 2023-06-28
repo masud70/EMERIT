@@ -1,6 +1,4 @@
 const { check, validationResult } = require('express-validator');
-const createHttpError = require('http-errors');
-const User = require('../../models/People');
 
 const registerValidator = [
     check('email')

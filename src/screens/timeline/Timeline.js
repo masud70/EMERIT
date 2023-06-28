@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import React, { useEffect } from 'react';
 import style from '../../../styles/style.scss';
 import { ScrollView } from 'react-native';
@@ -12,8 +12,9 @@ import { useMutation, useQuery } from '@apollo/client';
 import { CREATE_POST_MUTATION, GET_POST_BY_PAGE_QUERY } from '../../graphql/postQuery';
 import { useSelector } from 'react-redux';
 import { FUNCTIONS } from '../../helpers';
-import { ActivityIndicator } from 'react-native';
-import { RefreshControl } from 'react-native';
+import Wraper from '../../components/utilities/Wraper';
+import { FAB } from 'react-native-paper';
+import Loading from '../../components/utilities/Loading';
 
 const handleHead = ({ tintColor }) => <Text style={{ color: tintColor }}>H1</Text>;
 const Timeline = () => {
@@ -42,165 +43,127 @@ const Timeline = () => {
         }
     }, [createData]);
 
-    if (postLoading || postError) {
-        return (
-            <SafeAreaView style={style.mainContainer}>
-                <View className="h-full">
-                    <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2 mb-1">
-                        <Text className="font-bold text-2xl text-gray-600">Timeline</Text>
-                    </View>
-                    <ActivityIndicator size={40} />
-                </View>
-            </SafeAreaView>
-        );
-    }
-
     return (
-        <SafeAreaView style={style.mainContainer}>
-            <View className="h-full">
-                <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2 mb-1">
-                    <Text className="font-bold text-2xl text-gray-600">Timeline</Text>
+        <>
+            <Wraper
+                head="Timeline"
+                bottomPadding
+                refresh={{ loading: postLoading, refetch: postRefetch }}>
+                {!postData?.getPostByPage.length ? (
+                    <Text className="w-full text-center font-bold text-xl py-2 mb-1">
+                        No more posts
+                    </Text>
+                ) : (
+                    postData?.getPostByPage.map((item, idx) => (
+                        <PostBox key={idx} refetch={postRefetch} data={item} />
+                    ))
+                )}
+
+                {/* Pagination */}
+                <View className="mb-2 py-2 w-full bg-white rounded overflow-hidden flex flex-row justify-around">
+                    <Pressable onPress={() => setPage(1)}>
+                        <Text
+                            style={style.paginationBtn}
+                            className={`${page === 1 ? 'bg-slate-800' : 'bg-green-600'}`}>
+                            Start
+                        </Text>
+                    </Pressable>
+                    <Pressable disabled={page === 1} onPress={() => setPage(pre => pre - 1)}>
+                        <Text
+                            style={style.paginationBtn}
+                            className={`${page === 1 ? 'bg-slate-500' : 'bg-green-600'}`}>
+                            Pre
+                        </Text>
+                    </Pressable>
+                    {page > 3 && <Text className="font-bold text-xl text-center">...</Text>}
+                    <Text className="font-bold text-xl text-center">...</Text>
+                    <Pressable
+                        disabled={postData?.getPostByPage.length === 0}
+                        onPress={() => setPage(pre => pre + 1)}>
+                        <Text
+                            style={style.paginationBtn}
+                            className={`${
+                                postData?.getPostByPage.length === 0
+                                    ? 'bg-slate-500'
+                                    : 'bg-green-600'
+                            }`}>
+                            Next
+                        </Text>
+                    </Pressable>
                 </View>
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    refreshControl={
-                        <RefreshControl refreshing={postLoading} onRefresh={postRefetch} />
-                    }>
-                    <View className="w-full">
-                        <TouchableOpacity
-                            className="w-full bg-green-500 p-2 rounded"
-                            onPress={() => setShowModal(pre => !pre)}>
-                            <Text className="w-full text-center font-bold text-lg text-white">
-                                Create Post
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View>
-                        <Modal
-                            avoidKeyboard
-                            isVisible={showModal}
-                            onBackdropPress={() => setShowModal(pre => !pre)}
-                            onBackButtonPress={() => setShowModal(pre => !pre)}>
-                            <View className="w-full bg-white rounded overflow-hidden p-2 flex items-center">
-                                <Text className="w-full text-gray-900 text-center font-bold text-lg bg-green-100 rounded-t py-1">
-                                    Create A New Post
+            </Wraper>
+            <Modal
+                avoidKeyboard
+                isVisible={showModal}
+                onBackdropPress={() => setShowModal(pre => !pre)}
+                onBackButtonPress={() => setShowModal(pre => !pre)}>
+                <View className="w-full bg-white rounded overflow-hidden p-2 flex items-center">
+                    <Text className="w-full text-gray-900 text-center font-bold text-lg bg-green-100 rounded-t py-1">
+                        Create A New Post
+                    </Text>
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                        <ScrollView className="w-full" showsVerticalScrollIndicator={false}>
+                            <RichEditor
+                                ref={richText}
+                                initialContentHTML={createdBody}
+                                initialHeight={300}
+                                onChange={html => setCreatedBody(html)}
+                            />
+                        </ScrollView>
+                        <RichToolbar
+                            editor={richText}
+                            actions={[
+                                actions.setBold,
+                                actions.setItalic,
+                                actions.setUnderline,
+                                actions.heading1,
+                                actions.insertImage,
+                                actions.insertBulletsList,
+                                actions.insertOrderedList,
+                                actions.insertLink,
+                                actions.keyboard,
+                                actions.setStrikethrough,
+                                actions.setUnderline,
+                                actions.removeFormat,
+                                actions.insertVideo,
+                                actions.undo,
+                                actions.redo
+                            ]}
+                            iconMap={{ [actions.heading1]: handleHead }}
+                        />
+                        <View className="w-full flex flex-row justify-between pt-2">
+                            <TouchableOpacity
+                                className="w-1/2 bg-slate-500 p-2 rounded-l"
+                                onPress={() => setShowModal(pre => !pre)}>
+                                <Text className="w-full text-center font-bold text-lg text-white">
+                                    Cancel
                                 </Text>
-                                <ScrollView showsVerticalScrollIndicator={false}>
-                                    <ScrollView
-                                        className="w-full"
-                                        showsVerticalScrollIndicator={false}>
-                                        <RichEditor
-                                            ref={richText}
-                                            initialContentHTML={createdBody}
-                                            initialHeight={300}
-                                            onChange={html => setCreatedBody(html)}
-                                        />
-                                    </ScrollView>
-                                    <RichToolbar
-                                        editor={richText}
-                                        actions={[
-                                            actions.setBold,
-                                            actions.setItalic,
-                                            actions.setUnderline,
-                                            actions.heading1,
-                                            actions.insertImage,
-                                            actions.insertBulletsList,
-                                            actions.insertOrderedList,
-                                            actions.insertLink,
-                                            actions.keyboard,
-                                            actions.setStrikethrough,
-                                            actions.setUnderline,
-                                            actions.removeFormat,
-                                            actions.insertVideo,
-                                            actions.undo,
-                                            actions.redo
-                                        ]}
-                                        iconMap={{ [actions.heading1]: handleHead }}
-                                    />
-                                    <View className="w-full flex flex-row justify-between pt-2">
-                                        <TouchableOpacity
-                                            className="w-1/2 bg-slate-500 p-2 rounded-l"
-                                            onPress={() => setShowModal(pre => !pre)}>
-                                            <Text className="w-full text-center font-bold text-lg text-white">
-                                                Cancel
-                                            </Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            className="w-1/2 bg-green-500 p-2 rounded-r"
-                                            onPress={() => {
-                                                const variables = {
-                                                    token: auth.token,
-                                                    body: createdBody
-                                                };
-                                                createPost({ variables: variables });
-                                            }}>
-                                            <Text className="w-full text-center font-bold text-lg text-white">
-                                                Post
-                                            </Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </ScrollView>
-                            </View>
-                        </Modal>
-                    </View>
-                    <View className="w-full flex flex-col space-y-2 pt-2">
-                        {!postData.getPostByPage.length ? (
-                            <Text className="w-full text-center font-bold text-xl py-2 mb-1">
-                                No more posts
-                            </Text>
-                        ) : (
-                            postData.getPostByPage.map((item, idx) => (
-                                <PostBox key={idx} refetch={postRefetch} data={item} />
-                            ))
-                        )}
-                    </View>
-
-                    {/* Pagination */}
-                    <View className="mb-2 py-2 w-full bg-white rounded overflow-hidden flex flex-row justify-around">
-                        <Pressable onPress={() => setPage(1)}>
-                            <Text
-                                style={style.paginationBtn}
-                                className={`${page === 1 ? 'bg-slate-800' : 'bg-green-600'}`}>
-                                Start
-                            </Text>
-                        </Pressable>
-                        <Pressable disabled={page === 1} onPress={() => setPage(pre => pre - 1)}>
-                            <Text
-                                style={style.paginationBtn}
-                                className={`${page === 1 ? 'bg-slate-500' : 'bg-green-600'}`}>
-                                Pre
-                            </Text>
-                        </Pressable>
-                        {page > 3 && <Text className="font-bold text-xl text-center">...</Text>}
-
-                        {/* <Pressable>
-                            <Text style={style.paginationBtn}>1</Text>
-                        </Pressable>
-                        <Pressable>
-                            <Text style={style.paginationBtn}>2</Text>
-                        </Pressable>
-                        <Pressable>
-                            <Text style={style.paginationBtn}>3</Text>
-                        </Pressable> */}
-
-                        <Text className="font-bold text-xl text-center">...</Text>
-                        <Pressable
-                            disabled={postData.getPostByPage.length === 0}
-                            onPress={() => setPage(pre => pre + 1)}>
-                            <Text
-                                style={style.paginationBtn}
-                                className={`${
-                                    postData.getPostByPage.length === 0
-                                        ? 'bg-slate-500'
-                                        : 'bg-green-600'
-                                }`}>
-                                Next
-                            </Text>
-                        </Pressable>
-                    </View>
-                </ScrollView>
-            </View>
-        </SafeAreaView>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                className="w-1/2 bg-green-500 p-2 rounded-r"
+                                onPress={() => {
+                                    const variables = {
+                                        token: auth.token,
+                                        body: createdBody
+                                    };
+                                    createPost({ variables: variables });
+                                }}>
+                                <Text className="w-full text-center font-bold text-lg text-white">
+                                    Post
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </ScrollView>
+                </View>
+            </Modal>
+            <FAB
+                variant="surface"
+                icon="plus"
+                className="m-5 absolute right-0 bottom-0"
+                onPress={() => setShowModal(pre => !pre)}
+            />
+            <Loading loading={createLoading} />
+        </>
     );
 };
 

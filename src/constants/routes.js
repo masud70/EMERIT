@@ -50,5 +50,7 @@ export default {
     AUTHOR_QUESTION_EDIT: 'Edit Question',
     AUTHOR_CONTEST_EDIT: 'Contest Edit Dashboard',
     AUTHOR_QUESTION: 'Question Dashboard',
-    AUTHOR_UPDATE_QUESTION: 'Update Question'
+    AUTHOR_UPDATE_QUESTION: 'Update Question',
+
+    ADMIN_REQUEST: 'Admin Request'
 };

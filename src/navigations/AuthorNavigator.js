@@ -9,6 +9,7 @@ import QuestionSectionHome from '../screens/authorScreens/questionSection/Questi
 import QuestionCreate from '../screens/authorScreens/questionSection/QuestionCreate';
 import QuestionEdit from '../screens/authorScreens/questionSection/QuestionEdit';
 import UpdateQuestion from '../screens/authorScreens/contestSection/UpdateQuestion';
+import AdminRequest from '../screens/authorScreens/superAdmin/AdminRequest';
 
 const Stack = createStackNavigator();
 
@@ -25,6 +26,7 @@ function AuthorNavigator() {
             <Stack.Screen name={ROUTES.AUTHOR_CONTEST_CREATE} component={CreateContest} />
             <Stack.Screen name={ROUTES.AUTHOR_CONTEST_EDIT} component={EditContest} />
             <Stack.Screen name={ROUTES.AUTHOR_UPDATE_QUESTION} component={UpdateQuestion} />
+            <Stack.Screen name={ROUTES.ADMIN_REQUEST} component={AdminRequest} />
         </Stack.Navigator>
     );
 }
