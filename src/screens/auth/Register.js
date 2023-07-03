@@ -30,6 +30,15 @@ const Register = () => {
     const [sendOtp, { loading: sendLoading, data: sendData }] = useMutation(SEND_OTP_MUTATION);
     const [verify, { loading: otpLoading, data: otpData }] = useMutation(VERIFY_OTP_MUTATION);
 
+    const handleSendOtp = async () => {
+        try {
+            if (email) await sendOtp({ variables: { email: email } });
+            else FUNCTIONS.showToast2(false, 'Email cannot be empty.');
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
     const verifyOtp = val => {
         setOtp(val);
         if (val.length === 6) verify({ variables: { email: email, otp: otp } });
@@ -115,7 +124,7 @@ const Register = () => {
                                     className="w-full rounded-l-none rounded-r h-[60px] text-center"
                                     title="Send OTP"
                                     color="#7d5fff"
-                                    onPress={() => sendOtp({ variables: { email: email } })}
+                                    onPress={handleSendOtp}
                                 />
                             </View>
                         </View>

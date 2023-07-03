@@ -11,6 +11,7 @@ import { FUNCTIONS } from '../../helpers';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import Loading from '../../components/utilities/Loading';
+import YoutubePlayer from 'react-native-youtube-iframe';
 
 const About = () => {
     const [feedback, setFeedback] = useState('');
@@ -71,6 +72,9 @@ const About = () => {
                         />
                     </View>
                 </View>
+                <Card title="Youtube Video Embedding">
+                <YoutubePlayer play={false} height={300} videoId={'iee2TATGMyI'} />
+                </Card>
             </Wraper>
             <Loading loading={loading} />
         </>

@@ -102,7 +102,7 @@ module.exports = {
             token: { type: GraphQLString }
         },
         resolve: async (parent, args, ctx, info) => {
-            console.log(args);
+            console.log("QuestionData: ",args);
             try {
                 const decoded = jwt.verify(args.token, process.env.JWT_SECRET);
                 if (args.title.length < 2)
@@ -136,6 +136,7 @@ module.exports = {
                     ...options.dataValues
                 };
             } catch (error) {
+                console.log(error);
                 return {
                     status: false,
                     message: error.message

@@ -13,6 +13,9 @@ import Wraper from '../../../components/utilities/Wraper';
 import { BASE_URL } from '@env';
 import Card from '../../../components/utilities/Card';
 import FlatButton from '../../../components/utilities/FlatButton';
+import ImageCropPicker from 'react-native-image-crop-picker';
+import ImgToBase64 from 'react-native-image-base64';
+import Loading from '../../../components/utilities/Loading';
 
 const QuestionCreate = () => {
     const richText = React.useRef();
@@ -22,8 +25,7 @@ const QuestionCreate = () => {
     const auth = useSelector(state => state.auth);
     const navigation = useNavigation();
 
-    const [submitQuestion, { loading, error, data: mutationData }] =
-        useMutation(CREATE_QUESTION_MUTATION);
+    const [submitQuestion, { loading, data: mutationData }] = useMutation(CREATE_QUESTION_MUTATION);
 
     const imageToText = async () => {
         try {
@@ -68,10 +70,33 @@ const QuestionCreate = () => {
                 marks: 1,
                 token: auth.token
             };
+            console.log(data);
             await submitQuestion({ variables: variables });
         } catch (error) {
+            console.log(error);
             FUNCTIONS.showToast2(false, error.message);
         }
+    };
+
+    const onPressAddImage = () => {
+        ImageCropPicker.openPicker({
+            cropping: true,
+            freeStyleCropEnabled: true,
+            mediaType: 'photo'
+        }).then(image => {
+            const fileSizeInMB = image.size / (1024 * 1024);
+            if (fileSizeInMB >= 1)
+                FUNCTIONS.showToast2(false, 'Image size should be less than 1MB.');
+            else convertBase64(image);
+        });
+    };
+
+    const convertBase64 = image => {
+        ImgToBase64.getBase64String(image.path)
+            .then(base64String => {
+                richText.current?.insertImage(`data:${image.mime};base64,${base64String}`);
+            })
+            .catch(err => console.log(err));
     };
 
     useEffect(() => {
@@ -128,11 +153,13 @@ const QuestionCreate = () => {
                             </ScrollView>
                             <RichToolbar
                                 editor={richText}
+                                onPressAddImage={onPressAddImage}
                                 actions={[
                                     actions.setBold,
                                     actions.setItalic,
                                     actions.setUnderline,
                                     actions.heading1,
+                                    actions.insertImage,
                                     actions.insertBulletsList,
                                     actions.insertOrderedList,
                                     actions.checkboxList,
@@ -198,10 +225,10 @@ const QuestionCreate = () => {
                             />
                         </Card>
                     </View>
-
                     <FlatButton title={'Create Now'} onPress={handleSubmit} />
                 </View>
             </Wraper>
+            <Loading loading={loading} />
         </>
     );
 };

@@ -18,7 +18,15 @@ const Wraper = ({ head, children, refresh, bottomPadding }) => {
     return (
         <SafeAreaView>
             <View className="min-h-[85%] px-2 py-1 w-screen bg-white">
-                <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
+                <ScrollView
+                    nestedScrollEnabled={true}
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refresh ? refresh.loading : false}
+                            onRefresh={refresh?.refetch}
+                        />
+                    }>
                     <View
                         onLayout={handleFirstViewLayout}
                         className="w-full items-center justify-center border-b-4 border-[#2B3467] bg-[#2b3467ea] rounded p-2 mb-1">
@@ -28,16 +36,10 @@ const Wraper = ({ head, children, refresh, bottomPadding }) => {
                     <ScrollView
                         showsVerticalScrollIndicator={false}
                         nestedScrollEnabled={true}
-                        className="w-full h-full"
+                        className="w-full"
                         style={{
                             minHeight: bottomPadding ? secondViewHeight - 55 : secondViewHeight - 10
-                        }}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={refresh ? refresh.loading : false}
-                                onRefresh={refresh?.refetch}
-                            />
-                        }>
+                        }}>
                         {children}
                     </ScrollView>
                 </ScrollView>

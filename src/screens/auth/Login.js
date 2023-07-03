@@ -15,6 +15,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import { FUNCTIONS } from '../../helpers';
 import { login } from '../../redux/state/auth/authSlice';
 import style from '../../../styles/style.scss';
+import Loading from '../../components/utilities/Loading';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -111,10 +112,11 @@ const Login = () => {
                     </TouchableOpacity>
                 </View>
             </View>
-            <ActivityIndicator
+            {/* <ActivityIndicator
                 className={`absolute bg-slate-300 w-screen h-screen ${!loader && 'hidden'}`}
                 size={60}
-            />
+            /> */}
+            <Loading loading={loader} />
         </SafeAreaView>
     );
 };

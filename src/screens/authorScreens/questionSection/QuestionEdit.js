@@ -14,6 +14,8 @@ import { BASE_URL } from '@env';
 import { GET_QUESTION } from '../../../graphql/contestQuery';
 import { Pressable } from 'react-native';
 import { UPDATE_QUESTION } from '../../../graphql/contestMutation';
+import ImageCropPicker from 'react-native-image-crop-picker';
+import ImgToBase64 from 'react-native-image-base64';
 
 const QuestionEdit = ({ route }) => {
     const auth = useSelector(state => state.auth);
@@ -65,13 +67,11 @@ const QuestionEdit = ({ route }) => {
         });
     };
     const handleSubmit = async () => {
-        console.log('Data: ', data);
         const variables = {
             ...data,
             token: auth.token,
             options: Object.values(optionArray)
         };
-        console.log('Var: ', variables);
         try {
             await updateQuestion({
                 variables: variables
@@ -81,6 +81,25 @@ const QuestionEdit = ({ route }) => {
             console.log(error.message);
             FUNCTIONS.showToast2(false, error.message);
         }
+    };
+    const onPressAddImage = () => {
+        ImageCropPicker.openPicker({
+            cropping: true,
+            freeStyleCropEnabled: true,
+            mediaType: 'photo'
+        }).then(image => {
+            const fileSizeInMB = image.size / (1024 * 1024);
+            if (fileSizeInMB >= 1)
+                FUNCTIONS.showToast2(false, 'Image size should be less than 1MB.');
+            else convertBase64(image);
+        });
+    };
+    const convertBase64 = image => {
+        ImgToBase64.getBase64String(image.path)
+            .then(base64String => {
+                richText.current?.insertImage(`data:${image.mime};base64,${base64String}`);
+            })
+            .catch(err => console.log(err));
     };
 
     useEffect(() => {
@@ -133,8 +152,6 @@ const QuestionEdit = ({ route }) => {
         );
     }
 
-    if (updateError) console.log(updateError.message);
-
     return (
         <Wraper head="Update Question" refresh={{ loading: questionLoading, refetch: refetch }}>
             <View className="space-y-2">
@@ -172,11 +189,13 @@ const QuestionEdit = ({ route }) => {
                     </ScrollView>
                     <RichToolbar
                         editor={richText}
+                        onPressAddImage={onPressAddImage}
                         actions={[
                             actions.setBold,
                             actions.setItalic,
                             actions.setUnderline,
                             actions.heading1,
+                            actions.insertImage,
                             actions.insertBulletsList,
                             actions.insertOrderedList,
                             actions.checkboxList,

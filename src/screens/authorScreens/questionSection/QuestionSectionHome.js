@@ -1,13 +1,11 @@
-import { SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { View } from 'react-native';
 import React from 'react';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../../constants';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useState } from 'react';
 import Question from '../../../components/Author/Question';
-import { RefreshControl } from 'react-native';
 import { useQuery } from '@apollo/client';
 import { GET_USER_QUESTIONS } from '../../../graphql/contestQuery';
 import Wraper from '../../../components/utilities/Wraper';
