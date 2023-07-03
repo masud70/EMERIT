@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const http = require('http');
+const cors = require('cors')
 const server = http.createServer(app);
 const { Server } = require('socket.io');
 
@@ -32,20 +33,8 @@ const utilityMutation = require('./graphql/utility/mutation');
 const superAdminMutation = require('./graphql/superAdmin/mutation');
 const superAdminQuery = require('./graphql/superAdmin/query');
 
-//database connection
-// mongoose
-//     .connect(process.env.MONGO_CONNECTION_STRING, {
-//         useNewUrlParser: true,
-//         useUnifiedTopology: true
-//     })
-//     .then(() => {
-//         console.log('Database connection successful!');
-//     })
-//     .catch(err => {
-//         console.log(err);
-//     });
 // MySQL connection
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
@@ -59,21 +48,23 @@ app.use((req, res, next) => {
 });
 
 //request parsers
+app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
-//set static folder
 app.use(express.static(path.join(__dirname, 'public')));
-
-//parse cookies
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 // QraphQL
 const Query = new GraphQLObjectType({
     name: 'Query',
-    fields: { ...contestQuery, ...userQuery, ...postQuery, ...superAdminQuery }
+    fields: {
+        ...contestQuery,
+        ...userQuery,
+        ...postQuery,
+        ...superAdminQuery
+    }
 });
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
@@ -123,14 +114,6 @@ io.on('connection', socket => {
         console.log('User disconnected');
         socket.disconnect();
     });
-    // socket.on('toBack', data => {
-    //     console.log(data);
-    // });
-    // let d = 0;
-    // setInterval(() => {
-    //     socket.emit('test', d);
-    //     d++;
-    // }, 1000);
 });
 
 //404 not found

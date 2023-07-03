@@ -25,7 +25,36 @@ module.exports = {
                     ...post.dataValues
                 };
             } catch (error) {
-                console.log(error);
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
+    },
+
+    deletePost: {
+        type: PostType,
+        args: {
+            token: { type: GraphQLString },
+            id: { type: GraphQLInt }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const { userId } = jwt.verify(args.token, process.env.JWT_SECRET);
+                const post = await db.Post.findOne({ where: { UserId: userId, id: args.id } });
+
+                if (post) {
+                    await post.destroy();
+
+                    return {
+                        status: true,
+                        message: 'Post deleted successfully.'
+                    };
+                } else {
+                    throw new Error('Post not found.');
+                }
+            } catch (error) {
                 return {
                     status: false,
                     message: error.message

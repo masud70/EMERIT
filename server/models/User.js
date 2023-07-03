@@ -48,13 +48,13 @@ module.exports = (sequelize, DataTypes) => {
     User.associate = () => {
         User.hasMany(sequelize.models.Contest);
         User.hasMany(sequelize.models.Question);
-        User.hasMany(sequelize.models.Registration);
+        User.hasMany(sequelize.models.Registration, { onDelete: 'CASCADE' });
         User.hasMany(sequelize.models.Post);
         User.hasMany(sequelize.models.Submission);
-        User.hasMany(sequelize.models.Rating);
-        User.hasMany(sequelize.models.Reaction);
+        User.hasMany(sequelize.models.Rating, { onDelete: 'CASCADE' });
+        User.hasMany(sequelize.models.Reaction, { onDelete: 'CASCADE' });
         User.hasMany(sequelize.models.Comment);
-        User.hasMany(sequelize.models.AdminRequest);
+        User.hasMany(sequelize.models.AdminRequest, { onDelete: 'CASCADE' });
     };
     return User;
 };

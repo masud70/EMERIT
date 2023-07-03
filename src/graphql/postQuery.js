@@ -13,6 +13,15 @@ module.exports = {
         }
     `,
 
+    DELETE_POST: gql`
+        mutation DeletePost($token: String!, $id: Int!) {
+            deletePost(token: $token, id: $id) {
+                status
+                message
+            }
+        }
+    `,
+
     GET_ALL_POST_QUERY: gql`
         query GetAllPost {
             getAllPost {
@@ -41,8 +50,8 @@ module.exports = {
     `,
 
     GET_POST_BY_PAGE_QUERY: gql`
-        query GetPostByPage($page: Int!){
-            getPostByPage(page: $page){
+        query GetPostByPage($page: Int!) {
+            getPostByPage(page: $page) {
                 id
                 body
                 time

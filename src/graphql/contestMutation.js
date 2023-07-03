@@ -10,6 +10,15 @@ module.exports = {
         }
     `,
 
+    DELETE_CONTEST: gql`
+        mutation DeleteContest($token: String!, $id: Int!) {
+            deleteContest(token: $token, id: $id) {
+                status
+                message
+            }
+        }
+    `,
+
     UPDATE_QUESTION: gql`
         mutation UpdateQuestion(
             $id: String!
@@ -29,6 +38,15 @@ module.exports = {
                 options: $options
                 answer: $answer
             ) {
+                status
+                message
+            }
+        }
+    `,
+
+    DELETE_QUESTION: gql`
+        mutation DeleteQuestion($token: String!, $id: String!) {
+            deleteQuestion(token: $token, id: $id) {
                 status
                 message
             }

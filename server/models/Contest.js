@@ -35,10 +35,13 @@ module.exports = (sequelize, DataTypes) => {
     });
     Contest.associate = () => {
         Contest.belongsTo(sequelize.models.User);
-        Contest.hasMany(sequelize.models.Registration);
-        Contest.hasMany(sequelize.models.Submission);
-        Contest.hasMany(sequelize.models.Rating);
-        Contest.belongsToMany(sequelize.models.Question, { through: 'Contest_Question' });
+        Contest.hasMany(sequelize.models.Registration, { onDelete: 'CASCADE' });
+        Contest.hasMany(sequelize.models.Submission, { onDelete: 'CASCADE' });
+        Contest.hasMany(sequelize.models.Rating, { onDelete: 'CASCADE' });
+        Contest.belongsToMany(sequelize.models.Question, {
+            through: 'Contest_Question',
+            onDelete: 'CASCADE'
+        });
     };
     return Contest;
 };

@@ -36,7 +36,7 @@ const QuestionSectionHome = () => {
                 />
                 <View>
                     {questions.map((item, idx) => (
-                        <Question route={ROUTES.AUTHOR_QUESTION_EDIT} data={item} key={idx} />
+                        <Question route={ROUTES.AUTHOR_QUESTION_EDIT} data={item} key={idx} refetch={refetch} />
                     ))}
                 </View>
             </Wraper>

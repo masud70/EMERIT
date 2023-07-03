@@ -15,6 +15,7 @@ import { FUNCTIONS } from '../../helpers';
 import Wraper from '../../components/utilities/Wraper';
 import { FAB } from 'react-native-paper';
 import Loading from '../../components/utilities/Loading';
+import ImageCropPicker from 'react-native-image-crop-picker';
 
 const handleHead = ({ tintColor }) => <Text style={{ color: tintColor }}>H1</Text>;
 const Timeline = () => {
@@ -24,15 +25,30 @@ const Timeline = () => {
     const auth = useSelector(st => st.auth);
     const richText = useRef();
 
-    const [createPost, { loading: createLoading, error: createError, data: createData }] =
+    const [createPost, { loading: createLoading, data: createData }] =
         useMutation(CREATE_POST_MUTATION);
 
     const {
         loading: postLoading,
-        error: postError,
         data: postData,
         refetch: postRefetch
     } = useQuery(GET_POST_BY_PAGE_QUERY, { variables: { page: page } });
+
+    const onPressAddImage = () => {
+        ImageCropPicker.openPicker({
+            cropping: true,
+            freeStyleCropEnabled: true,
+            mediaType: 'photo',
+            includeBase64: true
+        })
+            .then(image => {
+                const fileSizeInMB = image.size / (1024 * 1024);
+                if (fileSizeInMB >= 1)
+                    FUNCTIONS.showToast2(false, 'Image size should be less than 1MB.');
+                else richText.current?.insertImage(`data:${image.mime};base64,${image.data}`);
+            })
+            .catch(error => console.log(error.message));
+    };
 
     useEffect(() => {
         if (createData) {
@@ -112,6 +128,7 @@ const Timeline = () => {
                         </ScrollView>
                         <RichToolbar
                             editor={richText}
+                            onPressAddImage={onPressAddImage}
                             actions={[
                                 actions.setBold,
                                 actions.setItalic,

@@ -3,7 +3,6 @@ import React from 'react';
 import { Pressable } from 'react-native';
 
 const FlatButton = ({ title, onPress, style }) => {
-    console.log(style);
     return (
         <Pressable
             className={['w-full bg-[#2B3467] rounded overflow-hidden', style].join(' ')}

@@ -44,6 +44,38 @@ module.exports = {
         }
     },
 
+    deleteContest: {
+        type: MessageType,
+        args: {
+            token: { type: GraphQLString },
+            id: { type: GraphQLInt }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const { userId } = jwt.verify(args.token, process.env.JWT_SECRET);
+                const contest = await db.Contest.findOne({
+                    where: { UserId: userId, id: args.id }
+                });
+
+                if (contest) {
+                    await contest.destroy();
+
+                    return {
+                        status: true,
+                        message: 'Contest deleted successfully.'
+                    };
+                } else {
+                    throw new Error('Contest not found.');
+                }
+            } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
+    },
+
     updateContestQuestion: {
         type: ContestType,
         args: {
@@ -102,7 +134,7 @@ module.exports = {
             token: { type: GraphQLString }
         },
         resolve: async (parent, args, ctx, info) => {
-            console.log("QuestionData: ",args);
+            console.log('QuestionData: ', args);
             try {
                 const decoded = jwt.verify(args.token, process.env.JWT_SECRET);
                 if (args.title.length < 2)
@@ -137,6 +169,38 @@ module.exports = {
                 };
             } catch (error) {
                 console.log(error);
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
+    },
+
+    deleteQuestion: {
+        type: MessageType,
+        args: {
+            token: { type: GraphQLString },
+            id: { type: GraphQLString }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const { userId } = jwt.verify(args.token, process.env.JWT_SECRET);
+                const question = await db.Question.findOne({
+                    where: { UserId: userId, id: args.id }
+                });
+
+                if (question) {
+                    await question.destroy();
+
+                    return {
+                        status: true,
+                        message: 'Question deleted successfully.'
+                    };
+                } else {
+                    throw new Error('Question not found.');
+                }
+            } catch (error) {
                 return {
                     status: false,
                     message: error.message

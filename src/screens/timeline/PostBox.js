@@ -8,8 +8,13 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Pressable } from 'react-native';
 import moment from 'moment';
 import { useMutation } from '@apollo/client';
-import { CREATE_COMMENT_MUTATION, CREATE_REACTION_MUTATION } from '../../graphql/postQuery';
+import {
+    CREATE_COMMENT_MUTATION,
+    CREATE_REACTION_MUTATION,
+    DELETE_POST
+} from '../../graphql/postQuery';
 import { useSelector } from 'react-redux';
+import { FUNCTIONS } from '../../helpers';
 import { BASE_URL } from '@env';
 
 const PostBox = ({ data, refetch }) => {
@@ -19,23 +24,45 @@ const PostBox = ({ data, refetch }) => {
     const [comment, setComment] = useState('');
     const { width } = useWindowDimensions();
 
-    const [submitReaction, { loading: reactionLoading, error: reactionError, data: reactionData }] =
-        useMutation(CREATE_REACTION_MUTATION);
-    const [submitComment, { loading: commentLoading, error: commentError, data: commentData }] =
-        useMutation(CREATE_COMMENT_MUTATION);
+    const [submitReaction, { data: reactionData }] = useMutation(CREATE_REACTION_MUTATION);
+    const [submitComment, { data: commentData }] = useMutation(CREATE_COMMENT_MUTATION);
+    const [deletePost, { data: deletePostData }] = useMutation(DELETE_POST);
 
-    const handleSubmitComment = () => {
-        if (comment.length > 0) {
-            submitComment({
-                variables: {
-                    token: auth.token,
-                    id: data.id,
-                    body: comment
-                }
-            });
+    const handleDeletePost = async () => {
+        try {
+            const result = await deletePost({ variables: { token: auth.token, id: data.id } });
+            console.log('Result: ', result);
+        } catch (error) {
+            FUNCTIONS.showToast2(false, error.message);
         }
     };
 
+    const handleSubmitComment = async () => {
+        try {
+            if (comment.length > 0) {
+                await submitComment({
+                    variables: {
+                        token: auth.token,
+                        id: data.id,
+                        body: comment
+                    }
+                });
+            }
+        } catch (error) {
+            FUNCTIONS.showToast2(false, error.message);
+        }
+    };
+
+    useEffect(() => {
+        if (deletePostData) {
+            FUNCTIONS.showToast2(
+                deletePostData.deletePost.status,
+                deletePostData.deletePost.message
+            );
+            setShowModal(pre => !pre);
+            if (deletePostData.deletePost.status) refetch();
+        }
+    }, [deletePostData]);
     useEffect(() => {
         if (reactionData) {
             console.log(reactionData);
@@ -75,14 +102,11 @@ const PostBox = ({ data, refetch }) => {
                     <View className="w-full bg-white rounded overflow-hidden px-2 py-6 flex items-center">
                         <ScrollView showsVerticalScrollIndicator={false}>
                             <View className="w-full flex flex-col justify-center items-center space-y-2">
-                                <Pressable className="min-w-[80%] items-center bg-red-500 rounded p-1">
+                                <Pressable
+                                    onPress={handleDeletePost}
+                                    className="min-w-[80%] items-center bg-red-500 rounded p-1">
                                     <Text className="w-full text-center text-white font-bold text-lg">
                                         Delete
-                                    </Text>
-                                </Pressable>
-                                <Pressable className="min-w-[80%] items-center bg-slate-400 rounded p-1">
-                                    <Text className="w-full text-center text-white font-bold text-lg">
-                                        Update
                                     </Text>
                                 </Pressable>
                                 <Pressable className="min-w-[80%] items-center bg-blue-500 rounded p-1">

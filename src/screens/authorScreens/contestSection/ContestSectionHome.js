@@ -28,7 +28,12 @@ const ContestSectionHome = () => {
                 />
                 <View className="">
                     {data?.getContestByUserId.map((item, idx) => (
-                        <Item data={item} key={idx} route={ROUTES.AUTHOR_CONTEST_EDIT} />
+                        <Item
+                            data={item}
+                            key={idx}
+                            route={ROUTES.AUTHOR_CONTEST_EDIT}
+                            refetch={refetch}
+                        />
                     ))}
                 </View>
             </Wraper>
