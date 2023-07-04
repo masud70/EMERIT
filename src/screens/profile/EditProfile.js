@@ -1,45 +1,40 @@
-import {
-    ImageBackground,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-    TouchableOpacity,
-    ActivityIndicator
-} from 'react-native';
+import { ImageBackground, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { IconButton, MD3Colors, TextInput } from 'react-native-paper';
+import { IconButton, MD3Colors } from 'react-native-paper';
 import DocumentPicker from 'react-native-document-picker';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { FUNCTIONS } from '../../helpers';
-import { setAuthUserData } from '../../redux/state/auth/authSlice';
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { GET_USER_INFO_QUERY, GET_AVAILABILITY_QUERY } from '../../graphql/query';
 import { RefreshControl } from 'react-native';
+import Card from '../../components/utilities/Card';
 import { BASE_URL } from '@env';
+import UpdateDataCard from '../../components/profile/UpdateDataCard';
+import Input from '../../components/utilities/Input';
+import FlatButton from '../../components/utilities/FlatButton';
+import { useNavigation } from '@react-navigation/native';
+import { Pressable } from 'react-native';
 
 const EditProfile = () => {
     const [image, setImage] = useState(null);
     const [userData, setUserData] = useState({});
-    const [updateData, setUpdateData] = useState({});
     const [imagePicked, setImagePicked] = useState(null);
-    const [usernameAvail, setUsernameAvail] = useState(1);
-    const dispatch = useDispatch();
+    const [usernameAvail, setUsernameAvail] = useState(0);
+    const navigation = useNavigation();
     const auth = useSelector(st => st.auth);
 
-    const { loading, error, data, refetch } = useQuery(GET_USER_INFO_QUERY, {
+    let timeOut;
+
+    const { loading, data, refetch } = useQuery(GET_USER_INFO_QUERY, {
         variables: { token: auth.token }
     });
-    const [getAvailability, { loading: availLoading, data: availData }] =
-        useLazyQuery(GET_AVAILABILITY_QUERY);
+    const [getAvailability] = useLazyQuery(GET_AVAILABILITY_QUERY);
 
     const onImageSelect = async () => {
         try {
             const res = await DocumentPicker.pickSingle({
                 type: [DocumentPicker.types.images]
             });
-            console.log('Image', res);
             if (res.size < 2000000) {
                 setImage(res.uri);
                 setImagePicked(res);
@@ -51,60 +46,42 @@ const EditProfile = () => {
         }
     };
 
-    const handleUpdate = async () => {
+    const uploadPhoto = async () => {
         try {
             let imgData = null;
             if (image) imgData = await FUNCTIONS.uploadImage(imagePicked, auth.token);
-
-            if (Object.keys(updateData).length > 0) {
-                if (usernameAvail !== 3 && updateData.username) {
-                    FUNCTIONS.showToast2(false, 'This username is not available.');
-                    return;
-                }
-                console.log(updateData);
-                const response = await FUNCTIONS.updateUser(updateData, auth.token);
-                if (response.status) {
-                    dispatch(setAuthUserData({ userData: userData }));
-                    refetch();
-                }
-                FUNCTIONS.showToast2(response.status, response.message);
-            } else if (imgData) FUNCTIONS.showToast2(imgData.status, imgData.message);
-            else FUNCTIONS.showToast('info', 'Warning', 'There was no changes.');
+            if (imgData) FUNCTIONS.showToast2(imgData.status, imgData.message);
+            if (imgData?.status) refetch();
         } catch (error) {
             FUNCTIONS.showToast2(false, error.message);
+        }
+    };
+
+    const checkUsername = async val => {
+        clearTimeout(timeOut);
+        setUserData({ ...userData, username: val });
+        setUsernameAvail(2);
+
+        if (val.length < 3) console.log('Invalid length.');
+        else if (val === data.getUserInfo.username) setUsernameAvail(0);
+        else {
+            timeOut = setTimeout(async () => {
+                try {
+                    const result = await getAvailability({
+                        variables: { id: 'username', value: val }
+                    });
+                    const { status } = result.data.getAvaialability;
+                    setUsernameAvail(!status ? 1 : 2);
+                } catch (error) {
+                    setUsernameAvail(2);
+                }
+            }, 1500);
         }
     };
 
     useEffect(() => {
         setUserData(data.getUserInfo);
     }, [data]);
-    useEffect(() => {
-        if (availData) {
-            if (updateData.username.length < 3) setUsernameAvail(2);
-            else {
-                const state =
-                    data.getUserInfo.username === updateData.username
-                        ? 1
-                        : availData.getAvaialability.status
-                        ? 2
-                        : 3;
-                setUsernameAvail(state);
-            }
-        }
-    }, [availData]);
-
-    if (loading || error) {
-        return (
-            <SafeAreaView className="w-full h-screen">
-                <ScrollView
-                    refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}>
-                    <View className="w-full h-full flex justify-center items-center">
-                        <ActivityIndicator size={40} />
-                    </View>
-                </ScrollView>
-            </SafeAreaView>
-        );
-    }
 
     return (
         <SafeAreaView>
@@ -118,9 +95,9 @@ const EditProfile = () => {
                             Edit Profile
                         </Text>
                     </View>
-                    <View>
+                    <View className="w-full items-center">
                         <ImageBackground
-                            source={{ uri: image ? image : BASE_URL + data.getUserInfo.avatar }}
+                            source={{ uri: image ? image : BASE_URL + data?.getUserInfo?.avatar }}
                             className="w-32 h-32 rounded-full overflow-hidden items-center justify-end bg-slate-300"
                             style={styles.border}>
                             <IconButton
@@ -133,104 +110,120 @@ const EditProfile = () => {
                                 onPress={onImageSelect}
                             />
                         </ImageBackground>
+                        {image && (
+                            <Pressable
+                                onPress={uploadPhoto}
+                                className="bg-[#2b346788] p-2 rounded mt-1">
+                                <Text className="font-bold text-white">Update Photo</Text>
+                            </Pressable>
+                        )}
                     </View>
                 </ImageBackground>
                 <View className="w-full px-4 space-y-2 mt-2">
-                    <View>
-                        <Text className="font-bold">Name</Text>
-                        <TextInput
-                            mode="outlined"
-                            right={<TextInput.Icon icon="pencil" />}
+                    <Card title="Name">
+                        <UpdateDataCard
+                            placeholder="Name"
+                            field="name"
+                            refetch={refetch}
                             value={userData.name}
+                            rightIcon={'md-checkmark-sharp'}
                             onChangeText={val => {
                                 setUserData({ ...userData, name: val });
-                                setUpdateData(pre => ({ ...pre, name: val }));
                             }}
                         />
-                    </View>
-                    <View>
-                        <Text className="font-bold">Username</Text>
-                        <TextInput
-                            mode="outlined"
-                            right={
-                                <TextInput.Icon
-                                    icon={
-                                        usernameAvail === 1
-                                            ? 'pencil'
-                                            : usernameAvail === 2
-                                            ? 'close-thick'
-                                            : 'check-bold'
-                                    }
-                                />
-                            }
-                            value={userData.username}
-                            onChangeText={val => {
-                                setUserData({ ...userData, username: val });
-                                setUpdateData(pre => ({ ...pre, username: val }));
-                            }}
-                            onBlur={() => {
-                                getAvailability({
-                                    variables: { id: 'username', value: updateData.username }
-                                });
-                            }}
+                    </Card>
+                    <Card title="Username">
+                        <UpdateDataCard
+                            placeholder="Username"
+                            field="username"
+                            refetch={refetch}
+                            value={userData?.username}
+                            rightIcon={usernameAvail === 2 ? 'close-sharp' : 'md-checkmark-sharp'}
+                            onChangeText={checkUsername}
+                            updateCheck={usernameAvail === 2}
+                            checkMessage={'Username not available.'}
                         />
-                    </View>
-                    <View>
-                        <Text className="font-bold">Email</Text>
-                        <TextInput
-                            mode="outlined"
-                            disabled
-                            right={<TextInput.Icon icon="pencil" />}
-                            value={userData.email}
+                    </Card>
+                    <Card title="Email">
+                        <UpdateDataCard
+                            placeholder="Email"
+                            field="email"
+                            refetch={refetch}
+                            value={userData?.email}
+                            rightIcon={usernameAvail === 2 ? 'close-sharp' : 'md-checkmark-sharp'}
                             onChangeText={val => {
                                 setUserData({ ...userData, email: val });
-                                setUpdateData(pre => ({ ...pre, email: val }));
                             }}
+                            editable={false}
+                            updateCheck={true}
+                            checkMessage={'Email cannot be updated.'}
                         />
-                    </View>
-                    <View>
-                        <Text className="font-bold">Contact</Text>
-                        <TextInput
-                            mode="outlined"
-                            right={<TextInput.Icon icon="pencil" />}
-                            value={userData.phone}
+                    </Card>
+                    <Card title="Contact">
+                        <UpdateDataCard
+                            placeholder="Contact"
+                            field="phone"
+                            refetch={refetch}
+                            value={userData?.phone}
+                            rightIcon={
+                                userData?.phone?.length !== 11
+                                    ? 'close-sharp'
+                                    : 'md-checkmark-sharp'
+                            }
                             onChangeText={val => {
                                 setUserData({ ...userData, phone: val });
-                                setUpdateData(pre => ({ ...pre, phone: val }));
                             }}
+                            updateCheck={userData?.phone?.length !== 11}
+                            checkMessage={'Invalid length.'}
                         />
-                    </View>
-                    <View>
-                        <Text className="font-bold">Password</Text>
-                        <TextInput
-                            mode="outlined"
-                            right={<TextInput.Icon icon="pencil" />}
+                    </Card>
+                    <Card title="Country">
+                        <UpdateDataCard
+                            placeholder="Country"
+                            field="country"
+                            refetch={refetch}
+                            value={userData?.country}
+                            rightIcon={
+                                userData?.country?.length <= 2
+                                    ? 'close-sharp'
+                                    : 'md-checkmark-sharp'
+                            }
+                            onChangeText={val => {
+                                setUserData({ ...userData, country: val });
+                            }}
+                            updateCheck={userData?.country?.length <= 2}
+                            checkMessage={'Invalid length.'}
+                        />
+                    </Card>
+                    <Card title="Password">
+                        <Input
+                            placeholder="Password"
                             value={userData.password}
-                            onChangeText={val => {
-                                setUserData({ ...userData, password: val });
-                                setUpdateData(pre => ({ ...pre, password: val }));
-                            }}
+                            onChangeText={val => setUserData({ ...userData, password: val })}
                         />
-                    </View>
-                    <View>
-                        <Text className="font-bold">Confirm Password</Text>
-                        <TextInput
-                            mode="outlined"
-                            right={<TextInput.Icon icon="pencil" />}
-                            value={userData.confirmPassword}
+                    </Card>
+                    <Card title="Confirm Password">
+                        <UpdateDataCard
+                            placeholder="Confirm Password"
+                            field="password"
+                            refetch={refetch}
+                            value={userData?.confirmPassword}
+                            rightIcon={
+                                userData?.password !== userData?.confirmPassword
+                                    ? 'close-sharp'
+                                    : 'md-checkmark-sharp'
+                            }
                             onChangeText={val => {
-                                setUserData(pre => ({ ...pre, confirmPassword: val }));
-                                setUpdateData(pre => ({ ...pre, confirmPassword: val }));
+                                setUserData({ ...userData, confirmPassword: val });
                             }}
+                            updateCheck={
+                                userData?.password !== userData?.confirmPassword ||
+                                userData?.password?.length <= 5
+                            }
+                            checkMessage={'Invalid password length.'}
                         />
-                    </View>
-                </View>
-                <View className="w-full px-4 mt-10 mb-6">
-                    <TouchableOpacity
-                        className="w-full bg-green-500 p-2 items-center rounded"
-                        onPress={handleUpdate}>
-                        <Text className="text-lg font-bold text-white">Update</Text>
-                    </TouchableOpacity>
+                    </Card>
+                    <FlatButton title="Finish" onPress={() => navigation.goBack()} />
                 </View>
             </ScrollView>
         </SafeAreaView>

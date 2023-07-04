@@ -241,6 +241,7 @@ module.exports = {
                 username
                 avatar
                 phone
+                country
                 status
                 message
             }

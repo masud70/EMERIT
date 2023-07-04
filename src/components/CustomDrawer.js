@@ -1,54 +1,42 @@
-import {
-    ImageBackground,
-    StyleSheet,
-    Image,
-    View,
-    Dimensions,
-    Text
-} from 'react-native';
-import {
-    DrawerContentScrollView,
-    DrawerItemList
-} from '@react-navigation/drawer';
+import { ImageBackground, StyleSheet, View, Dimensions, Text } from 'react-native';
+import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import React from 'react';
-import { COLORS, CONSTANT, IMGS } from '../constants';
+import { IMGS } from '../constants';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/state/auth/authSlice';
-import { useState } from 'react';
-import { useEffect } from 'react';
 import { Avatar } from 'react-native-paper';
+import { BASE_URL } from '@env';
+import { useQuery } from '@apollo/client';
+import { GET_USER_DATA } from '../graphql/userQuery';
+import { RefreshControl } from 'react-native';
 
 const { width } = Dimensions.get('screen');
 
 const CustomDrawer = props => {
-    const [userData, setUserData] = useState({});
     const dispatch = useDispatch();
-    const user = useSelector(st => st.auth);
+    const auth = useSelector(st => st.auth);
 
-    useEffect(() => {
-        setUserData(user.userData);
-    }, []);
+    const { loading, data, refetch } = useQuery(GET_USER_DATA, {
+        variables: { token: auth.token }
+    });
 
     return (
-        <DrawerContentScrollView {...props}>
-            <ImageBackground
-                source={IMGS.bgPattern}
-                style={{ height: 140 }}
-                className="w-full">
+        <DrawerContentScrollView
+            {...props}
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}>
+            <ImageBackground source={IMGS.bgPattern} style={{ height: 140 }} className="w-full">
                 <Avatar.Image
                     className="border-4 items-center justify-center border-white overflow-hidden"
-                    source={{ uri: CONSTANT.SERVER_URL + userData.avatar }}
+                    source={{ uri: BASE_URL + data?.getUserInfo?.avatar }}
                     size={110}
                     style={styles.userImg}
                 />
             </ImageBackground>
             <View className="pt-14">
                 <View className="items-center">
-                    <Text className="font-bold text-xl text-gray-600">
-                        {userData.name}
-                    </Text>
-                    <Text className="font-bold">@{userData.username}</Text>
+                    <Text className="font-bold text-xl text-gray-600">{data?.getUserInfo?.name}</Text>
+                    <Text className="font-bold">@{data?.getUserInfo?.username}</Text>
                 </View>
             </View>
             <View style={styles.drawerListWrapper}>
@@ -58,9 +46,7 @@ const CustomDrawer = props => {
                 <TouchableOpacity
                     onPress={() => dispatch(logout())}
                     className="p-2 bg-orange-700 w-40 rounded-3xl items-center">
-                    <Text className="w-1/2 font-bold text-base text-white">
-                        Log out
-                    </Text>
+                    <Text className="w-1/2 font-bold text-base text-white">Log out</Text>
                 </TouchableOpacity>
             </View>
         </DrawerContentScrollView>

@@ -5,35 +5,62 @@ import { Avatar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
 import TextCard from '../../components/profile/TextCard';
-import { CONSTANT, ROUTES } from '../../constants';
+import { ROUTES } from '../../constants';
 import { StyleSheet, Text, SafeAreaView, ScrollView, View, ImageBackground } from 'react-native';
 import { BASE_URL } from '@env';
+import { GET_USER_DATA } from '../../graphql/userQuery';
+import { useQuery } from '@apollo/client';
+import { RefreshControl } from 'react-native';
+import { GET_OVERALL_RANK } from '../../graphql/contestQuery';
 
 const MyProfile = () => {
     const navigation = useNavigation();
-    const user = useSelector(st => st.auth.userData);
+    const auth = useSelector(st => st.auth);
 
-    const data = [
-        {
-            field: 'Email',
-            value: user ? user.email : '',
+    const { loading, data, refetch } = useQuery(GET_USER_DATA, {
+        variables: { token: auth.token }
+    });
+    const {
+        loading: rankLoading,
+        data: rankData,
+        refetch: rankRefetch
+    } = useQuery(GET_OVERALL_RANK, { variables: { token: auth.token } });
+
+    const refetchAll = () => {
+        refetch();
+        rankRefetch();
+    };
+
+    const dataKey = {
+        email: {
+            title: 'Email',
+            value: data?.getUserInfo?.email,
             icon: 'mail'
         },
-        {
-            field: 'Contact',
-            value: user ? user.phone : 'No Phone Number Set',
+        phone: {
+            title: 'Contact',
+            value: data?.getUserInfo?.phone,
             icon: 'call'
         },
-        {
-            field: 'Country',
-            value: 'Bangladesh',
+        country: {
+            title: 'Country',
+            value: data?.getUserInfo?.country,
             icon: 'home'
         }
-    ];
+    };
+
+    const dataCard = Object.keys(data?.getUserInfo).map((item, idx) => {
+        if (Object.keys(dataKey).includes(item)) return <TextCard data={dataKey[item]} key={idx} />;
+        else return null;
+    });
 
     return (
         <SafeAreaView className="items-center justify-center h-screen">
-            <ScrollView>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl refreshing={loading || rankLoading} onRefresh={refetchAll} />
+                }>
                 <ImageBackground
                     source={require('../../assets/bg/2.png')}
                     className="w-full flex-1 bg-slate-400 justify-center flex items-center rounded-b-3xl overflow-hidden">
@@ -54,9 +81,7 @@ const MyProfile = () => {
                         <Avatar.Image
                             className="overflow-hidden p-0 m-0 items-center justify-center"
                             source={{
-                                uri: user
-                                    ? BASE_URL + user.avatar
-                                    : CONSTANT.IMG_BASE_URL + 'user.jpg'
+                                uri: BASE_URL + data?.getUserInfo?.avatar
                             }}
                             size={130}
                             style={styles.border}
@@ -64,10 +89,10 @@ const MyProfile = () => {
                     </View>
                     <View className="w-full justify-center items-center min-h-[70px]">
                         <Text className="font-bold text-white text-xl">
-                            {user ? user.name : ''}
+                            {data?.getUserInfo?.name}
                         </Text>
                         <Text className="font-bold text-base text-slate-700">
-                            {user ? user.username : ''}
+                            {data?.getUserInfo?.username}
                         </Text>
                     </View>
                     <View className="px-4">
@@ -78,7 +103,9 @@ const MyProfile = () => {
                                 </View>
                                 <View>
                                     <Text className="font-bold text-md">Ranking</Text>
-                                    <Text className="font-bold text-lg text-amber-500">123</Text>
+                                    <Text className="font-bold text-lg text-amber-500">
+                                        {rankData.getOverallRank.me?.rank}
+                                    </Text>
                                 </View>
                             </View>
                             <View className="w-1/2 flex flex-row items-center justify-center space-x-2 px-3">
@@ -87,17 +114,15 @@ const MyProfile = () => {
                                 </View>
                                 <View>
                                     <Text className="font-bold text-md">Points</Text>
-                                    <Text className="font-bold text-lg text-amber-500">1256</Text>
+                                    <Text className="font-bold text-lg text-amber-500">
+                                        {rankData.getOverallRank.me?.marks}
+                                    </Text>
                                 </View>
                             </View>
                         </View>
                     </View>
                 </ImageBackground>
-                <View className="w-full justify-center items-center px-2 mt-2">
-                    {data.map((item, key) => {
-                        return <TextCard data={item} key={key} />;
-                    })}
-                </View>
+                <View className="w-full justify-center items-center px-2 mt-2">{dataCard}</View>
             </ScrollView>
         </SafeAreaView>
     );

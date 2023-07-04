@@ -16,7 +16,7 @@ import Divider from '../../components/utilities/Divider';
 import UserProfile from '../../components/utilities/UserProfile';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Avatar } from 'react-native-paper';
 import { io } from 'socket.io-client';
 import { useQuery } from '@apollo/client';
@@ -28,7 +28,6 @@ import { GET_OVERALL_RANK } from '../../graphql/contestQuery';
 const Home = () => {
     const auth = useSelector(state => state.auth);
     const navigation = useNavigation();
-    const dispatch = useDispatch();
 
     const {
         loading: userLoading,
@@ -90,7 +89,7 @@ const Home = () => {
         );
     }
 
-    const topSolvers = rankData.getOverallRank.Submissions.slice(0, 5).map((user, idx) => {
+    const topSolvers = rankData?.getOverallRank?.Submissions?.slice(0, 5).map((user, idx) => {
         return <UserProfile user={user} key={idx} />;
     });
 
@@ -129,7 +128,7 @@ const Home = () => {
                         <View>
                             <Text className="font-bold text-md">Ranking</Text>
                             <Text className="font-bold text-lg text-amber-500">
-                                {rankData.getOverallRank.me.rank}
+                                {rankData.getOverallRank.me?.rank}
                             </Text>
                         </View>
                     </View>
@@ -140,7 +139,7 @@ const Home = () => {
                         <View>
                             <Text className="font-bold text-md">Marks</Text>
                             <Text className="font-bold text-lg text-amber-500">
-                                {rankData.getOverallRank.me.marks}
+                                {rankData.getOverallRank.me?.marks}
                             </Text>
                         </View>
                     </View>

@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         avatar: {
             type: DataTypes.TEXT,
-            defaultValue: 'images/user.jpg'
+            defaultValue: '/images/user.jpg'
         },
         role: {
             type: DataTypes.TEXT,
@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
         },
         phone: {
             type: DataTypes.TEXT
+        },
+        country: {
+            type: DataTypes.TEXT,
+            defaultValue: 'Bangladesh'
         },
         isActive: {
             type: DataTypes.BOOLEAN,

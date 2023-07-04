@@ -11,6 +11,8 @@ module.exports = {
             avatar: { type: GraphQLString },
             role: { type: GraphQLString },
             phone: { type: GraphQLString },
+            country: { type: GraphQLString },
+            token: { type: GraphQLString },
             status: { type: GraphQLBoolean },
             message: { type: GraphQLString }
         })

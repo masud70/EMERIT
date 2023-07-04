@@ -1,44 +1,9 @@
-import moment from 'moment';
 import Toast from 'react-native-toast-message';
-import { CONSTANT } from '../constants';
 import { BASE_URL } from '@env';
 
 export default {
-    login: async data => {
-        const url = BASE_URL + '/user/login';
-        console.log(url);
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const content = await response.json();
-            return content;
-        } catch (error) {
-            return { status: false, message: error.message };
-        }
-    },
-
-    register: async data => {
-        const url = BASE_URL + '/user/register';
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            const content = await response.json();
-            return content;
-        } catch (error) {
-            return { status: false, message: error.message };
-        }
-    },
-
     getUserData: async token => {
-        const url = CONSTANT.SERVER_URL + 'user/getUserData';
+        const url = BASE_URL + '/user/getUserData';
         try {
             const response = await fetch(url, {
                 method: 'GET',
@@ -112,7 +77,7 @@ export default {
     },
 
     createContest: async (data, token) => {
-        const url = CONSTANT.SERVER_URL + 'contest/create';
+        const url = BASE_URL + '/contest/create';
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -130,7 +95,7 @@ export default {
     },
 
     findContest: async token => {
-        const url = CONSTANT.SERVER_URL + 'contest/find';
+        const url = BASE_URL + '/contest/find';
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -148,7 +113,7 @@ export default {
     },
 
     getAllContest: async id => {
-        const url = CONSTANT.SERVER_URL + 'contest/getAll/' + id;
+        const url = BASE_URL + '/contest/getAll/' + id;
         try {
             const response = await fetch(url);
             const content = await response.json();
@@ -182,7 +147,7 @@ export default {
     },
 
     addNewQuestion: async data => {
-        const url = CONSTANT.SERVER_URL + 'contest/question/add';
+        const url = BASE_URL + '/contest/question/add';
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -199,7 +164,7 @@ export default {
     },
 
     registerContest: async (data, token) => {
-        const url = CONSTANT.SERVER_URL + 'contest/register';
+        const url = BASE_URL + '/contest/register';
         try {
             const response = await fetch(url, {
                 method: 'POST',

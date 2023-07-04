@@ -11,47 +11,37 @@ import React, { useState } from 'react';
 import { COLORS, ROUTES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
-import { ActivityIndicator } from 'react-native-paper';
 import { FUNCTIONS } from '../../helpers';
 import { login } from '../../redux/state/auth/authSlice';
 import style from '../../../styles/style.scss';
 import Loading from '../../components/utilities/Loading';
+import { useMutation } from '@apollo/client';
+import { LOGIN_USER } from '../../graphql/userQuery';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loader, setLoader] = useState(false);
     const navigation = useNavigation();
     const dispatch = useDispatch();
 
+    const [loginUser, { loading }] = useMutation(LOGIN_USER);
+
     //login handler
-    const loginHandler = () => {
+    const loginHandler = async () => {
         console.log('Login credential:', email, password);
-        if (email && password) {
-            setLoader(true);
-            FUNCTIONS.login({ email, password })
-                .then(data => {
-                    FUNCTIONS.showToast(
-                        data.status ? 'success' : 'error',
-                        data.status ? 'Success' : 'Error',
-                        data.message
-                    );
-                    if (data.status) {
-                        dispatch(
-                            login({
-                                token: data.user.token,
-                                userData: data.user
-                            })
-                        );
-                    }
-                })
-                .catch(err => {
-                    FUNCTIONS.showToast('error', 'Error', err.message);
-                    setLoader(false);
-                })
-                .finally(() => {
-                    setLoader(false);
-                });
+        try {
+            if (!(email && password)) throw new Error('Email and Password cannot be empty');
+
+            const result = await loginUser({ variables: { email, password } });
+            const {
+                loginUser: { status, message, token }
+            } = result.data;
+
+            FUNCTIONS.showToast2(status, message);
+            if (status) dispatch(login({ token: token }));
+        } catch (error) {
+            console.log(error);
+            FUNCTIONS.showToast2(false, error.message);
         }
     };
 
@@ -94,7 +84,7 @@ const Login = () => {
                         <TouchableOpacity
                             className="w-1/2 p-3"
                             style={style.bg_primary}
-                            onPress={() => loginHandler()}
+                            onPress={loginHandler}
                             activeOpacity={0.3}>
                             <Text style={[style.btn]}>Log In</Text>
                         </TouchableOpacity>
@@ -112,11 +102,7 @@ const Login = () => {
                     </TouchableOpacity>
                 </View>
             </View>
-            {/* <ActivityIndicator
-                className={`absolute bg-slate-300 w-screen h-screen ${!loader && 'hidden'}`}
-                size={60}
-            /> */}
-            <Loading loading={loader} />
+            <Loading loading={loading} />
         </SafeAreaView>
     );
 };

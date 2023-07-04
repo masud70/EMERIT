@@ -15,8 +15,9 @@ import {
 import { FUNCTIONS } from '../../helpers';
 import { useMutation } from '@apollo/client';
 import { SEND_OTP_MUTATION, VERIFY_OTP_MUTATION } from '../../graphql/query';
-import { useEffect } from 'react';
 import { ScrollView } from 'react-native';
+import { REGISTER_USER } from '../../graphql/userQuery';
+import Loading from '../../components/utilities/Loading';
 
 const Register = () => {
     const [email, setEmail] = useState('');
@@ -27,63 +28,65 @@ const Register = () => {
     const [otp, setOtp] = useState('');
     const navigation = useNavigation();
 
-    const [sendOtp, { loading: sendLoading, data: sendData }] = useMutation(SEND_OTP_MUTATION);
-    const [verify, { loading: otpLoading, data: otpData }] = useMutation(VERIFY_OTP_MUTATION);
+    const [sendOtp, { loading: sendLoading }] = useMutation(SEND_OTP_MUTATION);
+    const [verify, { loading: otpLoading }] = useMutation(VERIFY_OTP_MUTATION);
+    const [registerUser, { loading: registerLoading }] = useMutation(REGISTER_USER);
 
     const handleSendOtp = async () => {
         try {
-            if (email) await sendOtp({ variables: { email: email } });
-            else FUNCTIONS.showToast2(false, 'Email cannot be empty.');
+            if (email) {
+                const result = await sendOtp({ variables: { email: email } });
+                const {
+                    sendMailOtp: { status, message }
+                } = result.data;
+
+                FUNCTIONS.showToast2(status, message);
+                if (status) setVerified(1);
+            } else FUNCTIONS.showToast2(false, 'Email cannot be empty.');
         } catch (error) {
             console.log(error.message);
+            FUNCTIONS.showToast2(false, error.message);
         }
     };
 
-    const verifyOtp = val => {
-        setOtp(val);
-        if (val.length === 6) verify({ variables: { email: email, otp: otp } });
-    };
+    const verifyOtp = async val => {
+        try {
+            setOtp(val);
+            if (val.length === 6) {
+                const result = await verify({ variables: { email: email, otp: val } });
+                const {
+                    verifyOtp: { status, message }
+                } = result.data;
 
-    //register handler
-    const registerHandler = () => {
-        if (password !== confirmPassword || password.length === 0 || name.length === 0) {
-            alert('Check all the fields.');
-        } else if (verified === 3) {
-            console.log(email, password, name);
-            FUNCTIONS.register({ email, password, name })
-                .then(res => {
-                    console.log(res);
-                    FUNCTIONS.showToast(
-                        res.status ? 'success' : 'error',
-                        res.status ? 'Success' : 'Error',
-                        res.message
-                    );
-                    if (res.status) {
-                        navigation.navigate(ROUTES.LOGIN);
-                    }
-                })
-                .catch(err => FUNCTIONS.showToast('error', 'Error', err.message));
-        } else FUNCTIONS.showToast2(false, 'Email is not verified.');
-    };
+                FUNCTIONS.showToast2(status, message);
 
-    useEffect(() => {
-        if (!sendLoading && sendData) {
-            FUNCTIONS.showToast2(sendData.sendMailOtp.status, sendData.sendMailOtp.message);
-            if (sendData.sendMailOtp.status) setVerified(1);
-        }
-    }, [sendData]);
-
-    useEffect(() => {
-        if (!otpLoading && otpData) {
-            if (otpData.verifyOtp.status) {
-                setVerified(3);
-                FUNCTIONS.showToast2(true, otpData.verifyOtp.message);
-            } else {
-                setVerified(2);
-                FUNCTIONS.showToast2(false, otpData.verifyOtp.message);
+                if (status) setVerified(3);
+                else setVerified(2);
             }
+        } catch (error) {
+            FUNCTIONS.showToast2(false, error.message);
         }
-    }, [otpData]);
+    };
+
+    const handleRegister = async () => {
+        try {
+            if (password !== confirmPassword || password.length === 0 || name.length === 0)
+                throw new Error('Check all the fields.');
+            if (verified !== 3) throw new Error('Email is not verified.');
+
+            const result = await registerUser({ variables: { email, password, name } });
+
+            const {
+                registerUser: { status, message }
+            } = result.data;
+
+            FUNCTIONS.showToast2(status, message);
+            if (status) navigation.navigate(ROUTES.LOGIN);
+        } catch (error) {
+            console.log(error);
+            FUNCTIONS.showToast2(false, error.message);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.main}>
@@ -167,7 +170,7 @@ const Register = () => {
                             <TouchableOpacity
                                 className="w-1/2 p-3"
                                 style={style.bg_primary}
-                                onPress={() => registerHandler()}
+                                onPress={handleRegister}
                                 activeOpacity={0.3}>
                                 <Text style={[style.btn]}>Register</Text>
                             </TouchableOpacity>
@@ -175,6 +178,7 @@ const Register = () => {
                     </View>
                 </View>
             </ScrollView>
+            <Loading loading={registerLoading || otpLoading || sendLoading} />
         </SafeAreaView>
     );
 };
