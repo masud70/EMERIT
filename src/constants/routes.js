@@ -52,5 +52,6 @@ export default {
     AUTHOR_QUESTION: 'Question Dashboard',
     AUTHOR_UPDATE_QUESTION: 'Update Question',
 
-    ADMIN_REQUEST: 'Admin Request'
+    ADMIN_REQUEST: 'Admin Request',
+    PREVIEW_QUESTIONS: 'Preview Questions'
 };

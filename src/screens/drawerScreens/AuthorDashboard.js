@@ -70,6 +70,13 @@ const AuthorDashboard = () => {
                                     }}
                                     route={ROUTES.ADMIN_REQUEST}
                                 />
+                                <Section
+                                    data={{
+                                        sectionName: 'Preview Questions',
+                                        icon: 'md-documents'
+                                    }}
+                                    route={ROUTES.PREVIEW_QUESTIONS}
+                                />
                             </>
                         ) : null}
                     </>

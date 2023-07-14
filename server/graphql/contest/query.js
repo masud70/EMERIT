@@ -452,7 +452,6 @@ module.exports = {
             id: { type: GraphQLString }
         },
         resolve: async (parent, args, ctx, info) => {
-            console.log("OK",args);
             try {
                 const { userId } = jwt.verify(args.token, process.env.JWT_SECRET);
                 const question = await db.Question.findOne({

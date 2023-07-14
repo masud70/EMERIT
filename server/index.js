@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const http = require('http');
-const cors = require('cors')
+const cors = require('cors');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
 
@@ -48,7 +48,7 @@ app.use((req, res, next) => {
 });
 
 //request parsers
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -136,6 +136,5 @@ Database connection successfully
             console.log(err.message);
         });
 });
-
 
 // GJM7pl9toaYBkHS_Nj4Eog

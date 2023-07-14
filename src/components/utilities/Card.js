@@ -2,8 +2,8 @@ import { View, Text } from 'react-native';
 import React from 'react';
 import { IconButton } from 'react-native-paper';
 
-const Card = ({ title, children, rightIcon, onPress }) => {
-    if (!rightIcon) {
+const Card = ({ title, children, rightIcon, onPress, hidden }) => {
+    if (!rightIcon && !hidden) {
         return (
             <View className="w-full flex flex-col rounded overflow-hidden mb-2 border-2 border-[#2B3467]">
                 <Text className="w-full font-bold text-lg text-white bg-[#2B3467] px-2 py-1">
@@ -12,7 +12,7 @@ const Card = ({ title, children, rightIcon, onPress }) => {
                 <View className="w-full p-2">{children}</View>
             </View>
         );
-    } else {
+    } else if (!hidden) {
         return (
             <View className="w-full flex flex-col rounded overflow-hidden mb-2 border-2 border-[#2B3467]">
                 <View className="w-full bg-[#2B3467] pl-2 flex flex-row items-center justify-between">

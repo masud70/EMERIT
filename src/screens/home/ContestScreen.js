@@ -32,7 +32,7 @@ const ContestScreen = ({ route }) => {
         variables: { id: route.params.id }
     });
 
-    const [submitAnswer, { loading: submitLoading, error: submitError, data: submitData }] =
+    const [submitAnswer, { loading: submitLoading, data: submitData }] =
         useMutation(SUBMIT_ANSWER_MUTATION);
 
     const handleSubmit = () => {
