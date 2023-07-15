@@ -1,6 +1,5 @@
 import { View, Text, ImageBackground, useWindowDimensions } from 'react-native';
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Modal from 'react-native-modal';
 import style from '../../../styles/style.scss';
 import { useMutation, useQuery } from '@apollo/client';
@@ -20,24 +19,25 @@ import { FUNCTIONS } from '../../helpers';
 import { Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
-import { ActivityIndicator } from 'react-native';
 import { Rating } from 'react-native-ratings';
 import RenderHTML from 'react-native-render-html';
-import { RefreshControl } from 'react-native';
-import { ScrollView } from 'react-native';
 import { TextInput } from 'react-native';
 import Loading from '../../components/utilities/Loading';
+import Wraper from '../../components/utilities/Wraper';
+import Card from '../../components/utilities/Card';
+import { RATING } from '../../graphql/contestMutation';
 
 const ContestDetails = ({ route }) => {
     const [remaining, setRemaining] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [password, setPassword] = useState('');
+    const [rating, setRating] = useState(2);
     const [state, setState] = useState(1);
     const auth = useSelector(a => a.auth);
     const navigation = useNavigation();
     const { width } = useWindowDimensions();
 
-    const { loading, error, data, refetch } = useQuery(GET_CONTEST_QUERY, {
+    const { loading, data, refetch } = useQuery(GET_CONTEST_QUERY, {
         variables: { id: route.params.contestId }
     });
 
@@ -52,6 +52,21 @@ const ContestDetails = ({ route }) => {
 
     const [register, { loading: mutationLoading, error: mutationError, data: mutationData }] =
         useMutation(CONTEST_REGISTRATION_MUTATION);
+
+    const [submitRating] = useMutation(RATING);
+
+    const ratingHandler = async value => {
+        try {
+            const result = await submitRating({
+                variables: { token: auth.token, id: route.params.contestId, value: parseInt(value) }
+            });
+            FUNCTIONS.showToast2(result.data.rating.status, result.data.rating.message);
+            if (result.data.rating.status) refetch();
+            console.log(result);
+        } catch (error) {
+            FUNCTIONS.showToast2(false, error.message);
+        }
+    };
 
     const registerHandler = password => {
         const variables = {
@@ -108,148 +123,140 @@ const ContestDetails = ({ route }) => {
     }, [mutationData]);
 
     return (
-        <SafeAreaView style={style.mainContainer}>
-            <ScrollView
-                className="h-full"
-                refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}>
-                <View className="w-full items-center justify-center border-b-4 border-green-500 bg-green-100 rounded p-2 mb-1">
-                    <Text className="font-bold text-2xl text-gray-600">Contest</Text>
-                </View>
-                {loading || error ? (
-                    <ActivityIndicator className="mt-10" size={40} color="gray" />
-                ) : (
-                    <View className="w-full rounded overflow-hidden">
-                        <ImageBackground
-                            source={{ uri: 'https://picsum.photos/900' }}
-                            className="w-full h-[140px]"
-                        />
-                        <View className="w-full bg-slate-700 p-1">
-                            <Text className="text-white font-bold text-lg">
-                                {data.getContest.title}
-                            </Text>
-                        </View>
+        <>
+            <Wraper head={data?.getContest?.title} refresh={{ loading, refetch }}>
+                <View className="w-full rounded overflow-hidden">
+                    <ImageBackground
+                        source={{ uri: 'https://picsum.photos/900' }}
+                        className="w-full h-[140px]"
+                    />
+                    <View className="w-full bg-slate-700 p-1">
+                        <Text className="text-white font-bold text-lg">
+                            {data?.getContest?.title}
+                        </Text>
+                    </View>
 
-                        <View className="w-11/12 p-1">
-                            <View className="w-full flex flex-row items-center">
-                                <View className="w-1/2 flex flex-row space-x-2 items-center">
-                                    <Icon name="timetable" size={18} />
-                                    <Text className="font-bold">
-                                        {moment(parseInt(data.getContest.start) * 1000).format(
-                                            'DD/MM/YYYY h:mm A'
-                                        )}
-                                    </Text>
-                                </View>
-                                <View className="w-1/2 flex flex-row space-x-2 items-center">
-                                    <Icon name="timelapse" size={18} />
-                                    <Text className="font-bold">
-                                        {data.getContest.duration} minutes
-                                    </Text>
-                                </View>
+                    <View className="w-11/12 p-1">
+                        <View className="w-full flex flex-row items-center">
+                            <View className="w-1/2 flex flex-row space-x-2 items-center">
+                                <Icon name="timetable" size={18} />
+                                <Text className="font-bold">
+                                    {moment(parseInt(data?.getContest?.start) * 1000).format(
+                                        'DD/MM/YYYY h:mm A'
+                                    )}
+                                </Text>
                             </View>
-
-                            <View className="w-full flex flex-row items-center">
-                                <View className="w-1/2 flex flex-row space-x-2 items-center">
-                                    <Icon name="timer-sand" size={18} />
-                                    <Text className="font-bold">{remaining}</Text>
-                                </View>
-                                <View className="w-1/2 flex flex-row space-x-2 items-center">
-                                    <Icon name="account" size={18} />
-                                    <Text className="font-bold">{data.getContest.User.name}</Text>
-                                </View>
-                            </View>
-                            <View className="w-full flex flex-row items-center">
-                                <View className="w-1/2 flex flex-row space-x-2 items-center">
-                                    <Icon2 name="users" size={18} />
-                                    <Text className="font-bold">
-                                        {data.getContest.Registrations.length}
-                                    </Text>
-                                </View>
-                                <View className="w-1/2 flex flex-row space-x-2 items-center">
-                                    <Icon
-                                        name={
-                                            data.getContest.privacy === 'private' ? 'lock' : 'earth'
-                                        }
-                                        size={18}
-                                    />
-                                    <Text className="font-bold">
-                                        {data.getContest.privacy === 'private'
-                                            ? 'Private'
-                                            : 'Public'}
-                                    </Text>
-                                </View>
+                            <View className="w-1/2 flex flex-row space-x-2 items-center">
+                                <Icon name="timelapse" size={18} />
+                                <Text className="font-bold">
+                                    {data?.getContest?.duration} minutes
+                                </Text>
                             </View>
                         </View>
 
-                        <View className="w-full my-1 space-y-2">
-                            {regData && !regData.getRegistrationStatus.status ? (
-                                <Pressable
-                                    onPress={() =>
-                                        data.getContest.privacy === 'private'
-                                            ? setShowModal(pre => !pre)
-                                            : registerHandler('#P')
+                        <View className="w-full flex flex-row items-center">
+                            <View className="w-1/2 flex flex-row space-x-2 items-center">
+                                <Icon name="timer-sand" size={18} />
+                                <Text className="font-bold">{remaining}</Text>
+                            </View>
+                            <View className="w-1/2 flex flex-row space-x-2 items-center">
+                                <Icon name="account" size={18} />
+                                <Text className="font-bold">{data?.getContest?.User.name}</Text>
+                            </View>
+                        </View>
+                        <View className="w-full flex flex-row items-center">
+                            <View className="w-1/2 flex flex-row space-x-2 items-center">
+                                <Icon2 name="users" size={18} />
+                                <Text className="font-bold">
+                                    {data?.getContest?.Registrations.length}
+                                </Text>
+                            </View>
+                            <View className="w-1/2 flex flex-row space-x-2 items-center">
+                                <Icon
+                                    name={
+                                        data?.getContest?.privacy === 'private' ? 'lock' : 'earth'
                                     }
-                                    className="w-full rounded overflow-hidden">
-                                    <Text
-                                        className="w-full text-center p-2"
-                                        style={[style.btn, style.bg_primary]}>
-                                        Register
-                                    </Text>
-                                </Pressable>
-                            ) : state === 1 ? (
+                                    size={18}
+                                />
+                                <Text className="font-bold">
+                                    {data?.getContest?.privacy === 'private' ? 'Private' : 'Public'}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    <View className="w-full my-1 space-y-2">
+                        {regData && !regData?.getRegistrationStatus?.status ? (
+                            <Pressable
+                                onPress={() =>
+                                    data?.getContest?.privacy === 'private'
+                                        ? setShowModal(pre => !pre)
+                                        : registerHandler('#P')
+                                }
+                                className="w-full rounded overflow-hidden">
                                 <Text
                                     className="w-full text-center p-2"
                                     style={[style.btn, style.bg_primary]}>
-                                    Registered
+                                    Register
                                 </Text>
-                            ) : (
-                                <Pressable
-                                    className="w-full rounded overflow-hidden"
-                                    onPress={() =>
-                                        navigation.navigate(ROUTES.CONTEST_SCREEN, {
-                                            id: route.params.contestId
-                                        })
-                                    }>
-                                    <Text
-                                        className="w-full text-center p-2"
-                                        style={[style.btn, style.bg_primary]}>
-                                        {state === 2 ? 'Enter' : 'Practice'}
-                                    </Text>
-                                </Pressable>
-                            )}
+                            </Pressable>
+                        ) : state === 1 ? (
+                            <Text
+                                className="w-full text-center p-2"
+                                style={[style.btn, style.bg_primary]}>
+                                Registered
+                            </Text>
+                        ) : (
                             <Pressable
                                 className="w-full rounded overflow-hidden"
                                 onPress={() =>
-                                    navigation.navigate(ROUTES.CONTEST_LEADERBOARD, {
-                                        id: route.params.contestId,
-                                        type: 1
+                                    navigation.navigate(ROUTES.CONTEST_SCREEN, {
+                                        id: route.params.contestId
                                     })
                                 }>
                                 <Text
                                     className="w-full text-center p-2"
                                     style={[style.btn, style.bg_primary]}>
-                                    Leaderboard
+                                    {state === 2 ? 'Enter' : 'Practice'}
                                 </Text>
                             </Pressable>
-                        </View>
-                        <View className="w-full p-1 bg-slate-200 min-h-[50px]">
+                        )}
+                        <Pressable
+                            className="w-full rounded overflow-hidden"
+                            onPress={() =>
+                                navigation.navigate(ROUTES.CONTEST_LEADERBOARD, {
+                                    id: route.params.contestId,
+                                    type: 1
+                                })
+                            }>
+                            <Text
+                                className="w-full text-center p-2"
+                                style={[style.btn, style.bg_primary]}>
+                                Leaderboard
+                            </Text>
+                        </Pressable>
+                    </View>
+                    <View className="w-full p-1 bg-slate-200 min-h-[50px]">
+                        {data?.getContest?.description && (
                             <RenderHTML
-                                source={{ html: data.getContest.description }}
+                                source={{ html: data?.getContest?.description }}
                                 contentWidth={width}
                             />
-                        </View>
-                        <View className="w-full bg-white pb-2">
-                            <Rating
-                                type="star"
-                                ratingCount={5}
-                                imageSize={30}
-                                fractions={1}
-                                showRating
-                                onFinishRating={r => console.log(r)}
-                            />
-                        </View>
+                        )}
                     </View>
-                )}
-            </ScrollView>
+                    <Card title="Rating">
+                        <Rating
+                            type="star"
+                            startingValue={data?.getContest?.rating}
+                            ratingCount={5}
+                            imageSize={30}
+                            fractions={1}
+                            showRating
+                            onFinishRating={r => ratingHandler(r)}
+                        />
+                    </Card>
+                </View>
+            </Wraper>
             <Modal
                 avoidKeyboard
                 isVisible={showModal}
@@ -287,7 +294,7 @@ const ContestDetails = ({ route }) => {
                 </View>
             </Modal>
             <Loading loading={loading || mutationLoading} />
-        </SafeAreaView>
+        </>
     );
 };
 

@@ -3,7 +3,8 @@ const {
     GraphQLString,
     GraphQLBoolean,
     GraphQLInt,
-    GraphQLList
+    GraphQLList,
+    GraphQLFloat
 } = require('graphql');
 const { UserType } = require('../user/typeDef');
 
@@ -18,6 +19,7 @@ module.exports = {
             duration: { type: GraphQLInt },
             privacy: { type: GraphQLString },
             password: { type: GraphQLString },
+            rating: { type: GraphQLFloat },
             status: { type: GraphQLBoolean },
             message: { type: GraphQLString },
             User: { type: UserType },

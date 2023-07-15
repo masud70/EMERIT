@@ -91,6 +91,7 @@ module.exports = {
                 start
                 duration
                 privacy
+                rating
                 User {
                     id
                     name

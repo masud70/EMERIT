@@ -520,5 +520,46 @@ module.exports = {
                 };
             }
         }
+    },
+
+    rating: {
+        type: MessageType,
+        args: {
+            token: { type: GraphQLString },
+            id: { type: GraphQLInt },
+            value: { type: GraphQLInt }
+        },
+        resolve: async (parent, args, ctx, info) => {
+            try {
+                const { userId } = jwt.verify(args.token, process.env.JWT_SECRET);
+                const rating = await db.Rating.findOne({
+                    where: { UserId: userId, ContestId: args.id }
+                });
+
+                if (rating) {
+                    rating.value = args.value;
+                    rating.save();
+                    return {
+                        status: true,
+                        message: 'Rating updated successfully.'
+                    };
+                } else {
+                    await db.Rating.create({
+                        value: args.value,
+                        UserId: userId,
+                        ContestId: args.id
+                    });
+                    return {
+                        status: true,
+                        message: 'Rating submitted successfully.'
+                    };
+                }
+            } catch (error) {
+                return {
+                    status: false,
+                    message: error.message
+                };
+            }
+        }
     }
 };

@@ -12,7 +12,6 @@ module.exports = {
             req.auth = { email, userId };
             next();
         } catch (error) {
-            console.log(error.message);
             next('Authentication failed!');
         }
     },

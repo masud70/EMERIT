@@ -47,16 +47,22 @@ module.exports = {
         resolve: async (parent, args, ctx, info) => {
             try {
                 const contest = await db.Contest.findOne({
+                    attributes: {
+                        include: [
+                            [db.sequelize.fn('AVG', db.sequelize.col('Ratings.value')), 'rating']
+                        ],
+                        exclude: ['Ratings']
+                    },
                     where: { id: args.id },
-                    include: ['User', db.Registration]
+                    include: ['User', db.Registration, db.Rating]
                 });
-
                 return {
                     status: true,
                     message: 'Data found',
                     ...contest.dataValues
                 };
             } catch (error) {
+                console.log(error);
                 return {
                     status: false,
                     message: error.message

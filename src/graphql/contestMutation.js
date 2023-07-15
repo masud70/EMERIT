@@ -51,5 +51,14 @@ module.exports = {
                 message
             }
         }
+    `,
+
+    RATING: gql`
+        mutation Rating($token: String!, $id: Int!, $value: Int!) {
+            rating(token: $token, id: $id, value: $value) {
+                status
+                message
+            }
+        }
     `
 };
